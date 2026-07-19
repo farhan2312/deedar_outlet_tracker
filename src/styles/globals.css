@@ -1,24 +1,126 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --font-sans: var(--font-manrope), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-sora), var(--font-manrope), sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+html,
+body {
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, sans-serif;
+  background: #edeae2;
+  color: #23241f;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: #1f5c3f;
+}
+a:hover {
+  color: #163f2c;
+}
+
+::placeholder {
+  color: #a6a296;
+}
+
+/* Inputs share a consistent focus treatment (original used outline:none). */
+.dz-input:focus,
+.dz-input:focus-visible {
+  border-color: #1f5c3f;
+  box-shadow: 0 0 0 3px rgba(31, 92, 63, 0.12);
+}
+
+/* Button hover states (ported from the reference's style-hover). */
+.dz-btn-green:hover {
+  background: #163f2c;
+}
+.dz-btn-gold:hover {
+  background: #b98a24;
+}
+.dz-btn-ghost:hover {
+  background: #f3f1ea;
+}
+.dz-tap {
+  transition:
+    transform 0.08s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+.dz-tap:active {
+  transform: scale(0.985);
+}
+.dz-card-tap:hover {
+  border-color: #cfe3d7;
+  box-shadow: 0 2px 10px rgba(31, 92, 63, 0.06);
+}
+
+/* App shell: full-width phone layout on mobile, a comfortable centered
+   surface on tablet/desktop so the app doesn't sit in a lonely 460px column. */
+.dz-shell {
+  max-width: 100%;
+}
+@media (min-width: 640px) {
+  .dz-shell {
+    max-width: 672px;
+  }
+}
+@media (min-width: 1024px) {
+  .dz-shell {
+    max-width: 760px;
+  }
+}
+
+/* Two fields side by side; stacks on very narrow screens. */
+.dz-field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 380px) {
+  .dz-field-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card lists: single column on mobile, two columns on wider screens so the
+   desktop layout fills the available width instead of a lonely column. */
+.dz-card-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+@media (min-width: 640px) {
+  .dz-card-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .dz-tap,
+  .dz-card-tap {
+    transition: none;
+  }
 }
