@@ -9,6 +9,7 @@ interface AdminUser {
   id: string;
   name: string;
   phone: string;
+  division: string;
   role: "user" | "admin";
   status: "pending" | "approved" | "rejected";
   createdAt: string;
@@ -319,6 +320,7 @@ function UserRow({
         </div>
         <div style={{ fontSize: 12, color: C.sub, marginTop: 2 }}>
           {user.phone}
+          {user.division ? ` · ${user.division}` : ""}
         </div>
       </div>
       <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>{children}</div>

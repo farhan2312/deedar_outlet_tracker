@@ -1,0 +1,237 @@
+[
+  {
+    "name": "Shahid",
+    "mobile": "9928714964",
+    "division": "Jaipur"
+  },
+  {
+    "name": "Kadir",
+    "mobile": "9352366574",
+    "division": "Jaipur"
+  },
+  {
+    "name": "Shazaib",
+    "mobile": "6375497616",
+    "division": "Jaipur"
+  },
+  {
+    "name": "Rupesh",
+    "mobile": "8690521457",
+    "division": "Jaipur"
+  },
+  {
+    "name": "Prem",
+    "mobile": "9928926688",
+    "division": "Jaipur"
+  },
+  {
+    "name": "Sunil",
+    "mobile": "9119399392",
+    "division": "Jaipur"
+  },
+  {
+    "name": "Rajendra Singh",
+    "mobile": "8696822055",
+    "division": "Jaipur"
+  },
+  {
+    "name": "Mohan Ram",
+    "mobile": "7878455181",
+    "division": "Jaipur"
+  },
+  {
+    "name": "Satish",
+    "mobile": "9672064595",
+    "division": "Jaipur"
+  },
+  {
+    "name": "Navratan",
+    "mobile": "7878759405",
+    "division": "Jaipur"
+  },
+  {
+    "name": "Asif Khan",
+    "mobile": "7790986054",
+    "division": "Jaipur"
+  },
+  {
+    "name": "Irfan Khan",
+    "mobile": "9024902247",
+    "division": "Jaipur"
+  },
+  {
+    "name": "Shobhag Suman",
+    "mobile": "8955244140",
+    "division": "Kota"
+  },
+  {
+    "name": "Dinesh Meena",
+    "mobile": "8769110488",
+    "division": "Kota"
+  },
+  {
+    "name": "Sudhir Kumar",
+    "mobile": "8386037213",
+    "division": "Kota"
+  },
+  {
+    "name": "Devki Nandan",
+    "mobile": "9406909944",
+    "division": "Kota"
+  },
+  {
+    "name": "Ravi Verma",
+    "mobile": "9079256495",
+    "division": "Kota"
+  },
+  {
+    "name": "Anshul Jain",
+    "mobile": "7733077555",
+    "division": "Kota"
+  },
+  {
+    "name": "Mukesh Meena",
+    "mobile": "9351452879",
+    "division": "Kota"
+  },
+  {
+    "name": "Hukum Chand Saini",
+    "mobile": "7737785987",
+    "division": "Kota"
+  },
+  {
+    "name": "Sagar Rawat",
+    "mobile": "8875389720",
+    "division": "Kota"
+  },
+  {
+    "name": "Pawan Suman",
+    "mobile": "6377431299",
+    "division": "Kota"
+  },
+  {
+    "name": "Shyam Bihari",
+    "mobile": "9694816194",
+    "division": "Kota"
+  },
+  {
+    "name": "Mukesh Sharma",
+    "mobile": "9828263262",
+    "division": "Kota"
+  },
+  {
+    "name": "Manoj Rathore",
+    "mobile": "7820860905",
+    "division": "Kota"
+  },
+  {
+    "name": "Shafeeq",
+    "mobile": "9672513168",
+    "division": "Kota"
+  },
+  {
+    "name": "Afzal",
+    "mobile": "7891390103",
+    "division": "Kota"
+  },
+  {
+    "name": "Pooran Mal",
+    "mobile": "9588848333",
+    "division": "Kota"
+  },
+  {
+    "name": "Ayaan Khan/Shakir",
+    "mobile": "8955457659",
+    "division": "Kota"
+  },
+  {
+    "name": "Lekhraj",
+    "mobile": "9799266821",
+    "division": "Kota"
+  },
+  {
+    "name": "Dev Karan",
+    "mobile": "9653751556",
+    "division": "Kota"
+  },
+  {
+    "name": "Nanu Ram",
+    "mobile": "7891301714",
+    "division": "Kota"
+  },
+  {
+    "name": "Aijaz",
+    "mobile": "9024545071",
+    "division": "Kota"
+  },
+  {
+    "name": "Firoz",
+    "mobile": "9782373496",
+    "division": "Kota"
+  },
+  {
+    "name": "Nitesh Mahavar",
+    "mobile": "9887737557",
+    "division": "Kota"
+  },
+  {
+    "name": "Lakhan",
+    "mobile": "7879935589",
+    "division": "Kota"
+  },
+  {
+    "name": "Anil Nagda",
+    "mobile": "9602799841",
+    "division": "Kota"
+  },
+  {
+    "name": "Pawan Bairagi",
+    "mobile": "8889760543",
+    "division": "Kota"
+  },
+  {
+    "name": "Rakesh Meena",
+    "mobile": "9111330944",
+    "division": "Kota"
+  },
+  {
+    "name": "Vinod Sharma",
+    "mobile": "9644590010",
+    "division": "Indore"
+  },
+  {
+    "name": "Vasim",
+    "mobile": "9755467473",
+    "division": "Indore"
+  },
+  {
+    "name": "Mayank",
+    "mobile": "9993656401",
+    "division": "Indore"
+  },
+  {
+    "name": "Ankit Dhakkad",
+    "mobile": "8878046381",
+    "division": "Indore"
+  },
+  {
+    "name": "Devendra",
+    "mobile": "9399576847",
+    "division": "Indore"
+  },
+  {
+    "name": "Vimlesh",
+    "mobile": "9696069811",
+    "division": "Banda"
+  },
+  {
+    "name": "Amit Kumar",
+    "mobile": "9981393230",
+    "division": "Banda"
+  },
+  {
+    "name": "Moolchandra Namdev",
+    "mobile": "9452927446",
+    "division": "Banda"
+  }
+]

@@ -8,6 +8,7 @@ export interface UserRow {
   name: string;
   phone: string;
   password_hash: string;
+  division: string;
   role: UserRole;
   status: UserStatus;
   created_at: string;
@@ -18,6 +19,7 @@ export interface PublicUser {
   id: string;
   name: string;
   phone: string;
+  division: string;
   role: UserRole;
   status: UserStatus;
   createdAt: string;
@@ -28,6 +30,7 @@ export function toPublicUser(row: UserRow): PublicUser {
     id: row.id,
     name: row.name,
     phone: row.phone,
+    division: row.division,
     role: row.role,
     status: row.status,
     createdAt: row.created_at,
@@ -46,12 +49,13 @@ export function createUser(input: {
   name: string;
   phone: string;
   passwordHash: string;
+  division: string;
 }): Promise<UserRow | null> {
   return queryOne<UserRow>(
-    `insert into users (name, phone, password_hash)
-     values ($1, $2, $3)
+    `insert into users (name, phone, password_hash, division)
+     values ($1, $2, $3, $4)
      returning *`,
-    [input.name, input.phone, input.passwordHash],
+    [input.name, input.phone, input.passwordHash, input.division],
   );
 }
 

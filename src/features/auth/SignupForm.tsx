@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { C } from "@/features/outlet-tracker/constants";
+import { C, USER_DIVISIONS } from "@/features/outlet-tracker/constants";
 import {
   AuthLayout,
   authButtonStyle,
@@ -13,6 +13,7 @@ import {
 export function SignupForm() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [division, setDivision] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
@@ -26,7 +27,7 @@ export function SignupForm() {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, password }),
+        body: JSON.stringify({ name, phone, division, password }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -95,6 +96,21 @@ export function SignupForm() {
           placeholder="10-digit mobile number"
           style={authFieldStyle}
         />
+
+        <label style={authLabelStyle}>Division</label>
+        <select
+          className="dz-input dz-tap"
+          value={division}
+          onChange={(e) => setDivision(e.target.value)}
+          style={{ ...authFieldStyle, appearance: "auto", background: "#fff" }}
+        >
+          <option value="">Select your division</option>
+          {USER_DIVISIONS.map((d) => (
+            <option key={d} value={d}>
+              {d}
+            </option>
+          ))}
+        </select>
 
         <label style={authLabelStyle}>Password</label>
         <input

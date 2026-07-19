@@ -21,6 +21,9 @@ export const COMPETITOR_LEVELS: CompetitorLevel[] = [
   "National Brands",
 ];
 
+/** Sales divisions a rep can belong to (from the Rajasthan team roster). */
+export const USER_DIVISIONS = ["Jaipur", "Kota", "Indore", "Banda"] as const;
+
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Deedar brand palette (ported verbatim from the reference design). */

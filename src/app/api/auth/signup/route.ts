@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createUser, findUserByPhone } from "@/lib/users";
 import { hashPassword } from "@/lib/password";
+import { USER_DIVISIONS } from "@/features/outlet-tracker/constants";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,7 +11,7 @@ function normalizePhone(v: unknown): string {
 }
 
 export async function POST(req: Request) {
-  let body: { name?: string; phone?: string; password?: string };
+  let body: { name?: string; phone?: string; password?: string; division?: string };
   try {
     body = await req.json();
   } catch {
@@ -20,6 +21,7 @@ export async function POST(req: Request) {
   const name = String(body.name ?? "").trim();
   const phone = normalizePhone(body.phone);
   const password = String(body.password ?? "");
+  const division = String(body.division ?? "").trim();
 
   if (name.length < 2) {
     return NextResponse.json({ error: "Please enter your name." }, { status: 400 });
@@ -27,6 +29,12 @@ export async function POST(req: Request) {
   if (phone.length !== 10) {
     return NextResponse.json(
       { error: "Enter a valid 10-digit mobile number." },
+      { status: 400 },
+    );
+  }
+  if (!(USER_DIVISIONS as readonly string[]).includes(division)) {
+    return NextResponse.json(
+      { error: "Please select your division." },
       { status: 400 },
     );
   }
@@ -46,7 +54,7 @@ export async function POST(req: Request) {
   }
 
   const passwordHash = await hashPassword(password);
-  await createUser({ name, phone, passwordHash });
+  await createUser({ name, phone, passwordHash, division });
 
   return NextResponse.json({
     ok: true,

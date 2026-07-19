@@ -44,6 +44,17 @@ npm run create-admin
 
 Reads the `ADMIN_*` values and creates an approved admin (idempotent — rerun to reset).
 
+### 4b. (Optional) Import the sales team
+
+```bash
+npm run import-employees
+```
+
+Imports the roster in [`db/rajasthan-employees.json`](db/rajasthan-employees.json)
+(name, mobile, division) as **approved** reps. Each salesman's **initial password
+is their own 10-digit mobile number**. Idempotent (re-running updates name/division,
+never resets passwords).
+
 ### 5. Run
 
 ```bash
@@ -75,6 +86,7 @@ in each page and API handler.
 | `npm run lint`        | Lint                                 |
 | `npm run db:setup`    | Apply the SQL schema                 |
 | `npm run create-admin`| Create/refresh the admin account     |
+| `npm run import-employees` | Import the Rajasthan sales roster |
 
 ## Structure
 
