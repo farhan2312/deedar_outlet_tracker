@@ -100,6 +100,18 @@ function useTrackerStore(user: SessionUser) {
     setState({ outlets: data.outlets ?? [], loading: false });
   }, [setState]);
 
+  // Merge a single outlet returned by a mutation into local state, so we don't
+  // re-fetch the whole dataset from Azure after every action.
+  const upsertOutlet = useCallback(
+    (outlet: Outlet) =>
+      setState((s) => ({
+        outlets: s.outlets.some((o) => o.id === outlet.id)
+          ? s.outlets.map((o) => (o.id === outlet.id ? outlet : o))
+          : [...s.outlets, outlet],
+      })),
+    [setState],
+  );
+
   useEffect(() => {
     refresh();
   }, [refresh]);
@@ -178,8 +190,30 @@ function useTrackerStore(user: SessionUser) {
       showToast(String(data.error ?? "Could not update visit"));
       return;
     }
-    await refresh();
-    setState({ screen: "dashboard" });
+    // Apply the edit locally (the PATCH returns only { ok }).
+    setState((s) => ({
+      outlets: s.outlets.map((o) =>
+        o.id !== s.editVisitOutletId
+          ? o
+          : {
+              ...o,
+              visits: o.visits.map((v) =>
+                v.id !== s.editVisitId
+                  ? v
+                  : {
+                      ...v,
+                      stock: Number(f.stock) || 0,
+                      sold: Number(f.sold) || 0,
+                      rank: Number(f.rank) || 0,
+                      competitor: f.competitor ?? "",
+                      competitorBrand: f.competitorBrand ?? "",
+                      remarks: f.remarks ?? "",
+                    },
+              ),
+            },
+      ),
+      screen: "dashboard",
+    }));
     showToast("Visit updated");
   };
 
@@ -214,7 +248,7 @@ function useTrackerStore(user: SessionUser) {
       showToast(String(data.error ?? "Could not save changes"));
       return;
     }
-    await refresh();
+    if (data.outlet) upsertOutlet(data.outlet as Outlet);
     setState({ editingIdentity: false });
     showToast("Outlet details updated");
   };
@@ -301,7 +335,7 @@ function useTrackerStore(user: SessionUser) {
       return;
     }
     const created = data.outlet as Outlet | undefined;
-    await refresh();
+    if (created) upsertOutlet(created);
     setState({
       screen: created ? "outletDetail" : "dashboard",
       selectedOutletId: created ? created.id : null,
@@ -364,7 +398,7 @@ function useTrackerStore(user: SessionUser) {
       showToast(String(data.error ?? "Could not record visit"));
       return;
     }
-    await refresh();
+    if (data.outlet) upsertOutlet(data.outlet as Outlet);
     setState({ screen: "outletDetail", avStep: 1, avForm: { ...EMPTY_AV_FORM } });
     showToast("Visit recorded successfully");
   };

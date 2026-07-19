@@ -88,7 +88,7 @@ export function AdminPanel({ adminName }: { adminName: string }) {
   return (
     <div
       style={{
-        minHeight: "100dvh",
+        minHeight: "100svh",
         background: C.cream,
         display: "flex",
         justifyContent: "center",
@@ -98,7 +98,7 @@ export function AdminPanel({ adminName }: { adminName: string }) {
         className="dz-shell"
         style={{
           width: "100%",
-          minHeight: "100dvh",
+          minHeight: "100svh",
           background: C.panel,
           boxShadow: "0 0 40px rgba(0,0,0,0.08)",
         }}

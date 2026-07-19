@@ -33,7 +33,7 @@ function Shell() {
   return (
     <div
       style={{
-        minHeight: "100dvh",
+        minHeight: "100svh",
         width: "100%",
         display: "flex",
         justifyContent: "center",
@@ -45,7 +45,7 @@ function Shell() {
         className="dz-shell"
         style={{
           width: "100%",
-          minHeight: "100dvh",
+          minHeight: "100svh",
           background: C.panel,
           display: "flex",
           flexDirection: "column",
