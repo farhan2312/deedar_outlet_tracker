@@ -50,10 +50,12 @@ export async function POST(req: Request) {
     name: user.name,
     phone: user.phone,
     role: user.role,
+    mustChange: user.must_change_password,
   });
 
   return NextResponse.json({
     ok: true,
+    mustChange: user.must_change_password,
     user: { name: user.name, phone: user.phone, role: user.role },
   });
 }

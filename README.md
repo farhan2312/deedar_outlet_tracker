@@ -52,8 +52,9 @@ npm run import-employees
 
 Imports the roster in [`db/rajasthan-employees.json`](db/rajasthan-employees.json)
 (name, mobile, division) as **approved** reps. Each salesman's **initial password
-is their own 10-digit mobile number**. Idempotent (re-running updates name/division,
-never resets passwords).
+is their own 10-digit mobile number**, and they are **forced to set a new password
+on first login** (they can't reach the app until they do). Idempotent (re-running
+updates name/division, never resets passwords).
 
 ### 5. Run
 

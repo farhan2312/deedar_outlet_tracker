@@ -10,7 +10,11 @@ async function readSession(req: NextRequest) {
       token,
       new TextEncoder().encode(process.env.SESSION_SECRET),
     );
-    return { id: payload.sub, role: payload.role === "admin" ? "admin" : "user" };
+    return {
+      id: payload.sub,
+      role: payload.role === "admin" ? "admin" : "user",
+      mustChange: payload.mustChange === true,
+    };
   } catch {
     return null;
   }
@@ -27,6 +31,22 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  const onChangePassword = pathname === "/change-password";
+
+  // Force a password reset before anything else is accessible.
+  if (session.mustChange && !onChangePassword) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/change-password";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
+  // No reset needed — keep users out of the change-password screen.
+  if (!session.mustChange && onChangePassword) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
+
   if (pathname.startsWith("/admin") && session.role !== "admin") {
     const url = req.nextUrl.clone();
     url.pathname = "/";
@@ -36,8 +56,8 @@ export async function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
-// Protect the app home and the admin area. Everything else (login, signup,
-// api, static assets) is handled by the routes/handlers themselves.
+// Protect the app home, admin area, and the forced-reset screen. Everything
+// else (login, signup, api, static assets) is handled by the routes/handlers.
 export const config = {
-  matcher: ["/", "/admin/:path*"],
+  matcher: ["/", "/admin/:path*", "/change-password"],
 };

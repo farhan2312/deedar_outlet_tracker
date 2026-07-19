@@ -11,6 +11,7 @@ export interface UserRow {
   division: string;
   role: UserRole;
   status: UserStatus;
+  must_change_password: boolean;
   created_at: string;
 }
 
@@ -75,5 +76,19 @@ export function setUserStatus(
   return queryOne<UserRow>(
     "update users set status = $2 where id = $1 returning *",
     [id, status],
+  );
+}
+
+/** Set a new password and clear the forced-reset flag. */
+export function updateUserPassword(
+  id: string,
+  passwordHash: string,
+): Promise<UserRow | null> {
+  return queryOne<UserRow>(
+    `update users
+       set password_hash = $2, must_change_password = false
+     where id = $1
+     returning *`,
+    [id, passwordHash],
   );
 }

@@ -13,11 +13,13 @@ create table if not exists users (
   division      text not null default '',
   role          text not null default 'user'    check (role   in ('user', 'admin')),
   status        text not null default 'pending'  check (status in ('pending', 'approved', 'rejected')),
+  must_change_password boolean not null default false,
   created_at    timestamptz not null default now()
 );
 
--- Add division to an already-created users table (safe to re-run).
+-- Add later columns to an already-created users table (safe to re-run).
 alter table users add column if not exists division text not null default '';
+alter table users add column if not exists must_change_password boolean not null default false;
 
 create index if not exists idx_users_status on users (status);
 

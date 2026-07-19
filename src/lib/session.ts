@@ -10,6 +10,7 @@ export interface SessionUser {
   name: string;
   phone: string;
   role: "user" | "admin";
+  mustChange: boolean;
 }
 
 function getSecret(): Uint8Array {
@@ -23,7 +24,12 @@ function getSecret(): Uint8Array {
 }
 
 export async function signSession(user: SessionUser): Promise<string> {
-  return new SignJWT({ name: user.name, phone: user.phone, role: user.role })
+  return new SignJWT({
+    name: user.name,
+    phone: user.phone,
+    role: user.role,
+    mustChange: user.mustChange,
+  })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(user.id)
     .setIssuedAt()
@@ -43,6 +49,7 @@ export async function verifySession(
       name: String(payload.name ?? ""),
       phone: String(payload.phone ?? ""),
       role: payload.role === "admin" ? "admin" : "user",
+      mustChange: payload.mustChange === true,
     };
   } catch {
     return null;
