@@ -146,7 +146,6 @@ export function Dashboard() {
           subtitleColor={C.greenTint}
           icon="plus"
         />
-        {user.role === "admin" && (
           <ActionCard
             onClick={onStartRecordVisit}
             bg={C.gold}
@@ -155,7 +154,7 @@ export function Dashboard() {
             subtitleColor={C.goldBg}
             icon="check"
           />
-        )}
+  
       </div>
 
       {recentSubmissions.length > 0 ? (
