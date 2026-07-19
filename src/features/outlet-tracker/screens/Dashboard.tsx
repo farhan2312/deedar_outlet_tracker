@@ -146,14 +146,16 @@ export function Dashboard() {
           subtitleColor={C.greenTint}
           icon="plus"
         />
-        <ActionCard
-          onClick={onStartRecordVisit}
-          bg={C.gold}
-          title="Record Visit"
-          subtitle="Update existing outlet"
-          subtitleColor={C.goldBg}
-          icon="check"
-        />
+        {user.role === "admin" && (
+          <ActionCard
+            onClick={onStartRecordVisit}
+            bg={C.gold}
+            title="Record Visit"
+            subtitle="Update existing outlet"
+            subtitleColor={C.goldBg}
+            icon="check"
+          />
+        )}
       </div>
 
       {recentSubmissions.length > 0 ? (
