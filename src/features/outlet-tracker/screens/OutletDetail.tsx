@@ -1,19 +1,21 @@
 "use client";
 
 import { useMemo } from "react";
-import { C, TYPES } from "../constants";
+import { C, DAY_MS, TYPES } from "../constants";
 import { useTracker } from "../store";
-import { Badge, Button, Field, FieldGrid, Select, TextInput } from "../ui";
-import { decorateOutlet } from "../utils";
+import { Badge, Button, Field, FieldGrid, SectionLabel, Select, TextInput } from "../ui";
+import { competitorSummary, decorateOutlet, fmtDate } from "../utils";
 
 export function OutletDetail() {
   const {
     state,
+    user,
     onEditIdentity,
     onCancelEditIdentity,
     setEditIdentity,
     saveEditIdentity,
-    onRecordVisitForSelected,
+    onAddVisitForSelected,
+    onOpenEditVisit,
   } = useTracker();
 
   const outlet = useMemo(() => {
@@ -21,7 +23,28 @@ export function OutletDetail() {
     return o ? decorateOutlet(o) : null;
   }, [state.outlets, state.selectedOutletId]);
 
+  const visitHistory = useMemo(() => {
+    if (!outlet) return [];
+    return [...outlet.visits].sort(
+      (a, b) =>
+        b.date.localeCompare(a.date) || (b.loggedAt ?? 0) - (a.loggedAt ?? 0),
+    );
+  }, [outlet]);
+
+  // A field rep's own visits still within the 24h edit window.
+  const myEditable = useMemo(() => {
+    if (!outlet || user.role === "admin") return [];
+    const now = Date.now();
+    return [...outlet.visits]
+      .filter(
+        (v) => v.rep === user.phone && v.loggedAt && now - v.loggedAt < DAY_MS,
+      )
+      .sort((a, b) => (b.loggedAt ?? 0) - (a.loggedAt ?? 0));
+  }, [outlet, user.role, user.phone]);
+
   if (!outlet) return null;
+
+  const isAdmin = user.role === "admin";
 
   const editing = state.editingIdentity;
   const ef = state.editForm;
@@ -184,19 +207,140 @@ export function OutletDetail() {
         )}
       </div>
 
-      <Button variant="gold" onClick={onRecordVisitForSelected}>
-        Record New Visit for this Outlet
+      <Button variant="gold" onClick={onAddVisitForSelected}>
+        Add Visit for this Outlet
       </Button>
-      <div
-        style={{
-          fontSize: 11,
-          color: C.muted,
-          marginTop: 10,
-          textAlign: "center",
-        }}
-      >
-        Visit history is available to the central data team only.
-      </div>
+
+      {isAdmin ? (
+        <div style={{ marginTop: 24 }}>
+          <SectionLabel>Visit History ({visitHistory.length})</SectionLabel>
+          {visitHistory.length === 0 ? (
+            <div style={{ fontSize: 13, color: C.muted }}>
+              No visits recorded for this outlet yet.
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {visitHistory.map((v) => (
+                <div
+                  key={v.id}
+                  style={{
+                    background: "#fff",
+                    border: `1px solid ${C.border}`,
+                    borderRadius: 12,
+                    padding: 14,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      gap: 8,
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, fontSize: 13, color: C.ink }}>
+                      {fmtDate(v.date)}
+                    </div>
+                    <div style={{ fontSize: 11, color: C.muted }}>
+                      Rep {v.rep || "—"}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 12, color: C.ink, marginTop: 5 }}>
+                    Stock {v.stock} · Sold {v.sold} · Rank #{v.rank}
+                  </div>
+                  <div style={{ fontSize: 11, color: C.sub, marginTop: 3 }}>
+                    Competitor:{" "}
+                    {competitorSummary(v.competitor, v.competitorBrand)}
+                  </div>
+                  {v.remarks ? (
+                    <div style={{ fontSize: 11, color: C.sub, marginTop: 3 }}>
+                      Remarks: {v.remarks}
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : myEditable.length > 0 ? (
+        <div style={{ marginTop: 24 }}>
+          <SectionLabel>Your Submissions (editable for 24h)</SectionLabel>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {myEditable.map((v) => {
+              const hoursLeft = Math.max(
+                1,
+                Math.ceil(
+                  (DAY_MS - (Date.now() - (v.loggedAt ?? 0))) / (60 * 60 * 1000),
+                ),
+              );
+              return (
+                <div
+                  key={v.id}
+                  style={{
+                    background: "#fff",
+                    border: `1px solid ${C.border}`,
+                    borderRadius: 12,
+                    padding: 14,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      gap: 8,
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, fontSize: 13, color: C.ink }}>
+                      {fmtDate(v.date)}
+                    </div>
+                    <div
+                      onClick={() => onOpenEditVisit(outlet.id, v)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          onOpenEditVisit(outlet.id, v);
+                        }
+                      }}
+                      className="dz-tap"
+                      style={{
+                        fontSize: 12,
+                        color: C.green,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        border: `1px solid ${C.green}`,
+                        borderRadius: 8,
+                        padding: "5px 12px",
+                      }}
+                    >
+                      Edit
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 12, color: C.ink, marginTop: 5 }}>
+                    Stock {v.stock} · Sold {v.sold} · Rank #{v.rank}
+                  </div>
+                  <div style={{ fontSize: 11, color: C.muted, marginTop: 3 }}>
+                    Editable for {hoursLeft} more hours
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        <div
+          style={{
+            fontSize: 11,
+            color: C.muted,
+            marginTop: 10,
+            textAlign: "center",
+          }}
+        >
+          Visit history is available to the central data team only.
+        </div>
+      )}
     </div>
   );
 }

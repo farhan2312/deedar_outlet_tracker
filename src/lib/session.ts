@@ -9,7 +9,8 @@ export interface SessionUser {
   id: string;
   name: string;
   phone: string;
-  role: "user" | "admin";
+  division: string;
+  role: "field_rep" | "admin";
   mustChange: boolean;
 }
 
@@ -27,6 +28,7 @@ export async function signSession(user: SessionUser): Promise<string> {
   return new SignJWT({
     name: user.name,
     phone: user.phone,
+    division: user.division,
     role: user.role,
     mustChange: user.mustChange,
   })
@@ -48,7 +50,8 @@ export async function verifySession(
       id: payload.sub,
       name: String(payload.name ?? ""),
       phone: String(payload.phone ?? ""),
-      role: payload.role === "admin" ? "admin" : "user",
+      division: String(payload.division ?? ""),
+      role: payload.role === "admin" ? "admin" : "field_rep",
       mustChange: payload.mustChange === true,
     };
   } catch {

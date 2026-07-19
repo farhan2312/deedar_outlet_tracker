@@ -28,7 +28,9 @@ export async function POST(
   const str = (v: unknown) => String(v ?? "").trim();
   const num = (v: unknown) => Number(v) || 0;
 
-  // A visit may also carry updated identity fields (the confirm-details step).
+  // The client sends the outlet's current identity fields alongside the visit
+  // (unedited — Add Visit doesn't let reps change identity), so this is a no-op
+  // in practice but keeps the row consistent if the outlet changed mid-flow.
   await updateOutletIdentity(id, {
     name: str(body.name) || existing.name,
     poc: str(body.poc),

@@ -113,10 +113,9 @@ export interface VisitInput {
   remarks: string;
 }
 
-export async function createOutletWithVisit(
+/** Creates an outlet record only — no visit. Reps log visits separately. */
+export async function createOutlet(
   outlet: OutletInput,
-  visit: VisitInput,
-  rep: string,
   createdBy: string,
 ): Promise<Outlet | null> {
   const row = await queryOne<OutletRow>(
@@ -139,7 +138,6 @@ export async function createOutletWithVisit(
     ],
   );
   if (!row) return null;
-  await addVisit(row.id, visit, rep);
   return getOutlet(row.id);
 }
 

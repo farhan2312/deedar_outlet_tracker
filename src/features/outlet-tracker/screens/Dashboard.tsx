@@ -13,8 +13,7 @@ export function Dashboard() {
     openOutlet,
     onDashSearchChange,
     onStartAddOutlet,
-    onStartRecordVisit,
-    onOpenEditVisit,
+    onStartAddVisit,
   } = useTracker();
 
   const outlets = useMemo(
@@ -30,48 +29,54 @@ export function Dashboard() {
     [outlets, state.dashSearch],
   );
 
-  const recentOutlets = useMemo(
+  // All outlets (admin view), most-recently-visited first.
+  const allOutlets = useMemo(
     () =>
-      [...outlets]
-        .sort((a, b) => b.lastVisitDate.localeCompare(a.lastVisitDate))
-        .slice(0, 5),
+      [...outlets].sort(
+        (a, b) =>
+          b.lastVisitDate.localeCompare(a.lastVisitDate) ||
+          a.name.localeCompare(b.name),
+      ),
     [outlets],
   );
 
-  const recentSubmissions = useMemo(() => {
+  // The rep's own submissions still inside the 24h edit window, grouped by
+  // outlet so an outlet with two recent visits shows once.
+  const mySubmissions = useMemo(() => {
     const now = Date.now();
-    const subs: {
-      key: string;
-      outletName: string;
-      loggedLabel: string;
-      hoursLeft: number;
-      loggedAt: number;
-      onEdit: () => void;
-    }[] = [];
-    state.outlets.forEach((o) => {
+    const byOutlet = new Map<
+      string,
+      { outletId: string; outletName: string; count: number; latestLoggedAt: number }
+    >();
+    outlets.forEach((o) => {
       o.visits.forEach((v) => {
-        if (v.rep === state.repMobile && v.loggedAt && now - v.loggedAt < DAY_MS) {
-          subs.push({
-            key: v.id,
+        if (
+          v.rep === state.repMobile &&
+          v.loggedAt &&
+          now - v.loggedAt < DAY_MS
+        ) {
+          const entry = byOutlet.get(o.id) ?? {
+            outletId: o.id,
             outletName: o.name,
-            loggedLabel: new Date(v.loggedAt).toLocaleString("en-IN", {
-              day: "2-digit",
-              month: "short",
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            hoursLeft: Math.max(
-              1,
-              Math.ceil((DAY_MS - (now - v.loggedAt)) / (60 * 60 * 1000)),
-            ),
-            loggedAt: v.loggedAt,
-            onEdit: () => onOpenEditVisit(o.id, v),
-          });
+            count: 0,
+            latestLoggedAt: 0,
+          };
+          entry.count += 1;
+          entry.latestLoggedAt = Math.max(entry.latestLoggedAt, v.loggedAt);
+          byOutlet.set(o.id, entry);
         }
       });
     });
-    return subs.sort((a, b) => b.loggedAt - a.loggedAt);
-  }, [state.outlets, state.repMobile, onOpenEditVisit]);
+    return [...byOutlet.values()]
+      .map((e) => ({
+        ...e,
+        hoursLeft: Math.max(
+          1,
+          Math.ceil((DAY_MS - (now - e.latestLoggedAt)) / (60 * 60 * 1000)),
+        ),
+      }))
+      .sort((a, b) => b.latestLoggedAt - a.latestLoggedAt);
+  }, [outlets, state.repMobile]);
 
   return (
     <div style={{ padding: 20 }}>
@@ -146,23 +151,22 @@ export function Dashboard() {
           subtitleColor={C.greenTint}
           icon="plus"
         />
-          <ActionCard
-            onClick={onStartRecordVisit}
-            bg={C.gold}
-            title="Record Visit"
-            subtitle="Update existing outlet"
-            subtitleColor={C.goldBg}
-            icon="check"
-          />
-  
+        <ActionCard
+          onClick={onStartAddVisit}
+          bg={C.gold}
+          title="Add Visit"
+          subtitle="Log a visit for an outlet"
+          subtitleColor={C.goldBg}
+          icon="check"
+        />
       </div>
 
-      {recentSubmissions.length > 0 ? (
+      {mySubmissions.length > 0 ? (
         <div style={{ marginBottom: 4 }}>
           <SectionLabel>My Submissions (editable for 24h)</SectionLabel>
           <div className="dz-card-list" style={{ marginBottom: 20 }}>
-            {recentSubmissions.map((v) => (
-              <Card key={v.key} onClick={v.onEdit}>
+            {mySubmissions.map((s) => (
+              <Card key={s.outletId} onClick={() => openOutlet(s.outletId)}>
                 <div
                   style={{
                     display: "flex",
@@ -172,15 +176,15 @@ export function Dashboard() {
                   }}
                 >
                   <div style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>
-                    {v.outletName}
+                    {s.outletName}
                   </div>
                   <Badge tone="green">Edit</Badge>
                 </div>
                 <div style={{ fontSize: 12, color: C.sub, marginTop: 3 }}>
-                  Logged {v.loggedLabel}
+                  {s.count} visit{s.count > 1 ? "s" : ""} in the last 24h
                 </div>
                 <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>
-                  Editable for {v.hoursLeft} more hours
+                  Editable for {s.hoursLeft} more hours
                 </div>
               </Card>
             ))}
@@ -190,8 +194,8 @@ export function Dashboard() {
 
       {user.role === "admin" ? (
         <>
-          <SectionLabel>Quick Access</SectionLabel>
-          {recentOutlets.length === 0 ? (
+          <SectionLabel>All Outlets ({allOutlets.length})</SectionLabel>
+          {allOutlets.length === 0 ? (
             <div
               style={{
                 background: "#fff",
@@ -203,33 +207,36 @@ export function Dashboard() {
                 textAlign: "center",
               }}
             >
-              No outlets yet. Tap{" "}
-              <strong style={{ color: C.ink }}>Add New Outlet</strong> to
-              onboard your first one.
+              No outlets yet.
             </div>
-          ) : null}
-          <div className="dz-card-list">
-            {recentOutlets.map((o) => (
-              <Card key={o.id} onClick={() => openOutlet(o.id)}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                >
-                  <div style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>
-                    {o.name}
+          ) : (
+            <div className="dz-card-list">
+              {allOutlets.map((o) => (
+                <Card key={o.id} onClick={() => openOutlet(o.id)}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      gap: 8,
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>
+                      {o.name}
+                    </div>
+                    <Badge>{o.typeLabel}</Badge>
                   </div>
-                  <Badge>{o.typeLabel}</Badge>
-                </div>
-                <div style={{ fontSize: 12, color: C.sub, marginTop: 3 }}>
-                  {o.town}, {o.division}
-                </div>
-              </Card>
-            ))}
-          </div>
+                  <div style={{ fontSize: 12, color: C.sub, marginTop: 3 }}>
+                    {o.town}, {o.division}
+                  </div>
+                  <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>
+                    {o.visitCount} visit{o.visitCount === 1 ? "" : "s"} · last{" "}
+                    {o.lastVisitLabel}
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
         </>
       ) : null}
     </div>

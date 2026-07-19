@@ -5,7 +5,6 @@ import { C, TYPES } from "../constants";
 import { useTracker } from "../store";
 import {
   Button,
-  CompetitorPicker,
   Field,
   FieldGrid,
   Select,
@@ -13,9 +12,9 @@ import {
   TextArea,
   TextInput,
 } from "../ui";
-import { competitorSummary, decorateOutlet } from "../utils";
+import { decorateOutlet } from "../utils";
 
-const STEP_LABELS = ["Check Duplicate", "Outlet Details", "Visit Data", "Review"];
+const STEP_LABELS = ["Check Duplicate", "Outlet Details", "Review"];
 
 export function AddOutlet() {
   const {
@@ -24,7 +23,6 @@ export function AddOutlet() {
     onAddMobileChange,
     onAddStep1Next,
     onAddStep2Next,
-    onAddStep3Next,
     onAddBack,
     onViewDuplicate,
     submitAddOutlet,
@@ -32,8 +30,6 @@ export function AddOutlet() {
 
   const f = state.addForm;
   const isOther = f.type === "Other";
-  const needsBrand =
-    f.competitor === "Local Brands" || f.competitor === "National Brands";
 
   const step1Disabled = f.mobile.length !== 10;
   const step2Disabled = !(
@@ -46,13 +42,6 @@ export function AddOutlet() {
     (!isOther || f.typeOther) &&
     f.lat &&
     f.lng
-  );
-  const step3Disabled = !(
-    f.stock !== "" &&
-    f.sold !== "" &&
-    f.rank !== "" &&
-    f.competitor &&
-    (!needsBrand || f.competitorBrand)
   );
 
   const duplicate = useMemo(() => {
@@ -207,7 +196,7 @@ export function AddOutlet() {
               disabled={step2Disabled}
               style={{ flex: 2 }}
             >
-              Continue
+              Review
             </Button>
           </NavRow>
 
@@ -220,78 +209,6 @@ export function AddOutlet() {
       ) : null}
 
       {state.addStep === 3 ? (
-        <>
-          <Heading>First Visit Data</Heading>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <FieldGrid>
-              <Field label="Stock at Outlet *">
-                <TextInput
-                  type="number"
-                  inputMode="numeric"
-                  value={f.stock}
-                  onChange={(e) => setAdd({ stock: e.target.value })}
-                  placeholder="Packets"
-                />
-              </Field>
-              <Field label="Packets Sold *">
-                <TextInput
-                  type="number"
-                  inputMode="numeric"
-                  value={f.sold}
-                  onChange={(e) => setAdd({ sold: e.target.value })}
-                  placeholder="Packets"
-                />
-              </Field>
-            </FieldGrid>
-            <Field label="Deedar Rank at Outlet (shelf position) *">
-              <TextInput
-                type="number"
-                inputMode="numeric"
-                value={f.rank}
-                onChange={(e) => setAdd({ rank: e.target.value })}
-                placeholder="e.g. 1 = first"
-              />
-            </Field>
-            <div>
-              <Field label="Competitor Presence *">
-                <CompetitorPicker
-                  value={f.competitor}
-                  onSelect={(c) => setAdd({ competitor: c })}
-                />
-              </Field>
-              {needsBrand ? (
-                <div style={{ marginTop: 8 }}>
-                  <TextInput
-                    value={f.competitorBrand}
-                    onChange={(e) => setAdd({ competitorBrand: e.target.value })}
-                    placeholder="Name the competitor brand"
-                  />
-                </div>
-              ) : null}
-            </div>
-            <Field label="Remarks (optional)">
-              <TextArea
-                value={f.remarks}
-                onChange={(e) => setAdd({ remarks: e.target.value })}
-              />
-            </Field>
-          </div>
-          <NavRow>
-            <Button variant="ghost" onClick={onAddBack} style={{ flex: 1 }}>
-              Back
-            </Button>
-            <Button
-              onClick={onAddStep3Next}
-              disabled={step3Disabled}
-              style={{ flex: 2 }}
-            >
-              Review
-            </Button>
-          </NavRow>
-        </>
-      ) : null}
-
-      {state.addStep === 4 ? (
         <>
           <Heading>Review &amp; Submit</Heading>
           <div
@@ -316,21 +233,6 @@ export function AddOutlet() {
               value={isOther ? f.typeOther || "Other" : f.type}
             />
             <Row label="GPS" value={`${f.lat}, ${f.lng}`} />
-            <div
-              style={{
-                borderTop: `1px solid ${C.border}`,
-                marginTop: 4,
-                paddingTop: 8,
-              }}
-            >
-              <span style={{ color: C.sub }}>Stock:</span> {f.stock} pkts ·{" "}
-              <span style={{ color: C.sub }}>Sold:</span> {f.sold} pkts ·{" "}
-              <span style={{ color: C.sub }}>Rank:</span> #{f.rank}
-            </div>
-            <Row
-              label="Competitor"
-              value={competitorSummary(f.competitor, f.competitorBrand)}
-            />
           </div>
           <NavRow>
             <Button variant="ghost" onClick={onAddBack} style={{ flex: 1 }}>

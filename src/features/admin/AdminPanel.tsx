@@ -6,21 +6,32 @@ import { useRouter } from "next/navigation";
 import { C, USER_DIVISIONS } from "@/features/outlet-tracker/constants";
 import { Button, Field, Select, TextInput } from "@/features/outlet-tracker/ui";
 
+type Role = "field_rep" | "admin";
+type Status = "pending" | "approved" | "rejected";
+
 interface AdminUser {
   id: string;
   name: string;
   phone: string;
   division: string;
-  role: "user" | "admin";
-  status: "pending" | "approved" | "rejected";
+  role: Role;
+  status: Status;
   createdAt: string;
+}
+
+function roleLabel(role: Role): string {
+  return role === "admin" ? "Admin" : "Field Rep";
+}
+
+interface PatchResult {
+  ok: boolean;
+  error?: string;
 }
 
 export function AdminPanel({ adminName }: { adminName: string }) {
   const router = useRouter();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
@@ -41,26 +52,24 @@ export function AdminPanel({ adminName }: { adminName: string }) {
     load();
   }, [load]);
 
-  async function setStatus(id: string, status: "approved" | "rejected") {
-    setBusyId(id);
-    setError("");
-    try {
-      const res = await fetch(`/api/admin/users/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Update failed.");
-      setUsers((prev) =>
-        prev.map((u) => (u.id === id ? { ...u, status } : u)),
-      );
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Update failed.");
-    } finally {
-      setBusyId(null);
-    }
-  }
+  const patchUser = useCallback(
+    async (id: string, body: Record<string, unknown>): Promise<PatchResult> => {
+      try {
+        const res = await fetch(`/api/admin/users/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) return { ok: false, error: data.error ?? "Update failed." };
+        setUsers((prev) => prev.map((u) => (u.id === id ? data.user : u)));
+        return { ok: true };
+      } catch {
+        return { ok: false, error: "Something went wrong." };
+      }
+    },
+    [],
+  );
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -137,7 +146,7 @@ export function AdminPanel({ adminName }: { adminName: string }) {
                 fontSize: 16,
               }}
             >
-              Admin · Access Requests
+              Admin · Users &amp; Access
             </div>
           </div>
           <Link
@@ -205,24 +214,7 @@ export function AdminPanel({ adminName }: { adminName: string }) {
                   <Empty>No pending requests.</Empty>
                 ) : (
                   pending.map((u) => (
-                    <UserRow key={u.id} user={u}>
-                      <button
-                        onClick={() => setStatus(u.id, "approved")}
-                        disabled={busyId === u.id}
-                        className="dz-tap"
-                        style={pillBtn(C.green, "#fff")}
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => setStatus(u.id, "rejected")}
-                        disabled={busyId === u.id}
-                        className="dz-tap"
-                        style={pillBtn("#fff", C.danger, C.dangerBorder)}
-                      >
-                        Reject
-                      </button>
-                    </UserRow>
+                    <UserCard key={u.id} user={u} patchUser={patchUser} />
                   ))
                 )}
               </Section>
@@ -232,20 +224,7 @@ export function AdminPanel({ adminName }: { adminName: string }) {
                   <Empty>No approved users yet.</Empty>
                 ) : (
                   approved.map((u) => (
-                    <UserRow key={u.id} user={u}>
-                      {u.role === "admin" ? (
-                        <span style={{ ...tag(C.goldBg, C.gold) }}>ADMIN</span>
-                      ) : (
-                        <button
-                          onClick={() => setStatus(u.id, "rejected")}
-                          disabled={busyId === u.id}
-                          className="dz-tap"
-                          style={pillBtn("#fff", C.danger, C.dangerBorder)}
-                        >
-                          Revoke
-                        </button>
-                      )}
-                    </UserRow>
+                    <UserCard key={u.id} user={u} patchUser={patchUser} />
                   ))
                 )}
               </Section>
@@ -253,16 +232,7 @@ export function AdminPanel({ adminName }: { adminName: string }) {
               {rejected.length > 0 ? (
                 <Section title={`Rejected (${rejected.length})`}>
                   {rejected.map((u) => (
-                    <UserRow key={u.id} user={u}>
-                      <button
-                        onClick={() => setStatus(u.id, "approved")}
-                        disabled={busyId === u.id}
-                        className="dz-tap"
-                        style={pillBtn(C.green, "#fff")}
-                      >
-                        Approve
-                      </button>
-                    </UserRow>
+                    <UserCard key={u.id} user={u} patchUser={patchUser} />
                   ))}
                 </Section>
               ) : null}
@@ -274,10 +244,242 @@ export function AdminPanel({ adminName }: { adminName: string }) {
   );
 }
 
+function UserCard({
+  user,
+  patchUser,
+}: {
+  user: AdminUser;
+  patchUser: (id: string, body: Record<string, unknown>) => Promise<PatchResult>;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  async function quick(status: Status) {
+    setBusy(true);
+    setError("");
+    const res = await patchUser(user.id, { status });
+    if (!res.ok) setError(res.error ?? "Update failed.");
+    setBusy(false);
+  }
+
+  return (
+    <div
+      style={{
+        background: "#fff",
+        border: `1px solid ${C.border}`,
+        borderRadius: 12,
+        padding: 14,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              flexWrap: "wrap",
+            }}
+          >
+            <span style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>
+              {user.name}
+            </span>
+            <span
+              style={tag(
+                user.role === "admin" ? C.goldBg : C.greenBg,
+                user.role === "admin" ? C.gold : C.green,
+              )}
+            >
+              {roleLabel(user.role)}
+            </span>
+          </div>
+          <div style={{ fontSize: 12, color: C.sub, marginTop: 2 }}>
+            {user.phone}
+            {user.division ? ` · ${user.division}` : ""}
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+          {user.status === "pending" ? (
+            <>
+              <button
+                onClick={() => quick("approved")}
+                disabled={busy}
+                className="dz-tap"
+                style={pillBtn(C.green, "#fff")}
+              >
+                Approve
+              </button>
+              <button
+                onClick={() => quick("rejected")}
+                disabled={busy}
+                className="dz-tap"
+                style={pillBtn("#fff", C.danger, C.dangerBorder)}
+              >
+                Reject
+              </button>
+            </>
+          ) : null}
+          {user.status === "approved" ? (
+            <button
+              onClick={() => quick("rejected")}
+              disabled={busy}
+              className="dz-tap"
+              style={pillBtn("#fff", C.danger, C.dangerBorder)}
+            >
+              Revoke
+            </button>
+          ) : null}
+          {user.status === "rejected" ? (
+            <button
+              onClick={() => quick("approved")}
+              disabled={busy}
+              className="dz-tap"
+              style={pillBtn(C.green, "#fff")}
+            >
+              Approve
+            </button>
+          ) : null}
+          <button
+            onClick={() => setEditing((v) => !v)}
+            disabled={busy}
+            className="dz-tap"
+            style={pillBtn("#fff", C.ink, C.border)}
+          >
+            {editing ? "Close" : "Edit"}
+          </button>
+        </div>
+      </div>
+
+      {error ? (
+        <div style={{ fontSize: 12, color: C.danger, marginTop: 8 }}>
+          {error}
+        </div>
+      ) : null}
+
+      {editing ? (
+        <EditUserForm
+          user={user}
+          patchUser={patchUser}
+          onDone={() => setEditing(false)}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function EditUserForm({
+  user,
+  patchUser,
+  onDone,
+}: {
+  user: AdminUser;
+  patchUser: (id: string, body: Record<string, unknown>) => Promise<PatchResult>;
+  onDone: () => void;
+}) {
+  const [name, setName] = useState(user.name);
+  const [phone, setPhone] = useState(user.phone);
+  const [role, setRole] = useState<Role>(user.role);
+  const [division, setDivision] = useState(user.division);
+  const [status, setStatus] = useState<Status>(user.status);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setBusy(true);
+    const res = await patchUser(user.id, {
+      name,
+      phone,
+      role,
+      division: role === "admin" ? "" : division,
+      status,
+    });
+    setBusy(false);
+    if (!res.ok) {
+      setError(res.error ?? "Update failed.");
+      return;
+    }
+    onDone();
+  }
+
+  return (
+    <form
+      onSubmit={onSubmit}
+      style={{
+        marginTop: 14,
+        paddingTop: 14,
+        borderTop: `1px solid ${C.border}`,
+        display: "flex",
+        flexDirection: "column",
+        gap: 12,
+      }}
+    >
+      <Field label="Full Name">
+        <TextInput value={name} onChange={(e) => setName(e.target.value)} />
+      </Field>
+      <Field label="Mobile Number">
+        <TextInput
+          type="tel"
+          inputMode="numeric"
+          value={phone}
+          onChange={(e) =>
+            setPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))
+          }
+        />
+      </Field>
+      <Field label="Role">
+        <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
+          <option value="field_rep">Field Rep</option>
+          <option value="admin">Admin</option>
+        </Select>
+      </Field>
+      {role === "field_rep" ? (
+        <Field label="Division">
+          <Select
+            value={division}
+            onChange={(e) => setDivision(e.target.value)}
+          >
+            <option value="">Select</option>
+            {USER_DIVISIONS.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      ) : null}
+      <Field label="Access">
+        <Select
+          value={status}
+          onChange={(e) => setStatus(e.target.value as Status)}
+        >
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </Select>
+      </Field>
+
+      {error ? <div style={{ fontSize: 12, color: C.danger }}>{error}</div> : null}
+
+      <div style={{ display: "flex", gap: 8 }}>
+        <Button variant="ghost" onClick={onDone} style={{ flex: 1 }}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={busy} style={{ flex: 1 }}>
+          {busy ? "Saving…" : "Save"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [role, setRole] = useState<Role>("field_rep");
   const [division, setDivision] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -293,7 +495,7 @@ function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
       const res = await fetch("/api/admin/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, division, password }),
+        body: JSON.stringify({ name, phone, role, division, password }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -306,6 +508,7 @@ function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
       );
       setName("");
       setPhone("");
+      setRole("field_rep");
       setDivision("");
       setPassword("");
     } catch {
@@ -374,16 +577,27 @@ function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
               placeholder="10-digit mobile number"
             />
           </Field>
-          <Field label="Division">
-            <Select value={division} onChange={(e) => setDivision(e.target.value)}>
-              <option value="">Select</option>
-              {USER_DIVISIONS.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
+          <Field label="Role">
+            <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
+              <option value="field_rep">Field Rep</option>
+              <option value="admin">Admin</option>
             </Select>
           </Field>
+          {role === "field_rep" ? (
+            <Field label="Division">
+              <Select
+                value={division}
+                onChange={(e) => setDivision(e.target.value)}
+              >
+                <option value="">Select</option>
+                {USER_DIVISIONS.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          ) : null}
           <Field label="Temporary Password (optional)">
             <TextInput
               value={password}
@@ -436,39 +650,6 @@ function Section({
   );
 }
 
-function UserRow({
-  user,
-  children,
-}: {
-  user: AdminUser;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      style={{
-        background: "#fff",
-        border: `1px solid ${C.border}`,
-        borderRadius: 12,
-        padding: 14,
-        display: "flex",
-        alignItems: "center",
-        gap: 12,
-      }}
-    >
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>
-          {user.name}
-        </div>
-        <div style={{ fontSize: 12, color: C.sub, marginTop: 2 }}>
-          {user.phone}
-          {user.division ? ` · ${user.division}` : ""}
-        </div>
-      </div>
-      <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>{children}</div>
-    </div>
-  );
-}
-
 function Empty({ children }: { children: React.ReactNode }) {
   return <div style={{ fontSize: 13, color: C.muted }}>{children}</div>;
 }
@@ -490,10 +671,11 @@ function tag(bg: string, fg: string) {
   return {
     fontSize: 10,
     fontWeight: 700,
-    padding: "6px 10px",
+    padding: "4px 8px",
     borderRadius: 6,
     background: bg,
     color: fg,
     letterSpacing: 0.5,
+    textTransform: "uppercase" as const,
   };
 }

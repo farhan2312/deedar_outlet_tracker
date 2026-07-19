@@ -49,6 +49,7 @@ export async function POST(req: Request) {
     id: user.id,
     name: user.name,
     phone: user.phone,
+    division: user.division,
     role: user.role,
     mustChange: user.must_change_password,
   });

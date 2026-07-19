@@ -7,8 +7,8 @@ import { TrackerProvider, useTracker, type SessionUser } from "./store";
 import { Dashboard } from "./screens/Dashboard";
 import { OutletDetail } from "./screens/OutletDetail";
 import { AddOutlet } from "./screens/AddOutlet";
-import { RecordVisitSearch } from "./screens/RecordVisitSearch";
-import { RecordVisit } from "./screens/RecordVisit";
+import { AddVisitFind } from "./screens/AddVisitFind";
+import { AddVisit } from "./screens/AddVisit";
 import { EditVisit } from "./screens/EditVisit";
 
 const TITLES: Record<Screen, string> = {
@@ -16,8 +16,8 @@ const TITLES: Record<Screen, string> = {
   dashboard: "Deedar Field",
   outletDetail: "Outlet Details",
   addOutlet: "Add New Outlet",
-  recordVisitSearch: "Record Visit",
-  recordVisit: "Record Visit",
+  addVisitFind: "Add Visit",
+  addVisit: "Add Visit",
   editVisit: "Update Visit",
 };
 
@@ -195,10 +195,10 @@ function ScreenBody({ screen }: { screen: Screen }) {
       return <OutletDetail />;
     case "addOutlet":
       return <AddOutlet />;
-    case "recordVisitSearch":
-      return <RecordVisitSearch />;
-    case "recordVisit":
-      return <RecordVisit />;
+    case "addVisitFind":
+      return <AddVisitFind />;
+    case "addVisit":
+      return <AddVisit />;
     case "editVisit":
       return <EditVisit />;
     default:

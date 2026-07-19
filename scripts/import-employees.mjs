@@ -44,7 +44,7 @@ try {
     const hash = await bcrypt.hash(phone, 10); // initial password = mobile number
     const res = await client.query(
       `insert into users (name, phone, password_hash, division, role, status, must_change_password)
-         values ($1, $2, $3, $4, 'user', 'approved', true)
+         values ($1, $2, $3, $4, 'field_rep', 'approved', true)
        on conflict (phone) do update set
          name = excluded.name,
          division = excluded.division

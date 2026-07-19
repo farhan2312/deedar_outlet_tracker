@@ -11,7 +11,13 @@ function normalizePhone(v: unknown): string {
 }
 
 export async function POST(req: Request) {
-  let body: { name?: string; phone?: string; password?: string; division?: string };
+  let body: {
+    name?: string;
+    phone?: string;
+    password?: string;
+    division?: string;
+    role?: string;
+  };
   try {
     body = await req.json();
   } catch {
@@ -21,7 +27,9 @@ export async function POST(req: Request) {
   const name = String(body.name ?? "").trim();
   const phone = normalizePhone(body.phone);
   const password = String(body.password ?? "");
-  const division = String(body.division ?? "").trim();
+  const role = body.role === "admin" ? "admin" : "field_rep";
+  // Admins have no division; field reps must pick one.
+  const division = role === "admin" ? "" : String(body.division ?? "").trim();
 
   if (name.length < 2) {
     return NextResponse.json({ error: "Please enter your name." }, { status: 400 });
@@ -32,7 +40,7 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   }
-  if (!(USER_DIVISIONS as readonly string[]).includes(division)) {
+  if (role === "field_rep" && !(USER_DIVISIONS as readonly string[]).includes(division)) {
     return NextResponse.json(
       { error: "Please select your division." },
       { status: 400 },
@@ -54,7 +62,7 @@ export async function POST(req: Request) {
   }
 
   const passwordHash = await hashPassword(password);
-  await createUser({ name, phone, passwordHash, division });
+  await createUser({ name, phone, passwordHash, division, role });
 
   return NextResponse.json({
     ok: true,

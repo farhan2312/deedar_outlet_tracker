@@ -58,4 +58,4 @@ export const EMPTY_ADD_FORM: OutletForm = {
   remarks: "",
 };
 
-export const EMPTY_RV_FORM: OutletForm = { ...EMPTY_ADD_FORM };
+export const EMPTY_AV_FORM: OutletForm = { ...EMPTY_ADD_FORM };

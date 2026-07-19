@@ -68,19 +68,26 @@ Open [http://localhost:3000](http://localhost:3000).
 
 | Route      | Who        | Purpose                                             |
 | ---------- | ---------- | --------------------------------------------------- |
-| `/signup`  | anyone     | Rep requests access (name, phone, password) → pending |
+| `/signup`  | anyone     | Request access (name, phone, role, division, password) → pending |
 | `/login`   | anyone     | Sign in with phone + password                       |
-| `/`        | approved   | The tracker app (dashboard, add outlet, record visit) |
-| `/admin`   | admin only | Approve / reject / revoke rep access                |
+| `/`        | approved   | The tracker app (dashboard, add outlet, add visit)  |
+| `/admin`   | admin only | Add users, edit users, and manage access            |
 
 New signups are **pending** and cannot log in until an admin approves them at `/admin`.
 Route protection is enforced in [`src/middleware.ts`](src/middleware.ts) and re-checked
 in each page and API handler.
 
-Admins can also **add a user directly** from the `/admin` panel (name, phone, division,
-optional temporary password — defaults to the phone number). Admin-created users are
-approved immediately and, like imported reps, are **forced to set a new password on
-first login**.
+Users have a **role** — `field_rep` (belongs to a division) or `admin`. Signup lets you
+pick either; admin signups are still pending until an existing admin approves them.
+
+From the `/admin` panel an admin can **add users** (name, phone, role, division, optional
+temporary password — defaults to the phone number) and **edit any user** — name, mobile,
+role, division, and access status (pending / approved / rejected). Admin-created users are
+approved immediately and, like imported reps, are **forced to set a new password on first
+login**.
+
+When a field rep adds an outlet, its **Division field is prefilled with the rep's own
+division**.
 
 ## Scripts
 

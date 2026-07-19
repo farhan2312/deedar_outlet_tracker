@@ -38,8 +38,8 @@ export type Screen =
   | "dashboard"
   | "outletDetail"
   | "addOutlet"
-  | "recordVisitSearch"
-  | "recordVisit"
+  | "addVisitFind"
+  | "addVisit"
   | "editVisit";
 
 /** Shared shape for the add-outlet and record-visit forms. */
@@ -90,9 +90,9 @@ export interface TrackerState {
   addDuplicateOutletId: string | null;
   addGpsStatus: GpsStatus;
   addGpsErrorMsg: string;
-  rvStep: number;
-  rvSearch: string;
-  rvForm: OutletForm;
+  avMobile: string;
+  avStep: number;
+  avForm: OutletForm;
   editVisitOutletId: string | null;
   editVisitId: string | null;
   editVisitForm: Partial<OutletForm>;

@@ -22,7 +22,13 @@ export async function POST(req: Request) {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) return auth;
 
-  let body: { name?: string; phone?: string; division?: string; password?: string };
+  let body: {
+    name?: string;
+    phone?: string;
+    division?: string;
+    password?: string;
+    role?: string;
+  };
   try {
     body = await req.json();
   } catch {
@@ -31,7 +37,8 @@ export async function POST(req: Request) {
 
   const name = String(body.name ?? "").trim();
   const phone = normalizePhone(body.phone);
-  const division = String(body.division ?? "").trim();
+  const role = body.role === "admin" ? "admin" : "field_rep";
+  const division = role === "admin" ? "" : String(body.division ?? "").trim();
   // Admin may set a temporary password; defaults to the phone number.
   const password = String(body.password ?? "") || phone;
 
@@ -60,7 +67,7 @@ export async function POST(req: Request) {
   }
 
   const passwordHash = await hashPassword(password);
-  const user = await adminCreateUser({ name, phone, passwordHash, division });
+  const user = await adminCreateUser({ name, phone, passwordHash, division, role });
 
   return NextResponse.json({ user: user ? toPublicUser(user) : null });
 }

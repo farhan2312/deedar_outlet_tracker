@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/api-auth";
-import { createOutletWithVisit, listOutlets } from "@/lib/outlets";
+import { createOutlet, listOutlets } from "@/lib/outlets";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,14 +25,13 @@ export async function POST(req: Request) {
   }
 
   const str = (v: unknown) => String(v ?? "").trim();
-  const num = (v: unknown) => Number(v) || 0;
 
   const name = str(body.name);
   if (!name) {
     return NextResponse.json({ error: "Outlet name is required." }, { status: 400 });
   }
 
-  const outlet = await createOutletWithVisit(
+  const outlet = await createOutlet(
     {
       name,
       poc: str(body.poc),
@@ -45,15 +44,6 @@ export async function POST(req: Request) {
       lat: str(body.lat),
       lng: str(body.lng),
     },
-    {
-      stock: num(body.stock),
-      sold: num(body.sold),
-      rank: num(body.rank),
-      competitor: str(body.competitor),
-      competitorBrand: str(body.competitorBrand),
-      remarks: str(body.remarks),
-    },
-    auth.phone,
     auth.id,
   );
 

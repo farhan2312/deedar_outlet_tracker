@@ -13,6 +13,7 @@ import {
 export function SignupForm() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [role, setRole] = useState<"field_rep" | "admin">("field_rep");
   const [division, setDivision] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -27,7 +28,7 @@ export function SignupForm() {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, division, password }),
+        body: JSON.stringify({ name, phone, role, division, password }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -97,20 +98,35 @@ export function SignupForm() {
           style={authFieldStyle}
         />
 
-        <label style={authLabelStyle}>Division</label>
+        <label style={authLabelStyle}>Role</label>
         <select
           className="dz-input dz-tap"
-          value={division}
-          onChange={(e) => setDivision(e.target.value)}
+          value={role}
+          onChange={(e) => setRole(e.target.value as "field_rep" | "admin")}
           style={{ ...authFieldStyle, appearance: "auto", background: "#fff" }}
         >
-          <option value="">Select your division</option>
-          {USER_DIVISIONS.map((d) => (
-            <option key={d} value={d}>
-              {d}
-            </option>
-          ))}
+          <option value="field_rep">Field Rep</option>
+          <option value="admin">Admin</option>
         </select>
+
+        {role === "field_rep" ? (
+          <>
+            <label style={authLabelStyle}>Division</label>
+            <select
+              className="dz-input dz-tap"
+              value={division}
+              onChange={(e) => setDivision(e.target.value)}
+              style={{ ...authFieldStyle, appearance: "auto", background: "#fff" }}
+            >
+              <option value="">Select your division</option>
+              {USER_DIVISIONS.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          </>
+        ) : null}
 
         <label style={authLabelStyle}>Password</label>
         <input

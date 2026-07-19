@@ -11,7 +11,7 @@ import {
   type ChangeEvent,
   type ReactNode,
 } from "react";
-import { EMPTY_ADD_FORM, EMPTY_RV_FORM } from "./constants";
+import { EMPTY_ADD_FORM, EMPTY_AV_FORM } from "./constants";
 import type {
   IdentityForm,
   Outlet,
@@ -25,7 +25,8 @@ export interface SessionUser {
   id: string;
   name: string;
   phone: string;
-  role: "user" | "admin";
+  division: string;
+  role: "field_rep" | "admin";
 }
 
 function initialState(user: SessionUser): TrackerState {
@@ -44,12 +45,12 @@ function initialState(user: SessionUser): TrackerState {
     addDuplicateOutletId: null,
     addGpsStatus: "idle",
     addGpsErrorMsg: "",
-    rvStep: 1,
-    rvSearch: "",
-    rvForm: { ...EMPTY_RV_FORM },
+    avMobile: "",
+    avStep: 1,
+    avForm: { ...EMPTY_AV_FORM },
     editVisitOutletId: null,
     editVisitId: null,
-    editVisitForm: { ...EMPTY_RV_FORM },
+    editVisitForm: { ...EMPTY_AV_FORM },
   };
 }
 
@@ -119,13 +120,13 @@ function useTrackerStore(user: SessionUser) {
     setState((s) => {
       switch (s.screen) {
         case "outletDetail":
-        case "recordVisitSearch":
+        case "addVisitFind":
         case "editVisit":
           return { screen: "dashboard" };
         case "addOutlet":
           return { screen: "dashboard", addStep: 1, addForm: { ...EMPTY_ADD_FORM } };
-        case "recordVisit":
-          return { screen: "recordVisitSearch", rvStep: 1 };
+        case "addVisit":
+          return { screen: "addVisitFind", avStep: 1 };
         default:
           return { screen: "dashboard" };
       }
@@ -143,12 +144,13 @@ function useTrackerStore(user: SessionUser) {
     setState({
       screen: "addOutlet",
       addStep: 1,
-      addForm: { ...EMPTY_ADD_FORM },
+      // Prefill division with the rep's own division.
+      addForm: { ...EMPTY_ADD_FORM, division: user.division },
       addDuplicateOutletId: null,
       addGpsStatus: "idle",
     });
-  const onStartRecordVisit = () =>
-    setState({ screen: "recordVisitSearch", rvSearch: "" });
+  const onStartAddVisit = () =>
+    setState({ screen: "addVisitFind", avMobile: "" });
 
   // ---------- EDIT VISIT (within 24h) ----------
   const onOpenEditVisit = (outletId: string, visit: Visit) =>
@@ -216,15 +218,15 @@ function useTrackerStore(user: SessionUser) {
     setState({ editingIdentity: false });
     showToast("Outlet details updated");
   };
-  const onRecordVisitForSelected = () =>
+  const onAddVisitForSelected = () =>
     setState((s) => {
       const o = s.outlets.find((x) => x.id === s.selectedOutletId);
       if (!o) return {};
       return {
-        screen: "recordVisit",
-        rvStep: 1,
-        rvForm: {
-          ...EMPTY_RV_FORM,
+        screen: "addVisit",
+        avStep: 1,
+        avForm: {
+          ...EMPTY_AV_FORM,
           name: o.name,
           poc: o.poc,
           mobile: o.mobile,
@@ -289,7 +291,6 @@ function useTrackerStore(user: SessionUser) {
     );
   };
   const onAddStep2Next = () => setState({ addStep: 3 });
-  const onAddStep3Next = () => setState({ addStep: 4 });
   const onAddBack = () =>
     setState((s) => ({ addStep: Math.max(1, s.addStep - 1) }));
   const submitAddOutlet = async () => {
@@ -311,20 +312,21 @@ function useTrackerStore(user: SessionUser) {
     showToast("Outlet added successfully");
   };
 
-  // ---------- RECORD VISIT ----------
-  const setRv = (patch: Partial<OutletForm>) =>
-    setState((s) => ({ rvForm: { ...s.rvForm, ...patch } }));
-  const onRvSearchChange = (e: InputEvt) => setState({ rvSearch: e.target.value });
-  const onSelectRvOutlet = (id: string) =>
+  // ---------- ADD VISIT ----------
+  const setAv = (patch: Partial<OutletForm>) =>
+    setState((s) => ({ avForm: { ...s.avForm, ...patch } }));
+  const onAvMobileChange = (e: InputEvt) =>
+    setState({ avMobile: digits(e.target.value) });
+  const onAvSelectOutlet = (id: string) =>
     setState((s) => {
       const o = s.outlets.find((x) => x.id === id);
       if (!o) return {};
       return {
-        screen: "recordVisit",
-        rvStep: 1,
+        screen: "addVisit",
+        avStep: 1,
         selectedOutletId: id,
-        rvForm: {
-          ...EMPTY_RV_FORM,
+        avForm: {
+          ...EMPTY_AV_FORM,
           name: o.name,
           poc: o.poc,
           mobile: o.mobile,
@@ -336,15 +338,26 @@ function useTrackerStore(user: SessionUser) {
         },
       };
     });
-  const onRvStep1Next = () => setState({ rvStep: 2 });
-  const onRvStep2Next = () => setState({ rvStep: 3 });
-  const onRvBack = () =>
+  const onAvGoAddOutlet = () =>
+    setState((s) => ({
+      screen: "addOutlet",
+      addStep: 1,
+      addForm: {
+        ...EMPTY_ADD_FORM,
+        mobile: s.avMobile,
+        division: user.division,
+      },
+      addDuplicateOutletId: null,
+      addGpsStatus: "idle",
+    }));
+  const onAvNext = () => setState({ avStep: 2 });
+  const onAvBack = () =>
     setState((s) =>
-      s.rvStep > 1 ? { rvStep: s.rvStep - 1 } : { screen: "recordVisitSearch" },
+      s.avStep > 1 ? { avStep: s.avStep - 1 } : { screen: "addVisitFind" },
     );
   const submitVisit = async () => {
     const id = stateRef.current.selectedOutletId;
-    const f = stateRef.current.rvForm;
+    const f = stateRef.current.avForm;
     if (!id) return;
     const { ok, data } = await postJson(`/api/outlets/${id}/visits`, f);
     if (!ok) {
@@ -352,7 +365,7 @@ function useTrackerStore(user: SessionUser) {
       return;
     }
     await refresh();
-    setState({ screen: "outletDetail", rvStep: 1, rvForm: { ...EMPTY_RV_FORM } });
+    setState({ screen: "outletDetail", avStep: 1, avForm: { ...EMPTY_AV_FORM } });
     showToast("Visit recorded successfully");
   };
 
@@ -366,7 +379,7 @@ function useTrackerStore(user: SessionUser) {
     onLogout,
     onDashSearchChange,
     onStartAddOutlet,
-    onStartRecordVisit,
+    onStartAddVisit,
     onOpenEditVisit,
     setEditVisit,
     saveEditVisit,
@@ -374,22 +387,21 @@ function useTrackerStore(user: SessionUser) {
     onCancelEditIdentity,
     setEditIdentity,
     saveEditIdentity,
-    onRecordVisitForSelected,
+    onAddVisitForSelected,
     setAdd,
     onAddMobileChange,
     onAddStep1Next,
     onAddStep2Next,
-    onAddStep3Next,
     onAddBack,
     onViewDuplicate,
     onCaptureGps,
     submitAddOutlet,
-    setRv,
-    onRvSearchChange,
-    onSelectRvOutlet,
-    onRvStep1Next,
-    onRvStep2Next,
-    onRvBack,
+    setAv,
+    onAvMobileChange,
+    onAvSelectOutlet,
+    onAvGoAddOutlet,
+    onAvNext,
+    onAvBack,
     submitVisit,
   };
 }

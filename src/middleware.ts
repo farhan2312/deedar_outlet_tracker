@@ -12,7 +12,7 @@ async function readSession(req: NextRequest) {
     );
     return {
       id: payload.sub,
-      role: payload.role === "admin" ? "admin" : "user",
+      role: payload.role === "admin" ? "admin" : "field_rep",
       mustChange: payload.mustChange === true,
     };
   } catch {
