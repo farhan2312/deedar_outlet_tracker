@@ -1,9 +1,4 @@
 export type OutletType = "Kirana" | "Tea Stall" | "Wholesale" | "Paan" | "Other";
-export type Division =
-  | "Bihar"
-  | "Uttar Pradesh"
-  | "Rajasthan"
-  | "Madhya Pradesh";
 export type CompetitorLevel = "None" | "Local Brands" | "National Brands";
 
 export interface Gps {

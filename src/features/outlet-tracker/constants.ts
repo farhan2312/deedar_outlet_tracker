@@ -1,4 +1,4 @@
-import type { CompetitorLevel, Division, OutletForm, OutletType } from "./types";
+import type { CompetitorLevel, OutletForm, OutletType } from "./types";
 
 export const TYPES: OutletType[] = [
   "Kirana",
@@ -6,13 +6,6 @@ export const TYPES: OutletType[] = [
   "Wholesale",
   "Paan",
   "Other",
-];
-
-export const DIVISIONS: Division[] = [
-  "Bihar",
-  "Uttar Pradesh",
-  "Rajasthan",
-  "Madhya Pradesh",
 ];
 
 export const COMPETITOR_LEVELS: CompetitorLevel[] = [

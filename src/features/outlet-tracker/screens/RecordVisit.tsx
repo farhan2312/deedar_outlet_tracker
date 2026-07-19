@@ -1,6 +1,6 @@
 "use client";
 
-import { C, DIVISIONS, TYPES } from "../constants";
+import { C, TYPES } from "../constants";
 import { useTracker } from "../store";
 import {
   Button,
@@ -89,16 +89,10 @@ export function RecordVisit() {
                 />
               </Field>
               <Field label="Division">
-                <Select
+                <TextInput
                   value={f.division}
                   onChange={(e) => setRv({ division: e.target.value })}
-                >
-                  {DIVISIONS.map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </Select>
+                />
               </Field>
             </FieldGrid>
             <Field label="Type of Outlet">

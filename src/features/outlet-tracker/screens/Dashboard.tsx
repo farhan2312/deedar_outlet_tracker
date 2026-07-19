@@ -187,45 +187,50 @@ export function Dashboard() {
         </div>
       ) : null}
 
-      <SectionLabel>Quick Access</SectionLabel>
-      {recentOutlets.length === 0 ? (
-        <div
-          style={{
-            background: "#fff",
-            border: `1px dashed ${C.border}`,
-            borderRadius: 12,
-            padding: 18,
-            fontSize: 13,
-            color: C.sub,
-            textAlign: "center",
-          }}
-        >
-          No outlets yet. Tap <strong style={{ color: C.ink }}>Add New Outlet</strong> to
-          onboard your first one.
-        </div>
-      ) : null}
-      <div className="dz-card-list">
-        {recentOutlets.map((o) => (
-          <Card key={o.id} onClick={() => openOutlet(o.id)}>
+      {user.role === "admin" ? (
+        <>
+          <SectionLabel>Quick Access</SectionLabel>
+          {recentOutlets.length === 0 ? (
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: 8,
+                background: "#fff",
+                border: `1px dashed ${C.border}`,
+                borderRadius: 12,
+                padding: 18,
+                fontSize: 13,
+                color: C.sub,
+                textAlign: "center",
               }}
             >
-              <div style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>
-                {o.name}
-              </div>
-              <Badge>{o.typeLabel}</Badge>
+              No outlets yet. Tap{" "}
+              <strong style={{ color: C.ink }}>Add New Outlet</strong> to
+              onboard your first one.
             </div>
-            <div style={{ fontSize: 12, color: C.sub, marginTop: 3 }}>
-              {o.town}, {o.division}
-            </div>
-          </Card>
-        ))}
-      </div>
+          ) : null}
+          <div className="dz-card-list">
+            {recentOutlets.map((o) => (
+              <Card key={o.id} onClick={() => openOutlet(o.id)}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <div style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>
+                    {o.name}
+                  </div>
+                  <Badge>{o.typeLabel}</Badge>
+                </div>
+                <div style={{ fontSize: 12, color: C.sub, marginTop: 3 }}>
+                  {o.town}, {o.division}
+                </div>
+              </Card>
+            ))}
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }

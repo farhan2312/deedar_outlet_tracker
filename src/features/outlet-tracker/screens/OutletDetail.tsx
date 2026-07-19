@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { C, DIVISIONS, TYPES } from "../constants";
+import { C, TYPES } from "../constants";
 import { useTracker } from "../store";
 import { Badge, Button, Field, FieldGrid, Select, TextInput } from "../ui";
 import { decorateOutlet } from "../utils";
@@ -149,16 +149,10 @@ export function OutletDetail() {
                 />
               </Field>
               <Field label="Division">
-                <Select
+                <TextInput
                   value={ef.division ?? ""}
                   onChange={(e) => setEditIdentity({ division: e.target.value })}
-                >
-                  {DIVISIONS.map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </Select>
+                />
               </Field>
             </FieldGrid>
             <Field label="Type of Outlet">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { C, DIVISIONS, TYPES } from "../constants";
+import { C, TYPES } from "../constants";
 import { useTracker } from "../store";
 import {
   Button,
@@ -168,17 +168,10 @@ export function AddOutlet() {
                 />
               </Field>
               <Field label="Division *">
-                <Select
+                <TextInput
                   value={f.division}
                   onChange={(e) => setAdd({ division: e.target.value })}
-                >
-                  <option value="">Select</option>
-                  {DIVISIONS.map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </Select>
+                />
               </Field>
             </FieldGrid>
             <Field label="Type of Outlet *">

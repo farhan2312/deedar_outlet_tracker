@@ -60,6 +60,24 @@ export function createUser(input: {
   );
 }
 
+/**
+ * Admin-created user: approved immediately, and forced to set their own
+ * password on first login (the admin only sets a temporary one).
+ */
+export function adminCreateUser(input: {
+  name: string;
+  phone: string;
+  passwordHash: string;
+  division: string;
+}): Promise<UserRow | null> {
+  return queryOne<UserRow>(
+    `insert into users (name, phone, password_hash, division, role, status, must_change_password)
+     values ($1, $2, $3, $4, 'user', 'approved', true)
+     returning *`,
+    [input.name, input.phone, input.passwordHash, input.division],
+  );
+}
+
 export function listUsers(): Promise<UserRow[]> {
   return query<UserRow>(
     `select * from users

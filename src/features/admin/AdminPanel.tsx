@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { C } from "@/features/outlet-tracker/constants";
+import { C, USER_DIVISIONS } from "@/features/outlet-tracker/constants";
+import { Button, Field, Select, TextInput } from "@/features/outlet-tracker/ui";
 
 interface AdminUser {
   id: string;
@@ -65,6 +66,10 @@ export function AdminPanel({ adminName }: { adminName: string }) {
     await fetch("/api/auth/logout", { method: "POST" });
     router.replace("/login");
     router.refresh();
+  }
+
+  function onUserCreated(user: AdminUser) {
+    setUsers((prev) => [user, ...prev]);
   }
 
   const pending = users.filter((u) => u.status === "pending");
@@ -173,6 +178,8 @@ export function AdminPanel({ adminName }: { adminName: string }) {
             {adminName}
           </div>
 
+          <AddUserForm onCreated={onUserCreated} />
+
           {error ? (
             <div
               style={{
@@ -263,6 +270,140 @@ export function AdminPanel({ adminName }: { adminName: string }) {
           )}
         </main>
       </div>
+    </div>
+  );
+}
+
+function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [division, setDivision] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    setBusy(true);
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone, division, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Could not create user.");
+        return;
+      }
+      onCreated(data.user);
+      setSuccess(
+        `Created ${name} (${phone}). Temporary password: ${password || phone} — they'll be asked to set a new one on first login.`,
+      );
+      setName("");
+      setPhone("");
+      setDivision("");
+      setPassword("");
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div
+      style={{
+        background: "#fff",
+        border: `1px solid ${C.border}`,
+        borderRadius: 12,
+        padding: 14,
+        marginBottom: 20,
+      }}
+    >
+      <div
+        onClick={() => setOpen((v) => !v)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setOpen((v) => !v);
+          }
+        }}
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          cursor: "pointer",
+        }}
+      >
+        <div style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>
+          Add User
+        </div>
+        <div style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>
+          {open ? "Close" : "+ Add"}
+        </div>
+      </div>
+
+      {open ? (
+        <form
+          onSubmit={onSubmit}
+          style={{
+            marginTop: 14,
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+          }}
+        >
+          <Field label="Full Name">
+            <TextInput value={name} onChange={(e) => setName(e.target.value)} />
+          </Field>
+          <Field label="Mobile Number">
+            <TextInput
+              type="tel"
+              inputMode="numeric"
+              value={phone}
+              onChange={(e) =>
+                setPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))
+              }
+              placeholder="10-digit mobile number"
+            />
+          </Field>
+          <Field label="Division">
+            <Select value={division} onChange={(e) => setDivision(e.target.value)}>
+              <option value="">Select</option>
+              {USER_DIVISIONS.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Temporary Password (optional)">
+            <TextInput
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Defaults to mobile number if left blank"
+            />
+          </Field>
+
+          {error ? (
+            <div style={{ fontSize: 12, color: C.danger }}>{error}</div>
+          ) : null}
+          {success ? (
+            <div style={{ fontSize: 12, color: C.green }}>{success}</div>
+          ) : null}
+
+          <Button type="submit" disabled={busy}>
+            {busy ? "Creating…" : "Create User"}
+          </Button>
+        </form>
+      ) : null}
     </div>
   );
 }

@@ -77,6 +77,11 @@ New signups are **pending** and cannot log in until an admin approves them at `/
 Route protection is enforced in [`src/middleware.ts`](src/middleware.ts) and re-checked
 in each page and API handler.
 
+Admins can also **add a user directly** from the `/admin` panel (name, phone, division,
+optional temporary password — defaults to the phone number). Admin-created users are
+approved immediately and, like imported reps, are **forced to set a new password on
+first login**.
+
 ## Scripts
 
 | Command               | Description                          |
