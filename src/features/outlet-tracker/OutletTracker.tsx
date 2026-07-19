@@ -1,9 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import type { Screen } from "./types";
 import { C } from "./constants";
-import { TrackerProvider, useTracker } from "./store";
-import { Login } from "./screens/Login";
+import { TrackerProvider, useTracker, type SessionUser } from "./store";
 import { Dashboard } from "./screens/Dashboard";
 import { OutletDetail } from "./screens/OutletDetail";
 import { AddOutlet } from "./screens/AddOutlet";
@@ -21,18 +21,15 @@ const TITLES: Record<Screen, string> = {
   editVisit: "Update Visit",
 };
 
-export function OutletTracker() {
+export function OutletTracker({ user }: { user: SessionUser }) {
   return (
-    <TrackerProvider>
+    <TrackerProvider user={user}>
       <Shell />
     </TrackerProvider>
   );
 }
 
 function Shell() {
-  const { state } = useTracker();
-  const isLogin = state.screen === "login";
-
   return (
     <div
       style={{
@@ -56,7 +53,7 @@ function Shell() {
           boxShadow: "0 0 40px rgba(0,0,0,0.08)",
         }}
       >
-        {isLogin ? <Login /> : <AppShell />}
+        <AppShell />
         <Toast />
       </div>
     </div>
@@ -64,7 +61,7 @@ function Shell() {
 }
 
 function AppShell() {
-  const { state, onBack, onLogout } = useTracker();
+  const { state, user, onBack } = useTracker();
   const showBack = state.screen !== "dashboard";
   const showLogo = state.screen === "dashboard";
 
@@ -148,28 +145,45 @@ function AppShell() {
             {TITLES[state.screen]}
           </div>
         </div>
-        {state.screen === "dashboard" ? (
-          <button
-            onClick={onLogout}
-            className="dz-tap"
-            style={{
-              fontSize: 12,
-              color: C.greenTint,
-              cursor: "pointer",
-              textDecoration: "underline",
-              background: "none",
-              border: "none",
-            }}
+        {state.screen === "dashboard" && user.role === "admin" ? (
+          <Link
+            href="/admin"
+            style={{ fontSize: 12, color: C.greenTint, fontWeight: 600 }}
           >
-            Logout
-          </button>
+            Admin
+          </Link>
         ) : null}
+        {state.screen === "dashboard" ? <LogoutButton /> : null}
       </header>
 
       <main style={{ flex: 1, paddingBottom: 90 }}>
-        <ScreenBody screen={state.screen} />
+        {state.loading ? (
+          <div style={{ padding: 20, fontSize: 13, color: C.sub }}>Loading…</div>
+        ) : (
+          <ScreenBody screen={state.screen} />
+        )}
       </main>
     </>
+  );
+}
+
+function LogoutButton() {
+  const { onLogout } = useTracker();
+  return (
+    <button
+      onClick={onLogout}
+      className="dz-tap"
+      style={{
+        fontSize: 12,
+        color: C.greenTint,
+        cursor: "pointer",
+        textDecoration: "underline",
+        background: "none",
+        border: "none",
+      }}
+    >
+      Logout
+    </button>
   );
 }
 

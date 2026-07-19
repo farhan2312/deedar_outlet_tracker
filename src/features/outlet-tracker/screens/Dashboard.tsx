@@ -9,6 +9,7 @@ import { decorateOutlet, matchOutlet } from "../utils";
 export function Dashboard() {
   const {
     state,
+    user,
     openOutlet,
     onDashSearchChange,
     onStartAddOutlet,
@@ -86,7 +87,7 @@ export function Dashboard() {
           marginBottom: 18,
         }}
       >
-        Rep {state.repMobile}
+        {user.name}
       </div>
 
       <input
@@ -187,6 +188,22 @@ export function Dashboard() {
       ) : null}
 
       <SectionLabel>Quick Access</SectionLabel>
+      {recentOutlets.length === 0 ? (
+        <div
+          style={{
+            background: "#fff",
+            border: `1px dashed ${C.border}`,
+            borderRadius: 12,
+            padding: 18,
+            fontSize: 13,
+            color: C.sub,
+            textAlign: "center",
+          }}
+        >
+          No outlets yet. Tap <strong style={{ color: C.ink }}>Add New Outlet</strong> to
+          onboard your first one.
+        </div>
+      ) : null}
       <div className="dz-card-list">
         {recentOutlets.map((o) => (
           <Card key={o.id} onClick={() => openOutlet(o.id)}>

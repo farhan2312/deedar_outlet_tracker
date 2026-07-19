@@ -4,58 +4,74 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
   type ChangeEvent,
   type ReactNode,
 } from "react";
-import {
-  DEMO_PASSWORD,
-  EMPTY_ADD_FORM,
-  EMPTY_RV_FORM,
-} from "./constants";
-import { SAMPLE_OUTLETS } from "./sample-data";
+import { EMPTY_ADD_FORM, EMPTY_RV_FORM } from "./constants";
 import type {
-  CompetitorLevel,
   IdentityForm,
+  Outlet,
   OutletForm,
   TrackerState,
   Visit,
 } from "./types";
-import { digits, uid } from "./utils";
+import { digits } from "./utils";
 
-const INITIAL: TrackerState = {
-  screen: "login",
-  authMobile: "",
-  authPassword: "",
-  authError: "",
-  repMobile: "",
-  outlets: SAMPLE_OUTLETS,
-  toast: "",
-  dashSearch: "",
-  selectedOutletId: null,
-  editingIdentity: false,
-  editForm: {},
-  addStep: 1,
-  addForm: { ...EMPTY_ADD_FORM },
-  addDuplicateOutletId: null,
-  addGpsStatus: "idle",
-  addGpsErrorMsg: "",
-  rvStep: 1,
-  rvSearch: "",
-  rvForm: { ...EMPTY_RV_FORM },
-  editVisitOutletId: null,
-  editVisitId: null,
-  editVisitForm: { ...EMPTY_RV_FORM },
-};
+export interface SessionUser {
+  id: string;
+  name: string;
+  phone: string;
+  role: "user" | "admin";
+}
+
+function initialState(user: SessionUser): TrackerState {
+  return {
+    screen: "dashboard",
+    repMobile: user.phone,
+    outlets: [],
+    loading: true,
+    toast: "",
+    dashSearch: "",
+    selectedOutletId: null,
+    editingIdentity: false,
+    editForm: {},
+    addStep: 1,
+    addForm: { ...EMPTY_ADD_FORM },
+    addDuplicateOutletId: null,
+    addGpsStatus: "idle",
+    addGpsErrorMsg: "",
+    rvStep: 1,
+    rvSearch: "",
+    rvForm: { ...EMPTY_RV_FORM },
+    editVisitOutletId: null,
+    editVisitId: null,
+    editVisitForm: { ...EMPTY_RV_FORM },
+  };
+}
 
 type Patch = Partial<TrackerState> | ((s: TrackerState) => Partial<TrackerState>);
 type InputEvt = ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
 
-function useTrackerStore() {
-  const [state, setFull] = useState<TrackerState>(INITIAL);
+async function postJson(url: string, body: unknown, method = "POST") {
+  const res = await fetch(url, {
+    method,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  return { ok: res.ok, data } as { ok: boolean; data: Record<string, unknown> };
+}
+
+function useTrackerStore(user: SessionUser) {
+  const [state, setFull] = useState<TrackerState>(() => initialState(user));
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Latest state, so async handlers read fresh form values without re-binding.
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
   const setState = useCallback((patch: Patch) => {
     setFull((prev) => ({
@@ -73,10 +89,19 @@ function useTrackerStore() {
     [setState],
   );
 
-  const findByMobile = useCallback(
-    (mobile: string) => state.outlets.find((o) => o.mobile === mobile),
-    [state.outlets],
-  );
+  const refresh = useCallback(async () => {
+    const res = await fetch("/api/outlets", { cache: "no-store" });
+    if (!res.ok) {
+      setState({ loading: false });
+      return;
+    }
+    const data = (await res.json()) as { outlets: Outlet[] };
+    setState({ outlets: data.outlets ?? [], loading: false });
+  }, [setState]);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   const openOutlet = useCallback(
     (id: string) =>
@@ -87,26 +112,6 @@ function useTrackerStore() {
       }),
     [setState],
   );
-
-  // ---------- LOGIN ----------
-  const onAuthMobileChange = (e: InputEvt) =>
-    setState({ authMobile: digits(e.target.value) });
-  const onAuthPasswordChange = (e: InputEvt) =>
-    setState({ authPassword: e.target.value });
-  const onLogin = () =>
-    setState((s) => {
-      if (s.authMobile.length !== 10 || s.authPassword !== DEMO_PASSWORD) {
-        return { authError: "Invalid mobile number or password." };
-      }
-      return { screen: "dashboard", repMobile: s.authMobile, authError: "" };
-    });
-  const onLogout = () =>
-    setState({
-      screen: "login",
-      authMobile: "",
-      authPassword: "",
-      authError: "",
-    });
 
   // ---------- NAV ----------
   const onGoDashboard = () => setState({ screen: "dashboard" });
@@ -125,6 +130,11 @@ function useTrackerStore() {
           return { screen: "dashboard" };
       }
     });
+
+  const onLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    window.location.href = "/login";
+  };
 
   // ---------- DASHBOARD ----------
   const onDashSearchChange = (e: InputEvt) =>
@@ -157,33 +167,17 @@ function useTrackerStore() {
     });
   const setEditVisit = (patch: Partial<OutletForm>) =>
     setState((s) => ({ editVisitForm: { ...s.editVisitForm, ...patch } }));
-  const onSaveEditVisit = () =>
-    setState((s) => {
-      const f = s.editVisitForm;
-      const outlets = s.outlets.map((o) =>
-        o.id !== s.editVisitOutletId
-          ? o
-          : {
-              ...o,
-              visits: o.visits.map((v) =>
-                v.id !== s.editVisitId
-                  ? v
-                  : {
-                      ...v,
-                      stock: Number(f.stock) || 0,
-                      sold: Number(f.sold) || 0,
-                      rank: Number(f.rank) || 0,
-                      competitor: (f.competitor ?? "") as CompetitorLevel | "",
-                      competitorBrand: f.competitorBrand ?? "",
-                      remarks: f.remarks ?? "",
-                    },
-              ),
-            },
-      );
-      return { outlets, screen: "dashboard" };
-    });
-  const saveEditVisit = () => {
-    onSaveEditVisit();
+  const saveEditVisit = async () => {
+    const f = stateRef.current.editVisitForm;
+    const id = stateRef.current.editVisitId;
+    if (!id) return;
+    const { ok, data } = await postJson(`/api/visits/${id}`, f, "PATCH");
+    if (!ok) {
+      showToast(String(data.error ?? "Could not update visit"));
+      return;
+    }
+    await refresh();
+    setState({ screen: "dashboard" });
     showToast("Visit updated");
   };
 
@@ -209,16 +203,17 @@ function useTrackerStore() {
   const onCancelEditIdentity = () => setState({ editingIdentity: false });
   const setEditIdentity = (patch: Partial<IdentityForm>) =>
     setState((s) => ({ editForm: { ...s.editForm, ...patch } }));
-  const onSaveEditIdentity = () =>
-    setState((s) => {
-      const id = s.selectedOutletId;
-      const outlets = s.outlets.map((o) =>
-        o.id === id ? { ...o, ...s.editForm } : o,
-      );
-      return { outlets, editingIdentity: false };
-    });
-  const saveEditIdentity = () => {
-    onSaveEditIdentity();
+  const saveEditIdentity = async () => {
+    const id = stateRef.current.selectedOutletId;
+    const f = stateRef.current.editForm;
+    if (!id) return;
+    const { ok, data } = await postJson(`/api/outlets/${id}`, f, "PATCH");
+    if (!ok) {
+      showToast(String(data.error ?? "Could not save changes"));
+      return;
+    }
+    await refresh();
+    setState({ editingIdentity: false });
     showToast("Outlet details updated");
   };
   const onRecordVisitForSelected = () =>
@@ -248,7 +243,8 @@ function useTrackerStore() {
   const onAddMobileChange = (e: InputEvt) => {
     const mobile = digits(e.target.value);
     setState((s) => {
-      const dup = mobile.length === 10 ? s.outlets.find((o) => o.mobile === mobile) : null;
+      const dup =
+        mobile.length === 10 ? s.outlets.find((o) => o.mobile === mobile) : null;
       return {
         addForm: { ...s.addForm, mobile },
         addDuplicateOutletId: dup ? dup.id : null,
@@ -296,46 +292,22 @@ function useTrackerStore() {
   const onAddStep3Next = () => setState({ addStep: 4 });
   const onAddBack = () =>
     setState((s) => ({ addStep: Math.max(1, s.addStep - 1) }));
-  const onSubmitAddOutlet = () =>
-    setState((s) => {
-      const f = s.addForm;
-      const newOutlet = {
-        id: uid("OUT"),
-        name: f.name,
-        poc: f.poc,
-        mobile: f.mobile,
-        address: f.address,
-        town: f.town,
-        division: f.division,
-        type: f.type,
-        typeOther: f.typeOther,
-        gps: { lat: f.lat, lng: f.lng },
-        visits: [
-          {
-            id: uid("V"),
-            date: new Date().toISOString().slice(0, 10),
-            loggedAt: Date.now(),
-            stock: Number(f.stock) || 0,
-            sold: Number(f.sold) || 0,
-            rank: Number(f.rank) || 0,
-            competitor: f.competitor,
-            competitorBrand: f.competitorBrand,
-            remarks: f.remarks,
-            rep: s.repMobile,
-          },
-        ],
-      };
-      return {
-        outlets: [...s.outlets, newOutlet],
-        screen: "outletDetail",
-        selectedOutletId: newOutlet.id,
-        addStep: 1,
-        addForm: { ...EMPTY_ADD_FORM },
-        addGpsStatus: "idle",
-      };
+  const submitAddOutlet = async () => {
+    const f = stateRef.current.addForm;
+    const { ok, data } = await postJson("/api/outlets", f);
+    if (!ok) {
+      showToast(String(data.error ?? "Could not add outlet"));
+      return;
+    }
+    const created = data.outlet as Outlet | undefined;
+    await refresh();
+    setState({
+      screen: created ? "outletDetail" : "dashboard",
+      selectedOutletId: created ? created.id : null,
+      addStep: 1,
+      addForm: { ...EMPTY_ADD_FORM },
+      addGpsStatus: "idle",
     });
-  const submitAddOutlet = () => {
-    onSubmitAddOutlet();
     showToast("Outlet added successfully");
   };
 
@@ -370,76 +342,39 @@ function useTrackerStore() {
     setState((s) =>
       s.rvStep > 1 ? { rvStep: s.rvStep - 1 } : { screen: "recordVisitSearch" },
     );
-  const onSubmitVisit = () =>
-    setState((s) => {
-      const f = s.rvForm;
-      const id = s.selectedOutletId;
-      const newVisit: Visit = {
-        id: uid("V"),
-        date: new Date().toISOString().slice(0, 10),
-        loggedAt: Date.now(),
-        stock: Number(f.stock) || 0,
-        sold: Number(f.sold) || 0,
-        rank: Number(f.rank) || 0,
-        competitor: f.competitor,
-        competitorBrand: f.competitorBrand,
-        remarks: f.remarks,
-        rep: s.repMobile,
-      };
-      const outlets = s.outlets.map((o) =>
-        o.id === id
-          ? {
-              ...o,
-              name: f.name,
-              poc: f.poc,
-              mobile: f.mobile,
-              address: f.address,
-              town: f.town,
-              division: f.division,
-              type: f.type,
-              typeOther: f.typeOther,
-              visits: [...o.visits, newVisit],
-            }
-          : o,
-      );
-      return {
-        outlets,
-        screen: "outletDetail",
-        rvStep: 1,
-        rvForm: { ...EMPTY_RV_FORM },
-      };
-    });
-  const submitVisit = () => {
-    onSubmitVisit();
+  const submitVisit = async () => {
+    const id = stateRef.current.selectedOutletId;
+    const f = stateRef.current.rvForm;
+    if (!id) return;
+    const { ok, data } = await postJson(`/api/outlets/${id}/visits`, f);
+    if (!ok) {
+      showToast(String(data.error ?? "Could not record visit"));
+      return;
+    }
+    await refresh();
+    setState({ screen: "outletDetail", rvStep: 1, rvForm: { ...EMPTY_RV_FORM } });
     showToast("Visit recorded successfully");
   };
 
   return {
+    user,
     state,
-    // login
-    onAuthMobileChange,
-    onAuthPasswordChange,
-    onLogin,
-    onLogout,
-    // nav
+    refresh,
+    openOutlet,
     onGoDashboard,
     onBack,
-    openOutlet,
-    // dashboard
+    onLogout,
     onDashSearchChange,
     onStartAddOutlet,
     onStartRecordVisit,
-    // edit visit
     onOpenEditVisit,
     setEditVisit,
     saveEditVisit,
-    // edit identity
     onEditIdentity,
     onCancelEditIdentity,
     setEditIdentity,
     saveEditIdentity,
     onRecordVisitForSelected,
-    // add outlet
     setAdd,
     onAddMobileChange,
     onAddStep1Next,
@@ -449,8 +384,6 @@ function useTrackerStore() {
     onViewDuplicate,
     onCaptureGps,
     submitAddOutlet,
-    findByMobile,
-    // record visit
     setRv,
     onRvSearchChange,
     onSelectRvOutlet,
@@ -465,10 +398,14 @@ type TrackerContextValue = ReturnType<typeof useTrackerStore>;
 
 const TrackerContext = createContext<TrackerContextValue | null>(null);
 
-export function TrackerProvider({ children }: { children: ReactNode }) {
-  const store = useTrackerStore();
-  // store identity changes every render (functions recreated); that's fine for
-  // this app's size and keeps the port faithful to the original class logic.
+export function TrackerProvider({
+  user,
+  children,
+}: {
+  user: SessionUser;
+  children: ReactNode;
+}) {
+  const store = useTrackerStore(user);
   const value = useMemo(() => store, [store]);
   return (
     <TrackerContext.Provider value={value}>{children}</TrackerContext.Provider>

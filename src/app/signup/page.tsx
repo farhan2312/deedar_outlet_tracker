@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/session";
-import { OutletTracker } from "@/features/outlet-tracker";
+import { SignupForm } from "@/features/auth/SignupForm";
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
+export default async function SignupPage() {
   const user = await getSessionUser();
-  if (!user) redirect("/login");
-  return <OutletTracker user={user} />;
+  if (user) redirect("/");
+  return <SignupForm />;
 }

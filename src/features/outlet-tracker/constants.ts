@@ -21,8 +21,6 @@ export const COMPETITOR_LEVELS: CompetitorLevel[] = [
   "National Brands",
 ];
 
-export const DEMO_PASSWORD = "deedar12345";
-
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Deedar brand palette (ported verbatim from the reference design). */

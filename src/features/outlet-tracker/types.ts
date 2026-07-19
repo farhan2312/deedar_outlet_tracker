@@ -82,11 +82,9 @@ export interface IdentityForm {
 
 export interface TrackerState {
   screen: Screen;
-  authMobile: string;
-  authPassword: string;
-  authError: string;
   repMobile: string;
   outlets: Outlet[];
+  loading: boolean;
   toast: string;
   dashSearch: string;
   selectedOutletId: string | null;
