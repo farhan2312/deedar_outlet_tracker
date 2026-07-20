@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Screen } from "./types";
 import { C } from "./constants";
 import { TrackerProvider, useTracker, type SessionUser } from "./store";
+import { LanguageToggle, useT } from "@/features/i18n";
 import { Dashboard } from "./screens/Dashboard";
 import { OutletDetail } from "./screens/OutletDetail";
 import { AddOutlet } from "./screens/AddOutlet";
@@ -11,14 +12,14 @@ import { AddVisitFind } from "./screens/AddVisitFind";
 import { AddVisit } from "./screens/AddVisit";
 import { EditVisit } from "./screens/EditVisit";
 
-const TITLES: Record<Screen, string> = {
-  login: "Deedar Field",
-  dashboard: "Deedar Field",
-  outletDetail: "Outlet Details",
-  addOutlet: "Add New Outlet",
-  addVisitFind: "Add Visit",
-  addVisit: "Add Visit",
-  editVisit: "Update Visit",
+const TITLE_KEYS: Record<Screen, string> = {
+  login: "title.dashboard",
+  dashboard: "title.dashboard",
+  outletDetail: "title.outletDetail",
+  addOutlet: "title.addOutlet",
+  addVisitFind: "title.addVisit",
+  addVisit: "title.addVisit",
+  editVisit: "title.editVisit",
 };
 
 export function OutletTracker({ user }: { user: SessionUser }) {
@@ -62,6 +63,7 @@ function Shell() {
 
 function AppShell() {
   const { state, user, onBack } = useTracker();
+  const { t } = useT();
   const showBack = state.screen !== "dashboard";
   const showLogo = state.screen === "dashboard";
 
@@ -83,7 +85,7 @@ function AppShell() {
         {showBack ? (
           <button
             onClick={onBack}
-            aria-label="Back"
+            aria-label={t("common.back")}
             className="dz-tap"
             style={{
               width: 32,
@@ -142,15 +144,16 @@ function AppShell() {
               fontSize: 16,
             }}
           >
-            {TITLES[state.screen]}
+            {t(TITLE_KEYS[state.screen])}
           </div>
         </div>
+        <LanguageToggle tone="dark" />
         {state.screen === "dashboard" && user.role === "admin" ? (
           <Link
             href="/admin"
             style={{ fontSize: 12, color: C.greenTint, fontWeight: 600 }}
           >
-            Admin
+            {t("common.admin")}
           </Link>
         ) : null}
         {state.screen === "dashboard" ? <LogoutButton /> : null}
@@ -158,7 +161,9 @@ function AppShell() {
 
       <main style={{ flex: 1, paddingBottom: 90 }}>
         {state.loading ? (
-          <div style={{ padding: 20, fontSize: 13, color: C.sub }}>Loading…</div>
+          <div style={{ padding: 20, fontSize: 13, color: C.sub }}>
+            {t("common.loading")}
+          </div>
         ) : (
           <ScreenBody screen={state.screen} />
         )}
@@ -169,6 +174,7 @@ function AppShell() {
 
 function LogoutButton() {
   const { onLogout } = useTracker();
+  const { t } = useT();
   return (
     <button
       onClick={onLogout}
@@ -182,7 +188,7 @@ function LogoutButton() {
         border: "none",
       }}
     >
-      Logout
+      {t("common.logout")}
     </button>
   );
 }

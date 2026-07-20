@@ -13,8 +13,7 @@ import {
   TextInput,
 } from "../ui";
 import { decorateOutlet } from "../utils";
-
-const STEP_LABELS = ["Check Duplicate", "Outlet Details", "Review"];
+import { tType, useT } from "@/features/i18n";
 
 export function AddOutlet() {
   const {
@@ -27,6 +26,13 @@ export function AddOutlet() {
     onViewDuplicate,
     submitAddOutlet,
   } = useTracker();
+  const { t } = useT();
+
+  const STEP_LABELS = [
+    t("ao.step.checkDup"),
+    t("ao.step.details"),
+    t("ao.step.review"),
+  ];
 
   const f = state.addForm;
   const isOther = f.type === "Other";
@@ -62,18 +68,15 @@ export function AddOutlet() {
 
       {state.addStep === 1 ? (
         <>
-          <Heading>Check for Existing Outlet</Heading>
-          <Sub>
-            Enter the outlet&apos;s mobile number to rule out a duplicate before
-            creating a new record.
-          </Sub>
-          <Field label="Mobile Number">
+          <Heading>{t("ao.checkTitle")}</Heading>
+          <Sub>{t("ao.checkSub")}</Sub>
+          <Field label={t("field.mobile")}>
             <TextInput
               type="tel"
               inputMode="numeric"
               value={f.mobile}
               onChange={onAddMobileChange}
-              placeholder="10-digit mobile number"
+              placeholder={t("field.mobilePlaceholder")}
             />
           </Field>
 
@@ -88,11 +91,13 @@ export function AddOutlet() {
               }}
             >
               <div style={{ fontSize: 13, fontWeight: 700, color: C.danger }}>
-                Possible duplicate found
+                {t("ao.dupFound")}
               </div>
               <div style={{ fontSize: 12, color: C.ink, marginTop: 4 }}>
-                {duplicate.name} · {duplicate.town} is already registered with
-                this mobile number.
+                {t("ao.dupText", {
+                  name: duplicate.name,
+                  town: duplicate.town,
+                })}
               </div>
               <div
                 onClick={onViewDuplicate}
@@ -113,7 +118,7 @@ export function AddOutlet() {
                   cursor: "pointer",
                 }}
               >
-                View existing outlet
+                {t("ao.viewExisting")}
               </div>
             </div>
           ) : (
@@ -121,57 +126,57 @@ export function AddOutlet() {
           )}
 
           <Button onClick={onAddStep1Next} disabled={step1Disabled}>
-            Continue
+            {t("common.continue")}
           </Button>
         </>
       ) : null}
 
       {state.addStep === 2 ? (
         <>
-          <Heading>Outlet Identity</Heading>
+          <Heading>{t("ao.identityTitle")}</Heading>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <Field label="Name of the Outlet *">
+            <Field label={`${t("field.outletName")} *`}>
               <TextInput
                 value={f.name}
                 onChange={(e) => setAdd({ name: e.target.value })}
               />
             </Field>
-            <Field label="Point of Contact *">
+            <Field label={`${t("field.poc")} *`}>
               <TextInput
                 value={f.poc}
                 onChange={(e) => setAdd({ poc: e.target.value })}
               />
             </Field>
-            <Field label="Address *">
+            <Field label={`${t("field.address")} *`}>
               <TextArea
                 value={f.address}
                 onChange={(e) => setAdd({ address: e.target.value })}
               />
             </Field>
             <FieldGrid>
-              <Field label="Town/City *">
+              <Field label={`${t("field.town")} *`}>
                 <TextInput
                   value={f.town}
                   list="townList"
                   onChange={(e) => setAdd({ town: e.target.value })}
                 />
               </Field>
-              <Field label="Division *">
+              <Field label={`${t("field.division")} *`}>
                 <TextInput
                   value={f.division}
                   onChange={(e) => setAdd({ division: e.target.value })}
                 />
               </Field>
             </FieldGrid>
-            <Field label="Type of Outlet *">
+            <Field label={`${t("field.type")} *`}>
               <Select
                 value={f.type}
                 onChange={(e) => setAdd({ type: e.target.value })}
               >
-                <option value="">Select</option>
-                {TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
+                <option value="">{t("common.select")}</option>
+                {TYPES.map((ty) => (
+                  <option key={ty} value={ty}>
+                    {t(`type.${ty}`)}
                   </option>
                 ))}
               </Select>
@@ -180,7 +185,7 @@ export function AddOutlet() {
               <TextInput
                 value={f.typeOther}
                 onChange={(e) => setAdd({ typeOther: e.target.value })}
-                placeholder="Specify outlet type"
+                placeholder={t("field.specifyType")}
               />
             ) : null}
 
@@ -189,14 +194,14 @@ export function AddOutlet() {
 
           <NavRow>
             <Button variant="ghost" onClick={onAddBack} style={{ flex: 1 }}>
-              Back
+              {t("common.back")}
             </Button>
             <Button
               onClick={onAddStep2Next}
               disabled={step2Disabled}
               style={{ flex: 2 }}
             >
-              Review
+              {t("common.review")}
             </Button>
           </NavRow>
 
@@ -210,7 +215,7 @@ export function AddOutlet() {
 
       {state.addStep === 3 ? (
         <>
-          <Heading>Review &amp; Submit</Heading>
+          <Heading>{t("ao.reviewTitle")}</Heading>
           <div
             style={{
               background: "#fff",
@@ -224,22 +229,27 @@ export function AddOutlet() {
               color: C.ink,
             }}
           >
-            <Row label="Outlet" value={f.name} />
-            <Row label="POC" value={`${f.poc} · ${f.mobile}`} />
-            <Row label="Address" value={f.address} />
-            <Row label="Location" value={`${f.town}, ${f.division}`} />
+            <Row label={t("review.outlet")} value={f.name} />
+            <Row label={t("review.poc")} value={`${f.poc} · ${f.mobile}`} />
+            <Row label={t("review.address")} value={f.address} />
             <Row
-              label="Type"
-              value={isOther ? f.typeOther || "Other" : f.type}
+              label={t("review.location")}
+              value={`${f.town}, ${f.division}`}
             />
-            <Row label="GPS" value={`${f.lat}, ${f.lng}`} />
+            <Row
+              label={t("review.type")}
+              value={
+                isOther ? f.typeOther || t("type.Other") : tType(t, f.type)
+              }
+            />
+            <Row label={t("review.gps")} value={`${f.lat}, ${f.lng}`} />
           </div>
           <NavRow>
             <Button variant="ghost" onClick={onAddBack} style={{ flex: 1 }}>
-              Back
+              {t("common.back")}
             </Button>
             <Button variant="gold" onClick={submitAddOutlet} style={{ flex: 2 }}>
-              Submit Outlet
+              {t("ao.submitOutlet")}
             </Button>
           </NavRow>
         </>
@@ -250,6 +260,7 @@ export function AddOutlet() {
 
 function GpsBox() {
   const { state, setAdd, onCaptureGps } = useTracker();
+  const { t } = useT();
   const f = state.addForm;
   const s = state.addGpsStatus;
   return (
@@ -269,19 +280,19 @@ function GpsBox() {
           marginBottom: 8,
         }}
       >
-        GPS Coordinates *
+        {t("gps.title")} *
       </div>
       {s === "idle" ? (
         <Button onClick={onCaptureGps} style={{ padding: 11, fontSize: 13 }}>
-          Capture Current Location
+          {t("gps.capture")}
         </Button>
       ) : null}
       {s === "capturing" ? (
-        <div style={{ fontSize: 13, color: C.sub }}>Locating…</div>
+        <div style={{ fontSize: 13, color: C.sub }}>{t("gps.locating")}</div>
       ) : null}
       {s === "success" ? (
         <div style={{ fontSize: 13, color: C.green, fontWeight: 600 }}>
-          Captured: {f.lat}, {f.lng}
+          {t("gps.captured", { lat: f.lat, lng: f.lng })}
         </div>
       ) : null}
       {s === "error" ? (
@@ -293,12 +304,12 @@ function GpsBox() {
             <TextInput
               value={f.lat}
               onChange={(e) => setAdd({ lat: e.target.value })}
-              placeholder="Latitude"
+              placeholder={t("gps.latitude")}
             />
             <TextInput
               value={f.lng}
               onChange={(e) => setAdd({ lng: e.target.value })}
-              placeholder="Longitude"
+              placeholder={t("gps.longitude")}
             />
           </div>
           <div
@@ -319,7 +330,7 @@ function GpsBox() {
               cursor: "pointer",
             }}
           >
-            Retry location capture
+            {t("gps.retry")}
           </div>
         </>
       ) : null}

@@ -9,6 +9,15 @@ Azure Postgres.
 - Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS 4
 - Postgres (Azure) via `pg` (raw SQL, no ORM)
 - Auth: bcrypt password hashing + signed JWT session cookie (`jose`)
+- Bilingual UI (English / Hindi) — see below
+
+## Language (English / Hindi)
+
+Every screen has an **EN / हिं** toggle (auth pages, app header, admin header).
+The choice is saved per-device in `localStorage`. Translations live in
+[`src/features/i18n/translations.ts`](src/features/i18n/translations.ts); Hindi
+uses the Noto Sans Devanagari font. Server-side validation errors remain in
+English.
 
 ## Setup
 

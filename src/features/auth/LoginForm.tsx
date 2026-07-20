@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { C } from "@/features/outlet-tracker/constants";
+import { useT } from "@/features/i18n";
 import {
   AuthLayout,
   authButtonStyle,
@@ -13,6 +14,7 @@ import {
 
 export function LoginForm({ next }: { next: string }) {
   const router = useRouter();
+  const { t } = useT();
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -36,7 +38,7 @@ export function LoginForm({ next }: { next: string }) {
       router.replace(next || "/");
       router.refresh();
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(t("login.error"));
     } finally {
       setBusy(false);
     }
@@ -44,19 +46,19 @@ export function LoginForm({ next }: { next: string }) {
 
   return (
     <AuthLayout
-      title="Rep Login"
-      subtitle="Sign in with your mobile number"
+      title={t("login.title")}
+      subtitle={t("login.subtitle")}
       footer={
         <>
-          New rep?{" "}
+          {t("login.newRep")}{" "}
           <Link href="/signup" style={{ color: "#fff", fontWeight: 700 }}>
-            Create an account
+            {t("login.createAccount")}
           </Link>
         </>
       }
     >
       <form onSubmit={onSubmit}>
-        <label style={authLabelStyle}>Mobile Number</label>
+        <label style={authLabelStyle}>{t("field.mobile")}</label>
         <input
           className="dz-input dz-tap"
           type="tel"
@@ -65,17 +67,17 @@ export function LoginForm({ next }: { next: string }) {
           onChange={(e) =>
             setPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))
           }
-          placeholder="10-digit mobile number"
+          placeholder={t("field.mobilePlaceholder")}
           style={authFieldStyle}
         />
 
-        <label style={authLabelStyle}>Password</label>
+        <label style={authLabelStyle}>{t("field.password")}</label>
         <input
           className="dz-input dz-tap"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
+          placeholder={t("field.password")}
           style={{ ...authFieldStyle, marginBottom: 6 }}
         />
 
@@ -91,7 +93,7 @@ export function LoginForm({ next }: { next: string }) {
           className="dz-tap dz-btn-green"
           style={{ ...authButtonStyle, opacity: busy ? 0.6 : 1 }}
         >
-          {busy ? "Signing in…" : "Log In"}
+          {busy ? t("login.signingIn") : t("login.button")}
         </button>
       </form>
     </AuthLayout>

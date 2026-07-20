@@ -11,12 +11,13 @@ import {
   TextArea,
   TextInput,
 } from "../ui";
-import { competitorSummary } from "../utils";
-
-const STEP_LABELS = ["Visit Data", "Review"];
+import { tCompetitor, useT } from "@/features/i18n";
 
 export function AddVisit() {
   const { state, setAv, onAvNext, onAvBack, submitVisit } = useTracker();
+  const { t } = useT();
+
+  const STEP_LABELS = [t("av.step.visitData"), t("av.step.review")];
 
   const f = state.avForm;
   const needsBrand =
@@ -42,36 +43,36 @@ export function AddVisit() {
           </Sub>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <FieldGrid>
-              <Field label="Stock at Outlet *">
+              <Field label={`${t("field.stock")} *`}>
                 <TextInput
                   type="number"
                   inputMode="numeric"
                   value={f.stock}
                   onChange={(e) => setAv({ stock: e.target.value })}
-                  placeholder="Packets"
+                  placeholder={t("placeholder.packets")}
                 />
               </Field>
-              <Field label="Packets Sold *">
+              <Field label={`${t("field.sold")} *`}>
                 <TextInput
                   type="number"
                   inputMode="numeric"
                   value={f.sold}
                   onChange={(e) => setAv({ sold: e.target.value })}
-                  placeholder="Packets"
+                  placeholder={t("placeholder.packets")}
                 />
               </Field>
             </FieldGrid>
-            <Field label="Deedar Rank at Outlet *">
+            <Field label={`${t("field.rank")} *`}>
               <TextInput
                 type="number"
                 inputMode="numeric"
                 value={f.rank}
                 onChange={(e) => setAv({ rank: e.target.value })}
-                placeholder="e.g. 1 = first"
+                placeholder={t("placeholder.rankEg")}
               />
             </Field>
             <div>
-              <Field label="Competitor Presence *">
+              <Field label={`${t("field.competitor")} *`}>
                 <CompetitorPicker
                   value={f.competitor}
                   onSelect={(c) => setAv({ competitor: c })}
@@ -82,12 +83,12 @@ export function AddVisit() {
                   <TextInput
                     value={f.competitorBrand}
                     onChange={(e) => setAv({ competitorBrand: e.target.value })}
-                    placeholder="Name the competitor brand"
+                    placeholder={t("placeholder.competitorBrand")}
                   />
                 </div>
               ) : null}
             </div>
-            <Field label="Remarks (optional)">
+            <Field label={t("field.remarks")}>
               <TextArea
                 value={f.remarks}
                 onChange={(e) => setAv({ remarks: e.target.value })}
@@ -96,14 +97,14 @@ export function AddVisit() {
           </div>
           <NavRow>
             <Button variant="ghost" onClick={onAvBack} style={{ flex: 1 }}>
-              Back
+              {t("common.back")}
             </Button>
             <Button
               onClick={onAvNext}
               disabled={step1Disabled}
               style={{ flex: 2 }}
             >
-              Review
+              {t("common.review")}
             </Button>
           </NavRow>
         </>
@@ -111,7 +112,7 @@ export function AddVisit() {
 
       {state.avStep === 2 ? (
         <>
-          <Heading>Review &amp; Submit Visit</Heading>
+          <Heading>{t("av.reviewTitle")}</Heading>
           <div
             style={{
               background: "#fff",
@@ -126,11 +127,12 @@ export function AddVisit() {
             }}
           >
             <div>
-              <span style={{ color: C.sub }}>Outlet:</span> {f.name}
+              <span style={{ color: C.sub }}>{t("review.outlet")}:</span>{" "}
+              {f.name}
             </div>
             <div>
-              <span style={{ color: C.sub }}>Location:</span> {f.town},{" "}
-              {f.division}
+              <span style={{ color: C.sub }}>{t("review.location")}:</span>{" "}
+              {f.town}, {f.division}
             </div>
             <div
               style={{
@@ -139,21 +141,23 @@ export function AddVisit() {
                 paddingTop: 8,
               }}
             >
-              <span style={{ color: C.sub }}>Stock:</span> {f.stock} pkts ·{" "}
-              <span style={{ color: C.sub }}>Sold:</span> {f.sold} pkts ·{" "}
-              <span style={{ color: C.sub }}>Rank:</span> #{f.rank}
+              <span style={{ color: C.sub }}>{t("review.stock")}:</span>{" "}
+              {f.stock} {t("review.pkts")} ·{" "}
+              <span style={{ color: C.sub }}>{t("review.sold")}:</span> {f.sold}{" "}
+              {t("review.pkts")} ·{" "}
+              <span style={{ color: C.sub }}>{t("review.rank")}:</span> #{f.rank}
             </div>
             <div>
-              <span style={{ color: C.sub }}>Competitor:</span>{" "}
-              {competitorSummary(f.competitor, f.competitorBrand)}
+              <span style={{ color: C.sub }}>{t("review.competitor")}:</span>{" "}
+              {tCompetitor(t, f.competitor, f.competitorBrand)}
             </div>
           </div>
           <NavRow>
             <Button variant="ghost" onClick={onAvBack} style={{ flex: 1 }}>
-              Back
+              {t("common.back")}
             </Button>
             <Button variant="gold" onClick={submitVisit} style={{ flex: 2 }}>
-              Submit Visit
+              {t("av.submit")}
             </Button>
           </NavRow>
         </>

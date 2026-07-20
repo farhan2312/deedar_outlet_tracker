@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { C, USER_DIVISIONS } from "@/features/outlet-tracker/constants";
+import { useT } from "@/features/i18n";
 import {
   AuthLayout,
   authButtonStyle,
@@ -11,6 +12,7 @@ import {
 } from "./AuthLayout";
 
 export function SignupForm() {
+  const { t } = useT();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState<"field_rep" | "admin">("field_rep");
@@ -37,7 +39,7 @@ export function SignupForm() {
       }
       setDone(true);
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(t("login.error"));
     } finally {
       setBusy(false);
     }
@@ -46,17 +48,16 @@ export function SignupForm() {
   if (done) {
     return (
       <AuthLayout
-        title="Request received"
-        subtitle="Your account is pending approval"
+        title={t("signup.doneTitle")}
+        subtitle={t("signup.doneSubtitle")}
         footer={
           <Link href="/login" style={{ color: "#fff", fontWeight: 700 }}>
-            Back to login
+            {t("signup.backToLogin")}
           </Link>
         }
       >
         <div style={{ fontSize: 14, color: C.ink, lineHeight: 1.5 }}>
-          Thanks, {name || "there"}. An admin will review your request and
-          approve your access. You&apos;ll be able to log in once approved.
+          {t("signup.doneBody", { name: name || "" })}
         </div>
       </AuthLayout>
     );
@@ -64,28 +65,28 @@ export function SignupForm() {
 
   return (
     <AuthLayout
-      title="Create Account"
-      subtitle="Sign up to request rep access"
+      title={t("signup.title")}
+      subtitle={t("signup.subtitle")}
       footer={
         <>
-          Already have an account?{" "}
+          {t("signup.haveAccount")}{" "}
           <Link href="/login" style={{ color: "#fff", fontWeight: 700 }}>
-            Log in
+            {t("signup.login")}
           </Link>
         </>
       }
     >
       <form onSubmit={onSubmit}>
-        <label style={authLabelStyle}>Full Name</label>
+        <label style={authLabelStyle}>{t("field.fullName")}</label>
         <input
           className="dz-input dz-tap"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Your name"
+          placeholder={t("field.namePlaceholder")}
           style={authFieldStyle}
         />
 
-        <label style={authLabelStyle}>Mobile Number</label>
+        <label style={authLabelStyle}>{t("field.mobile")}</label>
         <input
           className="dz-input dz-tap"
           type="tel"
@@ -94,31 +95,31 @@ export function SignupForm() {
           onChange={(e) =>
             setPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))
           }
-          placeholder="10-digit mobile number"
+          placeholder={t("field.mobilePlaceholder")}
           style={authFieldStyle}
         />
 
-        <label style={authLabelStyle}>Role</label>
+        <label style={authLabelStyle}>{t("field.role")}</label>
         <select
           className="dz-input dz-tap"
           value={role}
           onChange={(e) => setRole(e.target.value as "field_rep" | "admin")}
           style={{ ...authFieldStyle, appearance: "auto", background: "#fff" }}
         >
-          <option value="field_rep">Field Rep</option>
-          <option value="admin">Admin</option>
+          <option value="field_rep">{t("role.field_rep")}</option>
+          <option value="admin">{t("role.admin")}</option>
         </select>
 
         {role === "field_rep" ? (
           <>
-            <label style={authLabelStyle}>Division</label>
+            <label style={authLabelStyle}>{t("field.division")}</label>
             <select
               className="dz-input dz-tap"
               value={division}
               onChange={(e) => setDivision(e.target.value)}
               style={{ ...authFieldStyle, appearance: "auto", background: "#fff" }}
             >
-              <option value="">Select your division</option>
+              <option value="">{t("field.divisionSelect")}</option>
               {USER_DIVISIONS.map((d) => (
                 <option key={d} value={d}>
                   {d}
@@ -128,13 +129,13 @@ export function SignupForm() {
           </>
         ) : null}
 
-        <label style={authLabelStyle}>Password</label>
+        <label style={authLabelStyle}>{t("field.password")}</label>
         <input
           className="dz-input dz-tap"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="At least 6 characters"
+          placeholder={t("field.passwordMin")}
           style={{ ...authFieldStyle, marginBottom: 6 }}
         />
 
@@ -150,7 +151,7 @@ export function SignupForm() {
           className="dz-tap dz-btn-green"
           style={{ ...authButtonStyle, opacity: busy ? 0.6 : 1 }}
         >
-          {busy ? "Creating…" : "Create Account"}
+          {busy ? t("signup.creating") : t("signup.button")}
         </button>
       </form>
     </AuthLayout>

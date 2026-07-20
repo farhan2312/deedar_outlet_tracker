@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope, Sora } from "next/font/google";
+import { Manrope, Sora, Noto_Sans_Devanagari } from "next/font/google";
+import { LanguageProvider } from "@/features/i18n";
 import "@/styles/globals.css";
 
 const manrope = Manrope({
@@ -12,6 +13,13 @@ const sora = Sora({
   subsets: ["latin"],
   weight: ["700", "800"],
   variable: "--font-sora",
+  display: "swap",
+});
+
+// Devanagari glyphs for Hindi (Manrope/Sora are Latin-only).
+const devanagari = Noto_Sans_Devanagari({
+  subsets: ["devanagari"],
+  variable: "--font-devanagari",
   display: "swap",
 });
 
@@ -32,8 +40,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${manrope.variable} ${sora.variable}`}>
-      <body>{children}</body>
+    <html
+      lang="en"
+      className={`${manrope.variable} ${sora.variable} ${devanagari.variable}`}
+    >
+      <body>
+        <LanguageProvider>{children}</LanguageProvider>
+      </body>
     </html>
   );
 }

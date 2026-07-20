@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { C } from "@/features/outlet-tracker/constants";
+import { useT } from "@/features/i18n";
 import {
   AuthLayout,
   authButtonStyle,
@@ -12,6 +13,7 @@ import {
 
 export function ChangePasswordForm({ forced }: { forced: boolean }) {
   const router = useRouter();
+  const { t } = useT();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
@@ -21,7 +23,7 @@ export function ChangePasswordForm({ forced }: { forced: boolean }) {
     e.preventDefault();
     setError("");
     if (password !== confirm) {
-      setError("Passwords do not match.");
+      setError(t("cp.mismatch"));
       return;
     }
     setBusy(true);
@@ -39,7 +41,7 @@ export function ChangePasswordForm({ forced }: { forced: boolean }) {
       router.replace("/");
       router.refresh();
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(t("login.error"));
     } finally {
       setBusy(false);
     }
@@ -47,31 +49,27 @@ export function ChangePasswordForm({ forced }: { forced: boolean }) {
 
   return (
     <AuthLayout
-      title={forced ? "Set a New Password" : "Change Password"}
-      subtitle={
-        forced
-          ? "For your security, please replace the temporary password"
-          : "Choose a new password"
-      }
+      title={forced ? t("cp.titleForced") : t("cp.title")}
+      subtitle={forced ? t("cp.subtitleForced") : t("cp.subtitle")}
     >
       <form onSubmit={onSubmit}>
-        <label style={authLabelStyle}>New Password</label>
+        <label style={authLabelStyle}>{t("cp.newPassword")}</label>
         <input
           className="dz-input dz-tap"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="At least 6 characters"
+          placeholder={t("field.passwordMin")}
           style={authFieldStyle}
         />
 
-        <label style={authLabelStyle}>Confirm New Password</label>
+        <label style={authLabelStyle}>{t("cp.confirm")}</label>
         <input
           className="dz-input dz-tap"
           type="password"
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
-          placeholder="Re-enter new password"
+          placeholder={t("cp.confirmPlaceholder")}
           style={{ ...authFieldStyle, marginBottom: 6 }}
         />
 
@@ -87,7 +85,7 @@ export function ChangePasswordForm({ forced }: { forced: boolean }) {
           className="dz-tap dz-btn-green"
           style={{ ...authButtonStyle, opacity: busy ? 0.6 : 1 }}
         >
-          {busy ? "Saving…" : "Save Password"}
+          {busy ? t("cp.saving") : t("cp.save")}
         </button>
       </form>
     </AuthLayout>

@@ -8,6 +8,7 @@ import type {
 } from "react";
 import { C, COMPETITOR_LEVELS } from "./constants";
 import type { CompetitorLevel } from "./types";
+import { useT } from "@/features/i18n";
 
 type ChangeHandler = (
   e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -300,6 +301,7 @@ export function CompetitorPicker({
   value: CompetitorLevel | "";
   onSelect: (level: CompetitorLevel) => void;
 }) {
+  const { t } = useT();
   return (
     <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
       {COMPETITOR_LEVELS.map((c) => {
@@ -330,7 +332,7 @@ export function CompetitorPicker({
               color: selected ? "#fff" : C.ink,
             }}
           >
-            {c}
+            {t(`competitor.${c}`)}
           </div>
         );
       })}

@@ -5,10 +5,12 @@ import { C } from "../constants";
 import { useTracker } from "../store";
 import { Badge, Button, Field, TextInput } from "../ui";
 import { decorateOutlet } from "../utils";
+import { tType, useT } from "@/features/i18n";
 
 export function AddVisitFind() {
   const { state, onAvMobileChange, onAvSelectOutlet, onAvGoAddOutlet } =
     useTracker();
+  const { t } = useT();
 
   const match = useMemo(() => {
     if (state.avMobile.length !== 10) return null;
@@ -29,19 +31,19 @@ export function AddVisitFind() {
           marginBottom: 4,
         }}
       >
-        Find the Outlet
+        {t("avf.title")}
       </div>
       <div style={{ fontSize: 13, color: C.sub, marginBottom: 16 }}>
-        Enter the outlet&apos;s mobile number — we&apos;ll pull up its details.
+        {t("avf.sub")}
       </div>
 
-      <Field label="Outlet Mobile Number">
+      <Field label={t("avf.outletMobile")}>
         <TextInput
           type="tel"
           inputMode="numeric"
           value={state.avMobile}
           onChange={onAvMobileChange}
-          placeholder="10-digit mobile number"
+          placeholder={t("field.mobilePlaceholder")}
         />
       </Field>
 
@@ -66,17 +68,17 @@ export function AddVisitFind() {
             <div style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>
               {match.name}
             </div>
-            <Badge>{match.typeLabel}</Badge>
+            <Badge>{tType(t, match.typeLabel)}</Badge>
           </div>
           <div style={{ fontSize: 12, color: C.sub, marginTop: 3 }}>
             {match.town}, {match.division} · {match.mobile}
           </div>
           <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>
-            Last visit: {match.lastVisitLabel}
+            {t("avf.lastVisit", { date: match.lastVisitLabel })}
           </div>
           <div style={{ marginTop: 14 }}>
             <Button onClick={() => onAvSelectOutlet(match.id)}>
-              Continue to Visit Data
+              {t("avf.continue")}
             </Button>
           </div>
         </div>
@@ -93,14 +95,14 @@ export function AddVisitFind() {
           }}
         >
           <div style={{ fontSize: 13, fontWeight: 700, color: C.danger }}>
-            No outlet found
+            {t("avf.notFoundTitle")}
           </div>
           <div style={{ fontSize: 12, color: C.ink, marginTop: 4 }}>
-            No outlet is registered with this mobile number yet.
+            {t("avf.notFoundText")}
           </div>
           <div style={{ marginTop: 12 }}>
             <Button variant="gold" onClick={onAvGoAddOutlet}>
-              Add New Outlet
+              {t("avf.addNew")}
             </Button>
           </div>
         </div>

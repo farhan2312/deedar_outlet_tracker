@@ -5,6 +5,7 @@ import { C, DAY_MS } from "../constants";
 import { useTracker } from "../store";
 import { Badge, Card, SectionLabel } from "../ui";
 import { decorateOutlet, matchOutlet } from "../utils";
+import { tType, useT } from "@/features/i18n";
 
 export function Dashboard() {
   const {
@@ -15,6 +16,7 @@ export function Dashboard() {
     onStartAddOutlet,
     onStartAddVisit,
   } = useTracker();
+  const { t } = useT();
 
   const outlets = useMemo(
     () => state.outlets.map(decorateOutlet),
@@ -81,7 +83,7 @@ export function Dashboard() {
   return (
     <div style={{ padding: 20 }}>
       <div style={{ fontSize: 13, color: C.sub, marginBottom: 2 }}>
-        Welcome back
+        {t("dash.welcome")}
       </div>
       <div
         style={{
@@ -99,8 +101,8 @@ export function Dashboard() {
         className="dz-input dz-tap"
         value={state.dashSearch}
         onChange={onDashSearchChange}
-        placeholder="Search outlets by name, mobile, town..."
-        aria-label="Search outlets"
+        placeholder={t("dash.searchPlaceholder")}
+        aria-label={t("dash.searchPlaceholder")}
         style={{
           width: "100%",
           boxSizing: "border-box",
@@ -116,7 +118,9 @@ export function Dashboard() {
 
       {state.dashSearch ? (
         <div style={{ marginBottom: 20 }}>
-          <SectionLabel>Search Results ({dashResults.length})</SectionLabel>
+          <SectionLabel>
+            {t("dash.searchResults", { count: dashResults.length })}
+          </SectionLabel>
           <div className="dz-card-list">
             {dashResults.map((o) => (
               <Card key={o.id} onClick={() => openOutlet(o.id)}>
@@ -131,7 +135,7 @@ export function Dashboard() {
                   <div style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>
                     {o.name}
                   </div>
-                  <Badge>{o.typeLabel}</Badge>
+                  <Badge>{tType(t, o.typeLabel)}</Badge>
                 </div>
                 <div style={{ fontSize: 12, color: C.sub, marginTop: 3 }}>
                   {o.town}, {o.division} · {o.mobile}
@@ -146,16 +150,16 @@ export function Dashboard() {
         <ActionCard
           onClick={onStartAddOutlet}
           bg={C.green}
-          title="Add New Outlet"
-          subtitle="Onboard a new outlet"
+          title={t("dash.addOutlet")}
+          subtitle={t("dash.addOutletSub")}
           subtitleColor={C.greenTint}
           icon="plus"
         />
         <ActionCard
           onClick={onStartAddVisit}
           bg={C.gold}
-          title="Add Visit"
-          subtitle="Log a visit for an outlet"
+          title={t("dash.addVisit")}
+          subtitle={t("dash.addVisitSub")}
           subtitleColor={C.goldBg}
           icon="check"
         />
@@ -163,7 +167,7 @@ export function Dashboard() {
 
       {mySubmissions.length > 0 ? (
         <div style={{ marginBottom: 4 }}>
-          <SectionLabel>My Submissions (editable for 24h)</SectionLabel>
+          <SectionLabel>{t("dash.mySubmissions")}</SectionLabel>
           <div className="dz-card-list" style={{ marginBottom: 20 }}>
             {mySubmissions.map((s) => (
               <Card key={s.outletId} onClick={() => openOutlet(s.outletId)}>
@@ -178,13 +182,13 @@ export function Dashboard() {
                   <div style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>
                     {s.outletName}
                   </div>
-                  <Badge tone="green">Edit</Badge>
+                  <Badge tone="green">{t("badge.edit")}</Badge>
                 </div>
                 <div style={{ fontSize: 12, color: C.sub, marginTop: 3 }}>
-                  {s.count} visit{s.count > 1 ? "s" : ""} in the last 24h
+                  {t("dash.visitsInLast24", { count: s.count })}
                 </div>
                 <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>
-                  Editable for {s.hoursLeft} more hours
+                  {t("dash.editableHours", { hours: s.hoursLeft })}
                 </div>
               </Card>
             ))}
@@ -194,7 +198,9 @@ export function Dashboard() {
 
       {user.role === "admin" ? (
         <>
-          <SectionLabel>All Outlets ({allOutlets.length})</SectionLabel>
+          <SectionLabel>
+            {t("dash.allOutlets", { count: allOutlets.length })}
+          </SectionLabel>
           {allOutlets.length === 0 ? (
             <div
               style={{
@@ -207,7 +213,7 @@ export function Dashboard() {
                 textAlign: "center",
               }}
             >
-              No outlets yet.
+              {t("dash.noOutlets")}
             </div>
           ) : (
             <div className="dz-card-list">
@@ -224,14 +230,16 @@ export function Dashboard() {
                     <div style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>
                       {o.name}
                     </div>
-                    <Badge>{o.typeLabel}</Badge>
+                    <Badge>{tType(t, o.typeLabel)}</Badge>
                   </div>
                   <div style={{ fontSize: 12, color: C.sub, marginTop: 3 }}>
                     {o.town}, {o.division}
                   </div>
                   <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>
-                    {o.visitCount} visit{o.visitCount === 1 ? "" : "s"} · last{" "}
-                    {o.lastVisitLabel}
+                    {t("dash.visitsCountLast", {
+                      count: o.visitCount,
+                      date: o.lastVisitLabel,
+                    })}
                   </div>
                 </Card>
               ))}

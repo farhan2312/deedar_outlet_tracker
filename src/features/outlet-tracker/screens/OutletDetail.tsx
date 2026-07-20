@@ -4,7 +4,8 @@ import { useMemo } from "react";
 import { C, DAY_MS, TYPES } from "../constants";
 import { useTracker } from "../store";
 import { Badge, Button, Field, FieldGrid, SectionLabel, Select, TextInput } from "../ui";
-import { competitorSummary, decorateOutlet, fmtDate } from "../utils";
+import { decorateOutlet, fmtDate } from "../utils";
+import { tCompetitor, tType, useT } from "@/features/i18n";
 
 export function OutletDetail() {
   const {
@@ -17,6 +18,7 @@ export function OutletDetail() {
     onAddVisitForSelected,
     onOpenEditVisit,
   } = useTracker();
+  const { t } = useT();
 
   const outlet = useMemo(() => {
     const o = state.outlets.find((x) => x.id === state.selectedOutletId);
@@ -81,7 +83,7 @@ export function OutletDetail() {
               {outlet.name}
             </div>
             <div style={{ marginTop: 6 }}>
-              <Badge>{outlet.typeLabel}</Badge>
+              <Badge>{tType(t, outlet.typeLabel)}</Badge>
             </div>
           </div>
           {!editing ? (
@@ -107,7 +109,7 @@ export function OutletDetail() {
                 whiteSpace: "nowrap",
               }}
             >
-              Edit
+              {t("common.edit")}
             </div>
           ) : null}
         </div>
@@ -121,14 +123,14 @@ export function OutletDetail() {
               gap: 9,
             }}
           >
-            <Detail label="Point of Contact" value={outlet.poc} />
-            <Detail label="Mobile" value={outlet.mobile} />
-            <Detail label="Address" value={outlet.address} />
+            <Detail label={t("od.pocLabel")} value={outlet.poc} />
+            <Detail label={t("od.mobileLabel")} value={outlet.mobile} />
+            <Detail label={t("od.addressLabel")} value={outlet.address} />
             <Detail
-              label="Town/Division"
+              label={t("od.townDivisionLabel")}
               value={`${outlet.town}, ${outlet.division}`}
             />
-            <Detail label="GPS" value={outlet.gpsLabel} />
+            <Detail label={t("od.gpsLabel")} value={outlet.gpsLabel} />
           </div>
         ) : (
           <div
@@ -139,53 +141,53 @@ export function OutletDetail() {
               gap: 10,
             }}
           >
-            <Field label="Outlet Name">
+            <Field label={t("field.outletName")}>
               <TextInput
                 value={ef.name ?? ""}
                 onChange={(e) => setEditIdentity({ name: e.target.value })}
               />
             </Field>
-            <Field label="Point of Contact">
+            <Field label={t("field.poc")}>
               <TextInput
                 value={ef.poc ?? ""}
                 onChange={(e) => setEditIdentity({ poc: e.target.value })}
               />
             </Field>
-            <Field label="Mobile Number">
+            <Field label={t("field.mobile")}>
               <TextInput
                 value={ef.mobile ?? ""}
                 inputMode="numeric"
                 onChange={(e) => setEditIdentity({ mobile: e.target.value })}
               />
             </Field>
-            <Field label="Address">
+            <Field label={t("field.address")}>
               <TextInput
                 value={ef.address ?? ""}
                 onChange={(e) => setEditIdentity({ address: e.target.value })}
               />
             </Field>
             <FieldGrid>
-              <Field label="Town/City">
+              <Field label={t("field.town")}>
                 <TextInput
                   value={ef.town ?? ""}
                   onChange={(e) => setEditIdentity({ town: e.target.value })}
                 />
               </Field>
-              <Field label="Division">
+              <Field label={t("field.division")}>
                 <TextInput
                   value={ef.division ?? ""}
                   onChange={(e) => setEditIdentity({ division: e.target.value })}
                 />
               </Field>
             </FieldGrid>
-            <Field label="Type of Outlet">
+            <Field label={t("field.type")}>
               <Select
                 value={ef.type ?? ""}
                 onChange={(e) => setEditIdentity({ type: e.target.value })}
               >
-                {TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
+                {TYPES.map((ty) => (
+                  <option key={ty} value={ty}>
+                    {t(`type.${ty}`)}
                   </option>
                 ))}
               </Select>
@@ -194,29 +196,31 @@ export function OutletDetail() {
               <TextInput
                 value={ef.typeOther ?? ""}
                 onChange={(e) => setEditIdentity({ typeOther: e.target.value })}
-                placeholder="Specify outlet type"
+                placeholder={t("field.specifyType")}
               />
             ) : null}
             <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
               <Button variant="ghost" onClick={onCancelEditIdentity}>
-                Cancel
+                {t("common.cancel")}
               </Button>
-              <Button onClick={saveEditIdentity}>Save Changes</Button>
+              <Button onClick={saveEditIdentity}>{t("common.saveChanges")}</Button>
             </div>
           </div>
         )}
       </div>
 
       <Button variant="gold" onClick={onAddVisitForSelected}>
-        Add Visit for this Outlet
+        {t("od.addVisit")}
       </Button>
 
       {isAdmin ? (
         <div style={{ marginTop: 24 }}>
-          <SectionLabel>Visit History ({visitHistory.length})</SectionLabel>
+          <SectionLabel>
+            {t("od.visitHistory", { count: visitHistory.length })}
+          </SectionLabel>
           {visitHistory.length === 0 ? (
             <div style={{ fontSize: 13, color: C.muted }}>
-              No visits recorded for this outlet yet.
+              {t("od.noVisits")}
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -242,19 +246,24 @@ export function OutletDetail() {
                       {fmtDate(v.date)}
                     </div>
                     <div style={{ fontSize: 11, color: C.muted }}>
-                      Rep {v.rep || "—"}
+                      {t("od.repShort", { rep: v.rep || "—" })}
                     </div>
                   </div>
                   <div style={{ fontSize: 12, color: C.ink, marginTop: 5 }}>
-                    Stock {v.stock} · Sold {v.sold} · Rank #{v.rank}
+                    {t("od.stockSoldRank", {
+                      stock: v.stock,
+                      sold: v.sold,
+                      rank: v.rank,
+                    })}
                   </div>
                   <div style={{ fontSize: 11, color: C.sub, marginTop: 3 }}>
-                    Competitor:{" "}
-                    {competitorSummary(v.competitor, v.competitorBrand)}
+                    {t("od.competitorLine", {
+                      value: tCompetitor(t, v.competitor, v.competitorBrand),
+                    })}
                   </div>
                   {v.remarks ? (
                     <div style={{ fontSize: 11, color: C.sub, marginTop: 3 }}>
-                      Remarks: {v.remarks}
+                      {t("od.remarksLine", { value: v.remarks })}
                     </div>
                   ) : null}
                 </div>
@@ -264,7 +273,7 @@ export function OutletDetail() {
         </div>
       ) : myEditable.length > 0 ? (
         <div style={{ marginTop: 24 }}>
-          <SectionLabel>Your Submissions (editable for 24h)</SectionLabel>
+          <SectionLabel>{t("od.yourSubmissions")}</SectionLabel>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {myEditable.map((v) => {
               const hoursLeft = Math.max(
@@ -315,14 +324,18 @@ export function OutletDetail() {
                         padding: "5px 12px",
                       }}
                     >
-                      Edit
+                      {t("common.edit")}
                     </div>
                   </div>
                   <div style={{ fontSize: 12, color: C.ink, marginTop: 5 }}>
-                    Stock {v.stock} · Sold {v.sold} · Rank #{v.rank}
+                    {t("od.stockSoldRank", {
+                      stock: v.stock,
+                      sold: v.sold,
+                      rank: v.rank,
+                    })}
                   </div>
                   <div style={{ fontSize: 11, color: C.muted, marginTop: 3 }}>
-                    Editable for {hoursLeft} more hours
+                    {t("dash.editableHours", { hours: hoursLeft })}
                   </div>
                 </div>
               );
@@ -338,7 +351,7 @@ export function OutletDetail() {
             textAlign: "center",
           }}
         >
-          Visit history is available to the central data team only.
+          {t("od.centralOnly")}
         </div>
       )}
     </div>

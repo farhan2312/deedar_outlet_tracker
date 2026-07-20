@@ -20,6 +20,7 @@ import type {
   Visit,
 } from "./types";
 import { digits } from "./utils";
+import { useT } from "@/features/i18n";
 
 export interface SessionUser {
   id: string;
@@ -68,6 +69,7 @@ async function postJson(url: string, body: unknown, method = "POST") {
 }
 
 function useTrackerStore(user: SessionUser) {
+  const { t } = useT();
   const [state, setFull] = useState<TrackerState>(() => initialState(user));
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Latest state, so async handlers read fresh form values without re-binding.
@@ -187,7 +189,7 @@ function useTrackerStore(user: SessionUser) {
     if (!id) return;
     const { ok, data } = await postJson(`/api/visits/${id}`, f, "PATCH");
     if (!ok) {
-      showToast(String(data.error ?? "Could not update visit"));
+      showToast(String(data.error ?? t("toast.couldNotUpdateVisit")));
       return;
     }
     // Apply the edit locally (the PATCH returns only { ok }).
@@ -214,7 +216,7 @@ function useTrackerStore(user: SessionUser) {
       ),
       screen: "dashboard",
     }));
-    showToast("Visit updated");
+    showToast(t("toast.visitUpdated"));
   };
 
   // ---------- OUTLET DETAIL / EDIT IDENTITY ----------
@@ -245,12 +247,12 @@ function useTrackerStore(user: SessionUser) {
     if (!id) return;
     const { ok, data } = await postJson(`/api/outlets/${id}`, f, "PATCH");
     if (!ok) {
-      showToast(String(data.error ?? "Could not save changes"));
+      showToast(String(data.error ?? t("toast.couldNotSave")));
       return;
     }
     if (data.outlet) upsertOutlet(data.outlet as Outlet);
     setState({ editingIdentity: false });
-    showToast("Outlet details updated");
+    showToast(t("toast.outletUpdated"));
   };
   const onAddVisitForSelected = () =>
     setState((s) => {
@@ -300,8 +302,7 @@ function useTrackerStore(user: SessionUser) {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       setState({
         addGpsStatus: "error",
-        addGpsErrorMsg:
-          "Location services unavailable on this device. Enter coordinates manually.",
+        addGpsErrorMsg: t("gps.errUnavailable"),
       });
       return;
     }
@@ -318,8 +319,7 @@ function useTrackerStore(user: SessionUser) {
       () =>
         setState({
           addGpsStatus: "error",
-          addGpsErrorMsg:
-            "Location access denied or unavailable. Enter coordinates manually.",
+          addGpsErrorMsg: t("gps.errDenied"),
         }),
       { timeout: 8000 },
     );
@@ -331,7 +331,7 @@ function useTrackerStore(user: SessionUser) {
     const f = stateRef.current.addForm;
     const { ok, data } = await postJson("/api/outlets", f);
     if (!ok) {
-      showToast(String(data.error ?? "Could not add outlet"));
+      showToast(String(data.error ?? t("toast.couldNotAddOutlet")));
       return;
     }
     const created = data.outlet as Outlet | undefined;
@@ -343,7 +343,7 @@ function useTrackerStore(user: SessionUser) {
       addForm: { ...EMPTY_ADD_FORM },
       addGpsStatus: "idle",
     });
-    showToast("Outlet added successfully");
+    showToast(t("toast.outletAdded"));
   };
 
   // ---------- ADD VISIT ----------
@@ -395,12 +395,12 @@ function useTrackerStore(user: SessionUser) {
     if (!id) return;
     const { ok, data } = await postJson(`/api/outlets/${id}/visits`, f);
     if (!ok) {
-      showToast(String(data.error ?? "Could not record visit"));
+      showToast(String(data.error ?? t("toast.couldNotRecordVisit")));
       return;
     }
     if (data.outlet) upsertOutlet(data.outlet as Outlet);
     setState({ screen: "outletDetail", avStep: 1, avForm: { ...EMPTY_AV_FORM } });
-    showToast("Visit recorded successfully");
+    showToast(t("toast.visitRecorded"));
   };
 
   return {

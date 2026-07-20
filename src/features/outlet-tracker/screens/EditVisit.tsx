@@ -11,9 +11,11 @@ import {
   TextArea,
   TextInput,
 } from "../ui";
+import { useT } from "@/features/i18n";
 
 export function EditVisit() {
   const { state, setEditVisit, saveEditVisit, onBack } = useTracker();
+  const { t } = useT();
   const f = state.editVisitForm;
   const needsBrand =
     f.competitor === "Local Brands" || f.competitor === "National Brands";
@@ -46,14 +48,14 @@ export function EditVisit() {
           marginBottom: 4,
         }}
       >
-        Update Visit Data
+        {t("ev.title")}
       </div>
       <div style={{ fontSize: 13, color: C.sub, marginBottom: 16 }}>
-        {outletName} · editable for {hoursLeft} more hours
+        {t("ev.subtitle", { name: outletName, hours: hoursLeft })}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <FieldGrid>
-          <Field label="Stock at Outlet *">
+          <Field label={`${t("field.stock")} *`}>
             <TextInput
               type="number"
               inputMode="numeric"
@@ -61,7 +63,7 @@ export function EditVisit() {
               onChange={(e) => setEditVisit({ stock: e.target.value })}
             />
           </Field>
-          <Field label="Packets Sold *">
+          <Field label={`${t("field.sold")} *`}>
             <TextInput
               type="number"
               inputMode="numeric"
@@ -70,7 +72,7 @@ export function EditVisit() {
             />
           </Field>
         </FieldGrid>
-        <Field label="Deedar Rank at Outlet *">
+        <Field label={`${t("field.rank")} *`}>
           <TextInput
             type="number"
             inputMode="numeric"
@@ -79,7 +81,7 @@ export function EditVisit() {
           />
         </Field>
         <div>
-          <Field label="Competitor Presence *">
+          <Field label={`${t("field.competitor")} *`}>
             <CompetitorPicker
               value={f.competitor ?? ""}
               onSelect={(c) => setEditVisit({ competitor: c })}
@@ -90,12 +92,12 @@ export function EditVisit() {
               <TextInput
                 value={f.competitorBrand ?? ""}
                 onChange={(e) => setEditVisit({ competitorBrand: e.target.value })}
-                placeholder="Name the competitor brand"
+                placeholder={t("placeholder.competitorBrand")}
               />
             </div>
           ) : null}
         </div>
-        <Field label="Remarks (optional)">
+        <Field label={t("field.remarks")}>
           <TextArea
             value={f.remarks ?? ""}
             onChange={(e) => setEditVisit({ remarks: e.target.value })}
@@ -104,10 +106,10 @@ export function EditVisit() {
       </div>
       <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
         <Button variant="ghost" onClick={onBack} style={{ flex: 1 }}>
-          Cancel
+          {t("common.cancel")}
         </Button>
         <Button variant="gold" onClick={saveEditVisit} style={{ flex: 2 }}>
-          Save Update
+          {t("ev.save")}
         </Button>
       </div>
     </div>

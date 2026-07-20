@@ -1,5 +1,8 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { C } from "@/features/outlet-tracker/constants";
+import { LanguageToggle, useT } from "@/features/i18n";
 
 export function AuthLayout({
   title,
@@ -12,6 +15,7 @@ export function AuthLayout({
   children: ReactNode;
   footer?: ReactNode;
 }) {
+  const { t } = useT();
   return (
     <div
       style={{
@@ -22,8 +26,12 @@ export function AuthLayout({
         alignItems: "center",
         padding: "40px 24px",
         background: `linear-gradient(180deg, ${C.green} 0%, ${C.greenDark} 100%)`,
+        position: "relative",
       }}
     >
+      <div style={{ position: "absolute", top: 16, right: 16 }}>
+        <LanguageToggle tone="dark" />
+      </div>
       <div
         style={{
           width: 76,
@@ -67,7 +75,7 @@ export function AuthLayout({
           textTransform: "uppercase",
         }}
       >
-        Field Outlet Tracker
+        {t("brand.tagline")}
       </div>
 
       <div

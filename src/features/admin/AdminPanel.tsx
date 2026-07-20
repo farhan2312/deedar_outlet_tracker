@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { C, USER_DIVISIONS } from "@/features/outlet-tracker/constants";
 import { Button, Field, Select, TextInput } from "@/features/outlet-tracker/ui";
+import { LanguageToggle, useT } from "@/features/i18n";
 
 type Role = "field_rep" | "admin";
 type Status = "pending" | "approved" | "rejected";
@@ -19,10 +20,6 @@ interface AdminUser {
   createdAt: string;
 }
 
-function roleLabel(role: Role): string {
-  return role === "admin" ? "Admin" : "Field Rep";
-}
-
 interface PatchResult {
   ok: boolean;
   error?: string;
@@ -30,6 +27,7 @@ interface PatchResult {
 
 export function AdminPanel({ adminName }: { adminName: string }) {
   const router = useRouter();
+  const { t } = useT();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -146,14 +144,15 @@ export function AdminPanel({ adminName }: { adminName: string }) {
                 fontSize: 16,
               }}
             >
-              Admin · Users &amp; Access
+              {t("admin.title")}
             </div>
           </div>
+          <LanguageToggle tone="dark" />
           <Link
             href="/"
             style={{ fontSize: 12, color: C.greenTint, fontWeight: 600 }}
           >
-            App
+            {t("common.app")}
           </Link>
           <button
             onClick={logout}
@@ -167,13 +166,13 @@ export function AdminPanel({ adminName }: { adminName: string }) {
               border: "none",
             }}
           >
-            Logout
+            {t("common.logout")}
           </button>
         </header>
 
         <main style={{ padding: 20, paddingBottom: 90 }}>
           <div style={{ fontSize: 13, color: C.sub, marginBottom: 2 }}>
-            Signed in as
+            {t("admin.signedInAs")}
           </div>
           <div
             style={{
@@ -206,12 +205,14 @@ export function AdminPanel({ adminName }: { adminName: string }) {
           ) : null}
 
           {loading ? (
-            <div style={{ fontSize: 13, color: C.sub }}>Loading…</div>
+            <div style={{ fontSize: 13, color: C.sub }}>
+              {t("common.loading")}
+            </div>
           ) : (
             <>
-              <Section title={`Pending (${pending.length})`}>
+              <Section title={t("admin.pending", { count: pending.length })}>
                 {pending.length === 0 ? (
-                  <Empty>No pending requests.</Empty>
+                  <Empty>{t("admin.noPending")}</Empty>
                 ) : (
                   pending.map((u) => (
                     <UserCard key={u.id} user={u} patchUser={patchUser} />
@@ -219,9 +220,9 @@ export function AdminPanel({ adminName }: { adminName: string }) {
                 )}
               </Section>
 
-              <Section title={`Approved (${approved.length})`}>
+              <Section title={t("admin.approved", { count: approved.length })}>
                 {approved.length === 0 ? (
-                  <Empty>No approved users yet.</Empty>
+                  <Empty>{t("admin.noApproved")}</Empty>
                 ) : (
                   approved.map((u) => (
                     <UserCard key={u.id} user={u} patchUser={patchUser} />
@@ -230,7 +231,7 @@ export function AdminPanel({ adminName }: { adminName: string }) {
               </Section>
 
               {rejected.length > 0 ? (
-                <Section title={`Rejected (${rejected.length})`}>
+                <Section title={t("admin.rejected", { count: rejected.length })}>
                   {rejected.map((u) => (
                     <UserCard key={u.id} user={u} patchUser={patchUser} />
                   ))}
@@ -251,6 +252,7 @@ function UserCard({
   user: AdminUser;
   patchUser: (id: string, body: Record<string, unknown>) => Promise<PatchResult>;
 }) {
+  const { t } = useT();
   const [editing, setEditing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -259,7 +261,7 @@ function UserCard({
     setBusy(true);
     setError("");
     const res = await patchUser(user.id, { status });
-    if (!res.ok) setError(res.error ?? "Update failed.");
+    if (!res.ok) setError(res.error ?? t("admin.updateFailed"));
     setBusy(false);
   }
 
@@ -291,7 +293,7 @@ function UserCard({
                 user.role === "admin" ? C.gold : C.green,
               )}
             >
-              {roleLabel(user.role)}
+              {t(`role.${user.role}`)}
             </span>
           </div>
           <div style={{ fontSize: 12, color: C.sub, marginTop: 2 }}>
@@ -308,7 +310,7 @@ function UserCard({
                 className="dz-tap"
                 style={pillBtn(C.green, "#fff")}
               >
-                Approve
+                {t("admin.approve")}
               </button>
               <button
                 onClick={() => quick("rejected")}
@@ -316,7 +318,7 @@ function UserCard({
                 className="dz-tap"
                 style={pillBtn("#fff", C.danger, C.dangerBorder)}
               >
-                Reject
+                {t("admin.reject")}
               </button>
             </>
           ) : null}
@@ -327,7 +329,7 @@ function UserCard({
               className="dz-tap"
               style={pillBtn("#fff", C.danger, C.dangerBorder)}
             >
-              Revoke
+              {t("admin.revoke")}
             </button>
           ) : null}
           {user.status === "rejected" ? (
@@ -337,7 +339,7 @@ function UserCard({
               className="dz-tap"
               style={pillBtn(C.green, "#fff")}
             >
-              Approve
+              {t("admin.approve")}
             </button>
           ) : null}
           <button
@@ -346,7 +348,7 @@ function UserCard({
             className="dz-tap"
             style={pillBtn("#fff", C.ink, C.border)}
           >
-            {editing ? "Close" : "Edit"}
+            {editing ? t("common.close") : t("common.edit")}
           </button>
         </div>
       </div>
@@ -377,6 +379,7 @@ function EditUserForm({
   patchUser: (id: string, body: Record<string, unknown>) => Promise<PatchResult>;
   onDone: () => void;
 }) {
+  const { t } = useT();
   const [name, setName] = useState(user.name);
   const [phone, setPhone] = useState(user.phone);
   const [role, setRole] = useState<Role>(user.role);
@@ -398,7 +401,7 @@ function EditUserForm({
     });
     setBusy(false);
     if (!res.ok) {
-      setError(res.error ?? "Update failed.");
+      setError(res.error ?? t("admin.updateFailed"));
       return;
     }
     onDone();
@@ -416,10 +419,10 @@ function EditUserForm({
         gap: 12,
       }}
     >
-      <Field label="Full Name">
+      <Field label={t("field.fullName")}>
         <TextInput value={name} onChange={(e) => setName(e.target.value)} />
       </Field>
-      <Field label="Mobile Number">
+      <Field label={t("field.mobile")}>
         <TextInput
           type="tel"
           inputMode="numeric"
@@ -429,19 +432,19 @@ function EditUserForm({
           }
         />
       </Field>
-      <Field label="Role">
+      <Field label={t("field.role")}>
         <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
-          <option value="field_rep">Field Rep</option>
-          <option value="admin">Admin</option>
+          <option value="field_rep">{t("role.field_rep")}</option>
+          <option value="admin">{t("role.admin")}</option>
         </Select>
       </Field>
       {role === "field_rep" ? (
-        <Field label="Division">
+        <Field label={t("field.division")}>
           <Select
             value={division}
             onChange={(e) => setDivision(e.target.value)}
           >
-            <option value="">Select</option>
+            <option value="">{t("common.select")}</option>
             {USER_DIVISIONS.map((d) => (
               <option key={d} value={d}>
                 {d}
@@ -450,14 +453,14 @@ function EditUserForm({
           </Select>
         </Field>
       ) : null}
-      <Field label="Access">
+      <Field label={t("admin.access")}>
         <Select
           value={status}
           onChange={(e) => setStatus(e.target.value as Status)}
         >
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
+          <option value="pending">{t("status.pending")}</option>
+          <option value="approved">{t("status.approved")}</option>
+          <option value="rejected">{t("status.rejected")}</option>
         </Select>
       </Field>
 
@@ -465,10 +468,10 @@ function EditUserForm({
 
       <div style={{ display: "flex", gap: 8 }}>
         <Button variant="ghost" onClick={onDone} style={{ flex: 1 }}>
-          Cancel
+          {t("common.cancel")}
         </Button>
         <Button type="submit" disabled={busy} style={{ flex: 1 }}>
-          {busy ? "Saving…" : "Save"}
+          {busy ? t("admin.saving") : t("common.save")}
         </Button>
       </div>
     </form>
@@ -476,6 +479,7 @@ function EditUserForm({
 }
 
 function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
+  const { t } = useT();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -499,12 +503,16 @@ function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Could not create user.");
+        setError(data.error ?? t("admin.updateFailed"));
         return;
       }
       onCreated(data.user);
       setSuccess(
-        `Created ${name} (${phone}). Temporary password: ${password || phone} — they'll be asked to set a new one on first login.`,
+        t("admin.createdMsg", {
+          name,
+          phone,
+          password: password || phone,
+        }),
       );
       setName("");
       setPhone("");
@@ -512,7 +520,7 @@ function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
       setDivision("");
       setPassword("");
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(t("admin.genericError"));
     } finally {
       setBusy(false);
     }
@@ -546,10 +554,10 @@ function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
         }}
       >
         <div style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>
-          Add User
+          {t("admin.addUser")}
         </div>
         <div style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>
-          {open ? "Close" : "+ Add"}
+          {open ? t("common.close") : t("admin.add")}
         </div>
       </div>
 
@@ -563,10 +571,10 @@ function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
             gap: 12,
           }}
         >
-          <Field label="Full Name">
+          <Field label={t("field.fullName")}>
             <TextInput value={name} onChange={(e) => setName(e.target.value)} />
           </Field>
-          <Field label="Mobile Number">
+          <Field label={t("field.mobile")}>
             <TextInput
               type="tel"
               inputMode="numeric"
@@ -574,22 +582,22 @@ function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
               onChange={(e) =>
                 setPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))
               }
-              placeholder="10-digit mobile number"
+              placeholder={t("field.mobilePlaceholder")}
             />
           </Field>
-          <Field label="Role">
+          <Field label={t("field.role")}>
             <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
-              <option value="field_rep">Field Rep</option>
-              <option value="admin">Admin</option>
+              <option value="field_rep">{t("role.field_rep")}</option>
+              <option value="admin">{t("role.admin")}</option>
             </Select>
           </Field>
           {role === "field_rep" ? (
-            <Field label="Division">
+            <Field label={t("field.division")}>
               <Select
                 value={division}
                 onChange={(e) => setDivision(e.target.value)}
               >
-                <option value="">Select</option>
+                <option value="">{t("common.select")}</option>
                 {USER_DIVISIONS.map((d) => (
                   <option key={d} value={d}>
                     {d}
@@ -598,11 +606,11 @@ function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
               </Select>
             </Field>
           ) : null}
-          <Field label="Temporary Password (optional)">
+          <Field label={t("admin.tempPassword")}>
             <TextInput
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Defaults to mobile number if left blank"
+              placeholder={t("admin.tempPasswordPlaceholder")}
             />
           </Field>
 
@@ -614,7 +622,7 @@ function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
           ) : null}
 
           <Button type="submit" disabled={busy}>
-            {busy ? "Creating…" : "Create User"}
+            {busy ? t("admin.creating") : t("admin.createUser")}
           </Button>
         </form>
       ) : null}
