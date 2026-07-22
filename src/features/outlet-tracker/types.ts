@@ -23,6 +23,7 @@ export interface Outlet {
   id: string;
   name: string;
   mobile: string;
+  address: string;
   area: string;
   headQuarter: string;
   type: string;
@@ -44,6 +45,7 @@ export type Screen =
 export interface OutletForm {
   mobile: string;
   name: string;
+  address: string;
   area: string;
   headQuarter: string;
   type: string;
@@ -63,6 +65,7 @@ export type GpsStatus = "idle" | "capturing" | "success" | "error";
 export interface IdentityForm {
   name: string;
   mobile: string;
+  address: string;
   area: string;
   headQuarter: string;
   type: string;

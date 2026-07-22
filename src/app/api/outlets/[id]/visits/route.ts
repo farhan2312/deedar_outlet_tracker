@@ -40,6 +40,7 @@ export async function POST(
   await updateOutletIdentity(id, {
     name: str(body.name) || existing.name,
     mobile: str(body.mobile),
+    address: str(body.address),
     area: str(body.area),
     headQuarter: str(body.headQuarter),
     type: str(body.type),

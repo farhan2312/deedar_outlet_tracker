@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { C, HEAD_QUARTERS, TYPES } from "../constants";
+import { AREAS_BY_HEAD_QUARTER, C, HEAD_QUARTERS, TYPES } from "../constants";
 import { useTracker } from "../store";
 import {
   Button,
@@ -9,6 +9,7 @@ import {
   FieldGrid,
   Select,
   StepDots,
+  TextArea,
   TextInput,
 } from "../ui";
 import { decorateOutlet } from "../utils";
@@ -54,10 +55,17 @@ export function AddOutlet() {
     return o ? decorateOutlet(o) : null;
   }, [state.addDuplicateOutletId, state.outlets]);
 
-  const areaOptions = useMemo(
-    () => [...new Set(state.outlets.map((o) => o.area))],
-    [state.outlets],
-  );
+  const areaOptions = f.headQuarter
+    ? AREAS_BY_HEAD_QUARTER[f.headQuarter] ?? []
+    : [];
+
+  function onHeadQuarterChange(hq: string) {
+    const options = AREAS_BY_HEAD_QUARTER[hq] ?? [];
+    setAdd({
+      headQuarter: hq,
+      area: options.includes(f.area) ? f.area : "",
+    });
+  }
 
   return (
     <div style={{ padding: 20 }}>
@@ -138,23 +146,36 @@ export function AddOutlet() {
                 onChange={(e) => setAdd({ name: e.target.value })}
               />
             </Field>
+            <Field label={t("field.address")}>
+              <TextArea
+                value={f.address}
+                onChange={(e) => setAdd({ address: e.target.value })}
+              />
+            </Field>
             <FieldGrid>
-              <Field label={`${t("field.area")} *`}>
-                <TextInput
-                  value={f.area}
-                  list="areaList"
-                  onChange={(e) => setAdd({ area: e.target.value })}
-                />
-              </Field>
               <Field label={`${t("field.headQuarter")} *`}>
                 <Select
                   value={f.headQuarter}
-                  onChange={(e) => setAdd({ headQuarter: e.target.value })}
+                  onChange={(e) => onHeadQuarterChange(e.target.value)}
                 >
                   <option value="">{t("common.select")}</option>
                   {HEAD_QUARTERS.map((hq) => (
                     <option key={hq} value={hq}>
                       {hq}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label={`${t("field.area")} *`}>
+                <Select
+                  value={f.area}
+                  onChange={(e) => setAdd({ area: e.target.value })}
+                  disabled={!f.headQuarter}
+                >
+                  <option value="">{t("common.select")}</option>
+                  {areaOptions.map((a) => (
+                    <option key={a} value={a}>
+                      {a}
                     </option>
                   ))}
                 </Select>
@@ -196,12 +217,6 @@ export function AddOutlet() {
               {t("common.review")}
             </Button>
           </NavRow>
-
-          <datalist id="areaList">
-            {areaOptions.map((a) => (
-              <option key={a} value={a} />
-            ))}
-          </datalist>
         </>
       ) : null}
 
@@ -223,6 +238,9 @@ export function AddOutlet() {
           >
             <Row label={t("review.outlet")} value={f.name} />
             <Row label={t("field.mobile")} value={f.mobile} />
+            {f.address ? (
+              <Row label={t("field.address")} value={f.address} />
+            ) : null}
             <Row
               label={t("review.location")}
               value={`${f.area}, ${f.headQuarter}`}

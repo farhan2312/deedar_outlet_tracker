@@ -50,6 +50,7 @@ export async function POST(req: Request) {
     name: user.name,
     phone: user.phone,
     headQuarter: user.head_quarter,
+    area: user.area,
     role: user.role,
     mustChange: user.must_change_password,
   });

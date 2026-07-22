@@ -1,9 +1,18 @@
 "use client";
 
 import { useMemo } from "react";
-import { C, DAY_MS, HEAD_QUARTERS, TYPES } from "../constants";
+import { AREAS_BY_HEAD_QUARTER, C, DAY_MS, HEAD_QUARTERS, TYPES } from "../constants";
 import { useTracker } from "../store";
-import { Badge, Button, Field, FieldGrid, SectionLabel, Select, TextInput } from "../ui";
+import {
+  Badge,
+  Button,
+  Field,
+  FieldGrid,
+  SectionLabel,
+  Select,
+  TextArea,
+  TextInput,
+} from "../ui";
 import { decorateOutlet, fmtDate } from "../utils";
 import { tCompetitor, tType, useT } from "@/features/i18n";
 
@@ -124,6 +133,9 @@ export function OutletDetail() {
             }}
           >
             <Detail label={t("od.mobileLabel")} value={outlet.mobile} />
+            {outlet.address ? (
+              <Detail label={t("od.addressLabel")} value={outlet.address} />
+            ) : null}
             <Detail
               label={t("od.townDivisionLabel")}
               value={`${outlet.area}, ${outlet.headQuarter}`}
@@ -152,22 +164,46 @@ export function OutletDetail() {
                 onChange={(e) => setEditIdentity({ mobile: e.target.value })}
               />
             </Field>
+            <Field label={t("field.address")}>
+              <TextArea
+                value={ef.address ?? ""}
+                onChange={(e) => setEditIdentity({ address: e.target.value })}
+              />
+            </Field>
             <FieldGrid>
-              <Field label={t("field.area")}>
-                <TextInput
-                  value={ef.area ?? ""}
-                  onChange={(e) => setEditIdentity({ area: e.target.value })}
-                />
-              </Field>
               <Field label={t("field.headQuarter")}>
                 <Select
                   value={ef.headQuarter ?? ""}
-                  onChange={(e) => setEditIdentity({ headQuarter: e.target.value })}
+                  onChange={(e) => {
+                    const hq = e.target.value;
+                    const options = AREAS_BY_HEAD_QUARTER[hq] ?? [];
+                    setEditIdentity({
+                      headQuarter: hq,
+                      area: options.includes(ef.area ?? "") ? ef.area : "",
+                    });
+                  }}
                 >
                   <option value="">{t("common.select")}</option>
                   {HEAD_QUARTERS.map((hq) => (
                     <option key={hq} value={hq}>
                       {hq}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label={t("field.area")}>
+                <Select
+                  value={ef.area ?? ""}
+                  onChange={(e) => setEditIdentity({ area: e.target.value })}
+                  disabled={!ef.headQuarter}
+                >
+                  <option value="">{t("common.select")}</option>
+                  {(ef.headQuarter
+                    ? AREAS_BY_HEAD_QUARTER[ef.headQuarter] ?? []
+                    : []
+                  ).map((a) => (
+                    <option key={a} value={a}>
+                      {a}
                     </option>
                   ))}
                 </Select>

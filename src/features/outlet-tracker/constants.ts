@@ -17,6 +17,34 @@ export const COMPETITOR_LEVELS: CompetitorLevel[] = [
 /** Head quarters a rep (SO/ISR) can belong to (from the DEEDAR_USER roster). */
 export const HEAD_QUARTERS = ["Jaipur", "Kota", "Indore", "Banda"] as const;
 
+/** Areas (sales routes) within each head quarter, from the DEEDAR_USER roster. */
+export const AREAS_BY_HEAD_QUARTER: Record<string, string[]> = {
+  Jaipur: [
+    "Bagru",
+    "Chomu",
+    "Fatehpur",
+    "Karbala",
+    "Niwai",
+    "Rawatsar",
+    "Sanganer",
+    "Todarraisingh",
+  ],
+  Kota: [
+    "Aklera",
+    "Baran",
+    "Bhawanimandi",
+    "Jhalawar",
+    "Kanwas",
+    "Khanpur",
+    "Lakheri",
+    "Nainwa",
+    "Neemach Rampura",
+    "Sawai Madhopur",
+  ],
+  Indore: ["Alirajpur", "Indore", "Kukshi", "Manavar", "Vidisha"],
+  Banda: ["Banda"],
+};
+
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Deedar brand palette (ported verbatim from the reference design). */
@@ -42,6 +70,7 @@ export const C = {
 export const EMPTY_ADD_FORM: OutletForm = {
   mobile: "",
   name: "",
+  address: "",
   area: "",
   headQuarter: "",
   type: "",

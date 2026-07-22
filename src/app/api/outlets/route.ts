@@ -35,6 +35,7 @@ export async function POST(req: Request) {
     {
       name,
       mobile: str(body.mobile),
+      address: str(body.address),
       area: str(body.area),
       headQuarter: str(body.headQuarter),
       type: str(body.type),

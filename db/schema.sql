@@ -52,6 +52,7 @@ create table if not exists outlets (
   id           uuid primary key default gen_random_uuid(),
   name         text not null,
   mobile       text not null default '',
+  address      text not null default '',
   area         text not null default '',
   head_quarter text not null default '',
   type         text not null default '',
@@ -81,10 +82,12 @@ end $$;
 alter table outlets add column if not exists area text not null default '';
 alter table outlets add column if not exists head_quarter text not null default '';
 
--- Point of Contact and Address are no longer collected — drop them
--- (destructive: any existing poc/address data is permanently deleted).
+-- Point of Contact is no longer collected — dropped (destructive, one-time).
 alter table outlets drop column if exists poc;
-alter table outlets drop column if exists address;
+
+-- Address was dropped, then reinstated as an optional field — re-add it
+-- (safe to re-run; a no-op once the column exists).
+alter table outlets add column if not exists address text not null default '';
 
 create index if not exists idx_outlets_mobile on outlets (mobile);
 

@@ -46,6 +46,7 @@ const en: Dict = {
   "field.reportsTo": "Reports To",
   "field.reportsToNone": "— Unassigned —",
   "field.outletName": "Name of Outlet/Point of Contact",
+  "field.address": "Address",
   "field.type": "Type of Outlet",
   "field.specifyType": "Specify outlet type",
   "field.stock": "Stock at Outlet",
@@ -131,6 +132,7 @@ const en: Dict = {
 
   // outlet detail
   "od.mobileLabel": "Mobile",
+  "od.addressLabel": "Address",
   "od.townDivisionLabel": "Area/Head Quarter",
   "od.gpsLabel": "GPS",
   "od.addVisit": "Add Visit for this Outlet",
@@ -279,6 +281,7 @@ const hi: Dict = {
   "field.reportsTo": "किसे रिपोर्ट करता है",
   "field.reportsToNone": "— अनिर्धारित —",
   "field.outletName": "आउटलेट का नाम/संपर्क व्यक्ति",
+  "field.address": "पता",
   "field.type": "आउटलेट का प्रकार",
   "field.specifyType": "आउटलेट का प्रकार बताएं",
   "field.stock": "आउटलेट पर स्टॉक",
@@ -363,6 +366,7 @@ const hi: Dict = {
 
   // outlet detail
   "od.mobileLabel": "मोबाइल",
+  "od.addressLabel": "पता",
   "od.townDivisionLabel": "क्षेत्र/मुख्यालय",
   "od.gpsLabel": "जीपीएस",
   "od.addVisit": "इस आउटलेट के लिए विज़िट जोड़ें",

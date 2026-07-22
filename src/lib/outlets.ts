@@ -6,6 +6,7 @@ interface OutletRow {
   id: string;
   name: string;
   mobile: string;
+  address: string;
   area: string;
   head_quarter: string;
   type: string;
@@ -52,6 +53,7 @@ function mapOutlet(o: OutletRow, visits: VisitRow[]): Outlet {
     id: o.id,
     name: o.name,
     mobile: o.mobile,
+    address: o.address,
     area: o.area,
     headQuarter: o.head_quarter,
     type: o.type,
@@ -91,6 +93,7 @@ export async function getOutlet(id: string): Promise<Outlet | null> {
 export interface OutletInput {
   name: string;
   mobile: string;
+  address: string;
   area: string;
   headQuarter: string;
   type: string;
@@ -115,12 +118,13 @@ export async function createOutlet(
 ): Promise<Outlet | null> {
   const row = await queryOne<OutletRow>(
     `insert into outlets
-       (name, mobile, area, head_quarter, type, type_other, lat, lng, created_by)
-     values ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+       (name, mobile, address, area, head_quarter, type, type_other, lat, lng, created_by)
+     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
      returning *`,
     [
       outlet.name,
       outlet.mobile,
+      outlet.address,
       outlet.area,
       outlet.headQuarter,
       outlet.type,
@@ -140,12 +144,13 @@ export async function updateOutletIdentity(
 ): Promise<Outlet | null> {
   await query(
     `update outlets set
-       name = $2, mobile = $3, area = $4, head_quarter = $5, type = $6, type_other = $7
+       name = $2, mobile = $3, address = $4, area = $5, head_quarter = $6, type = $7, type_other = $8
      where id = $1`,
     [
       id,
       outlet.name,
       outlet.mobile,
+      outlet.address,
       outlet.area,
       outlet.headQuarter,
       outlet.type,

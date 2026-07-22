@@ -45,6 +45,7 @@ export async function POST(req: Request) {
     name: auth.name,
     phone: auth.phone,
     headQuarter: auth.headQuarter,
+    area: auth.area,
     role: auth.role,
     mustChange: false,
   });

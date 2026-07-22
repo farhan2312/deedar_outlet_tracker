@@ -27,6 +27,7 @@ export interface SessionUser {
   name: string;
   phone: string;
   headQuarter: string;
+  area: string;
   role: "admin" | "SO" | "ISR";
 }
 
@@ -158,8 +159,12 @@ function useTrackerStore(user: SessionUser) {
     setState({
       screen: "addOutlet",
       addStep: 1,
-      // Prefill Head Quarter with the rep's own.
-      addForm: { ...EMPTY_ADD_FORM, headQuarter: user.headQuarter },
+      // Prefill Head Quarter and Area with the rep's own.
+      addForm: {
+        ...EMPTY_ADD_FORM,
+        headQuarter: user.headQuarter,
+        area: user.area,
+      },
       addDuplicateOutletId: null,
       addGpsStatus: "idle",
     });
@@ -229,6 +234,7 @@ function useTrackerStore(user: SessionUser) {
         editForm: {
           name: o.name,
           mobile: o.mobile,
+          address: o.address,
           area: o.area,
           headQuarter: o.headQuarter,
           type: o.type,
@@ -263,6 +269,7 @@ function useTrackerStore(user: SessionUser) {
           ...EMPTY_AV_FORM,
           name: o.name,
           mobile: o.mobile,
+          address: o.address,
           area: o.area,
           headQuarter: o.headQuarter,
           type: o.type,
@@ -359,6 +366,7 @@ function useTrackerStore(user: SessionUser) {
           ...EMPTY_AV_FORM,
           name: o.name,
           mobile: o.mobile,
+          address: o.address,
           area: o.area,
           headQuarter: o.headQuarter,
           type: o.type,
@@ -374,6 +382,7 @@ function useTrackerStore(user: SessionUser) {
         ...EMPTY_ADD_FORM,
         mobile: s.avMobile,
         headQuarter: user.headQuarter,
+        area: user.area,
       },
       addDuplicateOutletId: null,
       addGpsStatus: "idle",
