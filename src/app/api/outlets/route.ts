@@ -9,7 +9,7 @@ export async function GET() {
   const auth = await requireUser();
   if (auth instanceof NextResponse) return auth;
 
-  const outlets = await listOutlets();
+  const outlets = await listOutlets(auth.id, auth.role);
   return NextResponse.json({ outlets });
 }
 

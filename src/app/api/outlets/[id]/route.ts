@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/api-auth";
-import { updateOutletIdentity } from "@/lib/outlets";
+import { isOutletInScope, updateOutletIdentity } from "@/lib/outlets";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,6 +13,11 @@ export async function PATCH(
   if (auth instanceof NextResponse) return auth;
 
   const { id } = await params;
+
+  if (!(await isOutletInScope(id, auth.id, auth.role))) {
+    return NextResponse.json({ error: "Outlet not found." }, { status: 404 });
+  }
+
   let body: Record<string, unknown>;
   try {
     body = await req.json();

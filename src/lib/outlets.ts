@@ -1,6 +1,24 @@
 import { query, queryOne } from "./db";
 import { todayIST } from "./date";
 import type { Outlet, Visit } from "@/features/outlet-tracker/types";
+import type { UserRole } from "./users";
+
+/**
+ * SQL fragment: ids of users whose outlets a given user (bound to
+ * placeholder `$paramIndex`) may see — themselves, their supervising SO (if
+ * they're an ISR), and their reporting ISRs (if they're an SO). Used as
+ * `created_by in (${teamScopeSql(paramIndex)})`.
+ */
+function teamScopeSql(paramIndex: number): string {
+  const p = `$${paramIndex}`;
+  return `
+    select id from users where id = ${p}
+    union
+    select id from users where reports_to_id = ${p}
+    union
+    select reports_to_id from users where id = ${p} and reports_to_id is not null
+  `;
+}
 
 interface OutletRow {
   id: string;
@@ -63,9 +81,23 @@ function mapOutlet(o: OutletRow, visits: VisitRow[]): Outlet {
   };
 }
 
-/** All outlets with their visits, sorted by most recent visit. */
-export async function listOutlets(): Promise<Outlet[]> {
-  const outlets = await query<OutletRow>("select * from outlets");
+/**
+ * Outlets visible to `userId`, with their visits, sorted by most recent
+ * visit. Admins see everything; everyone else sees only outlets created by
+ * themselves or by their teammate (an ISR's supervising SO, or an SO's own
+ * reporting ISRs) — see teamScopeSql().
+ */
+export async function listOutlets(
+  userId: string,
+  role: UserRole,
+): Promise<Outlet[]> {
+  const outlets =
+    role === "admin"
+      ? await query<OutletRow>("select * from outlets")
+      : await query<OutletRow>(
+          `select * from outlets where created_by in (${teamScopeSql(1)})`,
+          [userId],
+        );
   const visits = await query<VisitRow>(
     "select * from visits order by visit_date asc, logged_at asc",
   );
@@ -76,6 +108,23 @@ export async function listOutlets(): Promise<Outlet[]> {
     byOutlet.set(v.outlet_id, arr);
   }
   return outlets.map((o) => mapOutlet(o, byOutlet.get(o.id) ?? []));
+}
+
+/** Whether `userId` (with `role`) may view/edit the given outlet. */
+export async function isOutletInScope(
+  outletId: string,
+  userId: string,
+  role: UserRole,
+): Promise<boolean> {
+  if (role === "admin") return true;
+  const row = await queryOne<{ ok: boolean }>(
+    `select exists (
+       select 1 from outlets o
+       where o.id = $1 and o.created_by in (${teamScopeSql(2)})
+     ) as ok`,
+    [outletId, userId],
+  );
+  return row?.ok === true;
 }
 
 export async function getOutlet(id: string): Promise<Outlet | null> {

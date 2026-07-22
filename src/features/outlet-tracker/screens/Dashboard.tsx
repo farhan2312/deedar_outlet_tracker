@@ -31,7 +31,8 @@ export function Dashboard() {
     [outlets, state.dashSearch],
   );
 
-  // All outlets (admin view), most-recently-visited first.
+  // Outlets visible to this user (all, for admin; own team's, for SO),
+  // most-recently-visited first.
   const allOutlets = useMemo(
     () =>
       [...outlets].sort(
@@ -198,10 +199,13 @@ export function Dashboard() {
         </div>
       ) : null}
 
-      {user.role === "admin" ? (
+      {user.role === "admin" || user.role === "SO" ? (
         <>
           <SectionLabel>
-            {t("dash.allOutlets", { count: allOutlets.length })}
+            {t(
+              user.role === "admin" ? "dash.allOutlets" : "dash.myTeamOutlets",
+              { count: allOutlets.length },
+            )}
           </SectionLabel>
           {allOutlets.length === 0 ? (
             <div
