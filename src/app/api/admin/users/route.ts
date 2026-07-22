@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api-auth";
-import { adminCreateUser, findUserByPhone, listUsers, toPublicUser } from "@/lib/users";
+import {
+  adminCreateUser,
+  findUserByPhone,
+  findUserById,
+  listUsers,
+  toPublicUser,
+} from "@/lib/users";
 import { hashPassword } from "@/lib/password";
 
 export const runtime = "nodejs";
@@ -29,6 +35,7 @@ export async function POST(req: Request) {
     area?: string;
     password?: string;
     role?: string;
+    reportsToId?: string;
   };
   try {
     body = await req.json();
@@ -61,6 +68,19 @@ export async function POST(req: Request) {
     );
   }
 
+  // Only ISRs report to an SO; ignore/reject anything else.
+  let reportsToId: string | null = null;
+  if (role === "ISR" && body.reportsToId) {
+    const so = await findUserById(body.reportsToId);
+    if (!so || so.role !== "SO") {
+      return NextResponse.json(
+        { error: "Selected SO was not found." },
+        { status: 400 },
+      );
+    }
+    reportsToId = so.id;
+  }
+
   const existing = await findUserByPhone(phone);
   if (existing) {
     return NextResponse.json(
@@ -77,6 +97,7 @@ export async function POST(req: Request) {
     headQuarter,
     area,
     role,
+    reportsToId,
   });
 
   return NextResponse.json({ user: user ? toPublicUser(user) : null });

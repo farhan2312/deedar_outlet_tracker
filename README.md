@@ -66,6 +66,10 @@ password is their own 10-digit mobile number**, and they are **forced to set a n
 password on first login** (they can't reach the app until they do). Idempotent
 (re-running updates name/role/head quarter/area, never resets passwords).
 
+It also auto-assigns each **ISR to the SO in their head quarter** (only where that head
+quarter has exactly one SO — never overwrites an existing assignment). Head quarters with
+zero or multiple SOs are left for an admin to assign by hand in `/admin`.
+
 ### 5. Run
 
 ```bash
@@ -88,14 +92,22 @@ Route protection is enforced in [`src/middleware.ts`](src/middleware.ts) and re-
 in each page and API handler.
 
 Users have a **role** — `ISR`, `SO`, or `admin`. ISR and SO both belong to a **Head
-Quarter** (and optionally an **Area**) and have identical app permissions (search, add
-outlet, add visit, my submissions); `admin` has no head quarter/area and gets the admin
-dashboard/panel. Signup lets you pick any role; admin signups are still pending until an
-existing admin approves them.
+Quarter** (and optionally an **Area**); `admin` has no head quarter/area and gets the
+admin dashboard/panel. Signup lets you pick any role; admin signups are still pending
+until an existing admin approves them.
+
+**Reporting line:** each ISR can be assigned to report to one SO (`reports_to_id` on the
+user, editable in `/admin`'s Edit User form — a dropdown of existing SOs). This is purely
+a recorded relationship right now; an SO's own dashboard is not a supervisor view (SOs see
+the same screens as ISRs, minus Add Visit — see below).
+
+**SO vs ISR permissions:** identical except **SOs cannot add visits** — the "Add Visit"
+action is hidden from their dashboard and outlet-detail screen, and the visits API rejects
+SO-role requests server-side as well (403).
 
 From the `/admin` panel an admin can **add users** (name, phone, role, head quarter, area,
-optional temporary password — defaults to the phone number) and **edit any user** — name,
-mobile, role, head quarter, area, and access status (pending / approved / rejected).
+reports-to-SO for ISRs, optional temporary password — defaults to the phone number) and
+**edit any user** — same fields, plus access status (pending / approved / rejected).
 Admin-created users are approved immediately and, like imported reps, are **forced to set
 a new password on first login**.
 

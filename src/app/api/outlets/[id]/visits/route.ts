@@ -11,6 +11,12 @@ export async function POST(
 ) {
   const auth = await requireUser();
   if (auth instanceof NextResponse) return auth;
+  if (auth.role === "SO") {
+    return NextResponse.json(
+      { error: "SO accounts cannot record visits." },
+      { status: 403 },
+    );
+  }
 
   const { id } = await params;
   let body: Record<string, unknown>;
@@ -33,11 +39,9 @@ export async function POST(
   // in practice but keeps the row consistent if the outlet changed mid-flow.
   await updateOutletIdentity(id, {
     name: str(body.name) || existing.name,
-    poc: str(body.poc),
     mobile: str(body.mobile),
-    address: str(body.address),
-    town: str(body.town),
-    division: str(body.division),
+    area: str(body.area),
+    headQuarter: str(body.headQuarter),
     type: str(body.type),
     typeOther: str(body.typeOther),
   });

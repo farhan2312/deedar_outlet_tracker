@@ -34,11 +34,9 @@ export async function POST(req: Request) {
   const outlet = await createOutlet(
     {
       name,
-      poc: str(body.poc),
       mobile: str(body.mobile),
-      address: str(body.address),
-      town: str(body.town),
-      division: str(body.division),
+      area: str(body.area),
+      headQuarter: str(body.headQuarter),
       type: str(body.type),
       typeOther: str(body.typeOther),
       lat: str(body.lat),

@@ -22,11 +22,9 @@ export interface Visit {
 export interface Outlet {
   id: string;
   name: string;
-  poc: string;
   mobile: string;
-  address: string;
-  town: string;
-  division: string;
+  area: string;
+  headQuarter: string;
   type: string;
   typeOther: string;
   gps: Gps;
@@ -46,10 +44,8 @@ export type Screen =
 export interface OutletForm {
   mobile: string;
   name: string;
-  poc: string;
-  address: string;
-  town: string;
-  division: string;
+  area: string;
+  headQuarter: string;
   type: string;
   typeOther: string;
   lat: string;
@@ -66,11 +62,9 @@ export type GpsStatus = "idle" | "capturing" | "success" | "error";
 
 export interface IdentityForm {
   name: string;
-  poc: string;
   mobile: string;
-  address: string;
-  town: string;
-  division: string;
+  area: string;
+  headQuarter: string;
   type: string;
   typeOther: string;
 }

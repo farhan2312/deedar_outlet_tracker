@@ -158,8 +158,8 @@ function useTrackerStore(user: SessionUser) {
     setState({
       screen: "addOutlet",
       addStep: 1,
-      // Prefill division with the rep's own division.
-      addForm: { ...EMPTY_ADD_FORM, division: user.headQuarter },
+      // Prefill Head Quarter with the rep's own.
+      addForm: { ...EMPTY_ADD_FORM, headQuarter: user.headQuarter },
       addDuplicateOutletId: null,
       addGpsStatus: "idle",
     });
@@ -228,11 +228,9 @@ function useTrackerStore(user: SessionUser) {
         editingIdentity: true,
         editForm: {
           name: o.name,
-          poc: o.poc,
           mobile: o.mobile,
-          address: o.address,
-          town: o.town,
-          division: o.division,
+          area: o.area,
+          headQuarter: o.headQuarter,
           type: o.type,
           typeOther: o.typeOther,
         },
@@ -264,11 +262,9 @@ function useTrackerStore(user: SessionUser) {
         avForm: {
           ...EMPTY_AV_FORM,
           name: o.name,
-          poc: o.poc,
           mobile: o.mobile,
-          address: o.address,
-          town: o.town,
-          division: o.division,
+          area: o.area,
+          headQuarter: o.headQuarter,
           type: o.type,
           typeOther: o.typeOther,
         },
@@ -362,11 +358,9 @@ function useTrackerStore(user: SessionUser) {
         avForm: {
           ...EMPTY_AV_FORM,
           name: o.name,
-          poc: o.poc,
           mobile: o.mobile,
-          address: o.address,
-          town: o.town,
-          division: o.division,
+          area: o.area,
+          headQuarter: o.headQuarter,
           type: o.type,
           typeOther: o.typeOther,
         },
@@ -379,7 +373,7 @@ function useTrackerStore(user: SessionUser) {
       addForm: {
         ...EMPTY_ADD_FORM,
         mobile: s.avMobile,
-        division: user.headQuarter,
+        headQuarter: user.headQuarter,
       },
       addDuplicateOutletId: null,
       addGpsStatus: "idle",

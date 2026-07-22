@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { C, DAY_MS, TYPES } from "../constants";
+import { C, DAY_MS, HEAD_QUARTERS, TYPES } from "../constants";
 import { useTracker } from "../store";
 import { Badge, Button, Field, FieldGrid, SectionLabel, Select, TextInput } from "../ui";
 import { decorateOutlet, fmtDate } from "../utils";
@@ -123,12 +123,10 @@ export function OutletDetail() {
               gap: 9,
             }}
           >
-            <Detail label={t("od.pocLabel")} value={outlet.poc} />
             <Detail label={t("od.mobileLabel")} value={outlet.mobile} />
-            <Detail label={t("od.addressLabel")} value={outlet.address} />
             <Detail
               label={t("od.townDivisionLabel")}
-              value={`${outlet.town}, ${outlet.division}`}
+              value={`${outlet.area}, ${outlet.headQuarter}`}
             />
             <Detail label={t("od.gpsLabel")} value={outlet.gpsLabel} />
           </div>
@@ -147,12 +145,6 @@ export function OutletDetail() {
                 onChange={(e) => setEditIdentity({ name: e.target.value })}
               />
             </Field>
-            <Field label={t("field.poc")}>
-              <TextInput
-                value={ef.poc ?? ""}
-                onChange={(e) => setEditIdentity({ poc: e.target.value })}
-              />
-            </Field>
             <Field label={t("field.mobile")}>
               <TextInput
                 value={ef.mobile ?? ""}
@@ -160,24 +152,25 @@ export function OutletDetail() {
                 onChange={(e) => setEditIdentity({ mobile: e.target.value })}
               />
             </Field>
-            <Field label={t("field.address")}>
-              <TextInput
-                value={ef.address ?? ""}
-                onChange={(e) => setEditIdentity({ address: e.target.value })}
-              />
-            </Field>
             <FieldGrid>
-              <Field label={t("field.town")}>
+              <Field label={t("field.area")}>
                 <TextInput
-                  value={ef.town ?? ""}
-                  onChange={(e) => setEditIdentity({ town: e.target.value })}
+                  value={ef.area ?? ""}
+                  onChange={(e) => setEditIdentity({ area: e.target.value })}
                 />
               </Field>
-              <Field label={t("field.division")}>
-                <TextInput
-                  value={ef.division ?? ""}
-                  onChange={(e) => setEditIdentity({ division: e.target.value })}
-                />
+              <Field label={t("field.headQuarter")}>
+                <Select
+                  value={ef.headQuarter ?? ""}
+                  onChange={(e) => setEditIdentity({ headQuarter: e.target.value })}
+                >
+                  <option value="">{t("common.select")}</option>
+                  {HEAD_QUARTERS.map((hq) => (
+                    <option key={hq} value={hq}>
+                      {hq}
+                    </option>
+                  ))}
+                </Select>
               </Field>
             </FieldGrid>
             <Field label={t("field.type")}>
@@ -209,9 +202,11 @@ export function OutletDetail() {
         )}
       </div>
 
-      <Button variant="gold" onClick={onAddVisitForSelected}>
-        {t("od.addVisit")}
-      </Button>
+      {user.role !== "SO" ? (
+        <Button variant="gold" onClick={onAddVisitForSelected}>
+          {t("od.addVisit")}
+        </Button>
+      ) : null}
 
       {isAdmin ? (
         <div style={{ marginTop: 24 }}>

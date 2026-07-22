@@ -71,7 +71,7 @@ export function AddVisitFind() {
             <Badge>{tType(t, match.typeLabel)}</Badge>
           </div>
           <div style={{ fontSize: 12, color: C.sub, marginTop: 3 }}>
-            {match.town}, {match.division} · {match.mobile}
+            {match.area}, {match.headQuarter} · {match.mobile}
           </div>
           <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>
             {t("avf.lastVisit", { date: match.lastVisitLabel })}

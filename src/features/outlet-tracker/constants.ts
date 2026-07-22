@@ -42,10 +42,8 @@ export const C = {
 export const EMPTY_ADD_FORM: OutletForm = {
   mobile: "",
   name: "",
-  poc: "",
-  address: "",
-  town: "",
-  division: "",
+  area: "",
+  headQuarter: "",
   type: "",
   typeOther: "",
   lat: "",

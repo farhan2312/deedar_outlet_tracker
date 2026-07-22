@@ -6,6 +6,11 @@
 // Each person is created as an APPROVED user whose initial password is their
 // own 10-digit mobile number. Idempotent: re-running updates
 // name/role/headQuarter/area for existing phones without resetting passwords.
+//
+// After the main pass, each ISR's reports_to_id is auto-assigned to the SO
+// sharing their head quarter (only works where a head quarter has exactly
+// one SO — Head Quarters with zero or multiple SOs are left unassigned for
+// an admin to set manually in /admin).
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -62,6 +67,25 @@ try {
     `✓ Import complete — ${inserted} inserted, ${updated} updated, ${skipped} skipped.`,
   );
   console.log("  Each person's initial password is their 10-digit mobile number.");
+
+  // Auto-assign EVERY ISR in the table (not just this roster — e.g. pre-existing
+  // test accounts too) to the one SO sharing their head quarter, wherever that
+  // head quarter has exactly one SO. Never overwrites an existing assignment.
+  const { rowCount: assigned } = await client.query(`
+    update users u
+    set reports_to_id = hq.so_id
+    from (
+      select head_quarter, (array_agg(id))[1] as so_id, count(*) as so_count
+      from users
+      where role = 'SO'
+      group by head_quarter
+    ) hq
+    where u.role = 'ISR'
+      and u.reports_to_id is null
+      and u.head_quarter = hq.head_quarter
+      and hq.so_count = 1
+  `);
+  console.log(`  Auto-assigned ${assigned} ISR(s) to their head quarter's SO.`);
 } catch (err) {
   console.error("✗ Import failed:", err.message);
   process.exit(1);

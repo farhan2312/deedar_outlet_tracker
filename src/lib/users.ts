@@ -19,6 +19,7 @@ export interface UserRow {
   role: UserRole;
   status: UserStatus;
   must_change_password: boolean;
+  reports_to_id: string | null;
   created_at: string;
 }
 
@@ -31,6 +32,7 @@ export interface PublicUser {
   area: string;
   role: UserRole;
   status: UserStatus;
+  reportsToId: string | null;
   createdAt: string;
 }
 
@@ -43,6 +45,7 @@ export function toPublicUser(row: UserRow): PublicUser {
     area: row.area,
     role: row.role,
     status: row.status,
+    reportsToId: row.reports_to_id,
     createdAt: row.created_at,
   };
 }
@@ -89,10 +92,11 @@ export function adminCreateUser(input: {
   headQuarter: string;
   area: string;
   role: UserRole;
+  reportsToId: string | null;
 }): Promise<UserRow | null> {
   return queryOne<UserRow>(
-    `insert into users (name, phone, password_hash, head_quarter, area, role, status, must_change_password)
-     values ($1, $2, $3, $4, $5, $6, 'approved', true)
+    `insert into users (name, phone, password_hash, head_quarter, area, role, reports_to_id, status, must_change_password)
+     values ($1, $2, $3, $4, $5, $6, $7, 'approved', true)
      returning *`,
     [
       input.name,
@@ -101,6 +105,7 @@ export function adminCreateUser(input: {
       input.headQuarter,
       input.area,
       input.role,
+      input.reportsToId,
     ],
   );
 }
@@ -124,7 +129,12 @@ export function setUserStatus(
   );
 }
 
-/** Admin edit of a user's details and access. Only provided fields change. */
+/**
+ * Admin edit of a user's details and access. Only keys actually present in
+ * `fields` are changed — this lets `reportsToId` be explicitly cleared with
+ * `null` while other fields stay untouched (a plain coalesce can't tell
+ * "clear this" apart from "leave it alone" for a nullable column).
+ */
 export function adminUpdateUser(
   id: string,
   fields: {
@@ -134,27 +144,33 @@ export function adminUpdateUser(
     area?: string;
     role?: UserRole;
     status?: UserStatus;
+    reportsToId?: string | null;
   },
 ): Promise<UserRow | null> {
+  const columns: Record<string, string> = {
+    name: "name",
+    phone: "phone",
+    headQuarter: "head_quarter",
+    area: "area",
+    role: "role",
+    status: "status",
+    reportsToId: "reports_to_id",
+  };
+
+  const sets: string[] = [];
+  const values: unknown[] = [id];
+  for (const [key, column] of Object.entries(columns)) {
+    if (key in fields) {
+      values.push((fields as Record<string, unknown>)[key]);
+      sets.push(`${column} = $${values.length}`);
+    }
+  }
+
+  if (sets.length === 0) return findUserById(id);
+
   return queryOne<UserRow>(
-    `update users set
-       name         = coalesce($2, name),
-       phone        = coalesce($3, phone),
-       head_quarter = coalesce($4, head_quarter),
-       area         = coalesce($5, area),
-       role         = coalesce($6, role),
-       status       = coalesce($7, status)
-     where id = $1
-     returning *`,
-    [
-      id,
-      fields.name ?? null,
-      fields.phone ?? null,
-      fields.headQuarter ?? null,
-      fields.area ?? null,
-      fields.role ?? null,
-      fields.status ?? null,
-    ],
+    `update users set ${sets.join(", ")} where id = $1 returning *`,
+    values,
   );
 }
 

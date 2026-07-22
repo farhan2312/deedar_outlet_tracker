@@ -39,7 +39,7 @@ export function AddVisit() {
         <>
           <Heading>{f.name}</Heading>
           <Sub>
-            {f.town}, {f.division}
+            {f.area}, {f.headQuarter}
           </Sub>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <FieldGrid>
@@ -132,7 +132,7 @@ export function AddVisit() {
             </div>
             <div>
               <span style={{ color: C.sub }}>{t("review.location")}:</span>{" "}
-              {f.town}, {f.division}
+              {f.area}, {f.headQuarter}
             </div>
             <div
               style={{

@@ -18,6 +18,7 @@ interface AdminUser {
   area: string;
   role: Role;
   status: Status;
+  reportsToId: string | null;
   createdAt: string;
 }
 
@@ -83,6 +84,7 @@ export function AdminPanel({ adminName }: { adminName: string }) {
   const pending = users.filter((u) => u.status === "pending");
   const approved = users.filter((u) => u.status === "approved");
   const rejected = users.filter((u) => u.status === "rejected");
+  const soOptions = users.filter((u) => u.role === "SO");
 
   return (
     <div
@@ -187,7 +189,7 @@ export function AdminPanel({ adminName }: { adminName: string }) {
             {adminName}
           </div>
 
-          <AddUserForm onCreated={onUserCreated} />
+          <AddUserForm onCreated={onUserCreated} soOptions={soOptions} />
 
           {error ? (
             <div
@@ -216,7 +218,12 @@ export function AdminPanel({ adminName }: { adminName: string }) {
                   <Empty>{t("admin.noPending")}</Empty>
                 ) : (
                   pending.map((u) => (
-                    <UserCard key={u.id} user={u} patchUser={patchUser} />
+                    <UserCard
+                      key={u.id}
+                      user={u}
+                      patchUser={patchUser}
+                      soOptions={soOptions}
+                    />
                   ))
                 )}
               </Section>
@@ -226,7 +233,12 @@ export function AdminPanel({ adminName }: { adminName: string }) {
                   <Empty>{t("admin.noApproved")}</Empty>
                 ) : (
                   approved.map((u) => (
-                    <UserCard key={u.id} user={u} patchUser={patchUser} />
+                    <UserCard
+                      key={u.id}
+                      user={u}
+                      patchUser={patchUser}
+                      soOptions={soOptions}
+                    />
                   ))
                 )}
               </Section>
@@ -234,7 +246,12 @@ export function AdminPanel({ adminName }: { adminName: string }) {
               {rejected.length > 0 ? (
                 <Section title={t("admin.rejected", { count: rejected.length })}>
                   {rejected.map((u) => (
-                    <UserCard key={u.id} user={u} patchUser={patchUser} />
+                    <UserCard
+                      key={u.id}
+                      user={u}
+                      patchUser={patchUser}
+                      soOptions={soOptions}
+                    />
                   ))}
                 </Section>
               ) : null}
@@ -249,14 +266,20 @@ export function AdminPanel({ adminName }: { adminName: string }) {
 function UserCard({
   user,
   patchUser,
+  soOptions,
 }: {
   user: AdminUser;
   patchUser: (id: string, body: Record<string, unknown>) => Promise<PatchResult>;
+  soOptions: AdminUser[];
 }) {
   const { t } = useT();
   const [editing, setEditing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const reportsToName =
+    user.role === "ISR" && user.reportsToId
+      ? soOptions.find((so) => so.id === user.reportsToId)?.name
+      : null;
 
   async function quick(status: Status) {
     setBusy(true);
@@ -302,6 +325,11 @@ function UserCard({
             {user.headQuarter ? ` · ${user.headQuarter}` : ""}
             {user.area ? ` · ${user.area}` : ""}
           </div>
+          {reportsToName ? (
+            <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>
+              {t("admin.reportsTo", { name: reportsToName })}
+            </div>
+          ) : null}
         </div>
         <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
           {user.status === "pending" ? (
@@ -365,6 +393,7 @@ function UserCard({
         <EditUserForm
           user={user}
           patchUser={patchUser}
+          soOptions={soOptions}
           onDone={() => setEditing(false)}
         />
       ) : null}
@@ -375,10 +404,12 @@ function UserCard({
 function EditUserForm({
   user,
   patchUser,
+  soOptions,
   onDone,
 }: {
   user: AdminUser;
   patchUser: (id: string, body: Record<string, unknown>) => Promise<PatchResult>;
+  soOptions: AdminUser[];
   onDone: () => void;
 }) {
   const { t } = useT();
@@ -388,8 +419,12 @@ function EditUserForm({
   const [headQuarter, setHeadQuarter] = useState(user.headQuarter);
   const [area, setArea] = useState(user.area);
   const [status, setStatus] = useState<Status>(user.status);
+  const [reportsToId, setReportsToId] = useState(user.reportsToId ?? "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  // Exclude this user from their own options (relevant if an SO is being
+  // demoted to ISR in this same edit — they can't report to themselves).
+  const availableSos = soOptions.filter((so) => so.id !== user.id);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -402,6 +437,7 @@ function EditUserForm({
       headQuarter: role === "admin" ? "" : headQuarter,
       area: role === "admin" ? "" : area,
       status,
+      reportsToId: role === "ISR" ? reportsToId || null : null,
     });
     setBusy(false);
     if (!res.ok) {
@@ -463,6 +499,21 @@ function EditUserForm({
           </Field>
         </>
       ) : null}
+      {role === "ISR" ? (
+        <Field label={t("field.reportsTo")}>
+          <Select
+            value={reportsToId}
+            onChange={(e) => setReportsToId(e.target.value)}
+          >
+            <option value="">{t("field.reportsToNone")}</option>
+            {availableSos.map((so) => (
+              <option key={so.id} value={so.id}>
+                {so.name} ({so.headQuarter})
+              </option>
+            ))}
+          </Select>
+        </Field>
+      ) : null}
       <Field label={t("admin.access")}>
         <Select
           value={status}
@@ -488,7 +539,13 @@ function EditUserForm({
   );
 }
 
-function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
+function AddUserForm({
+  onCreated,
+  soOptions,
+}: {
+  onCreated: (user: AdminUser) => void;
+  soOptions: AdminUser[];
+}) {
   const { t } = useT();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -496,6 +553,7 @@ function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
   const [role, setRole] = useState<Role>("ISR");
   const [headQuarter, setHeadQuarter] = useState("");
   const [area, setArea] = useState("");
+  const [reportsToId, setReportsToId] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -510,7 +568,15 @@ function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
       const res = await fetch("/api/admin/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, role, headQuarter, area, password }),
+        body: JSON.stringify({
+          name,
+          phone,
+          role,
+          headQuarter,
+          area,
+          reportsToId: role === "ISR" ? reportsToId || undefined : undefined,
+          password,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -529,6 +595,7 @@ function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
       setPhone("");
       setRole("ISR");
       setHeadQuarter("");
+      setReportsToId("");
       setArea("");
       setPassword("");
     } catch {
@@ -627,6 +694,21 @@ function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
                 />
               </Field>
             </>
+          ) : null}
+          {role === "ISR" ? (
+            <Field label={t("field.reportsTo")}>
+              <Select
+                value={reportsToId}
+                onChange={(e) => setReportsToId(e.target.value)}
+              >
+                <option value="">{t("field.reportsToNone")}</option>
+                {soOptions.map((so) => (
+                  <option key={so.id} value={so.id}>
+                    {so.name} ({so.headQuarter})
+                  </option>
+                ))}
+              </Select>
+            </Field>
           ) : null}
           <Field label={t("admin.tempPassword")}>
             <TextInput

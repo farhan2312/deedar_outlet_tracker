@@ -15,11 +15,14 @@ create table if not exists users (
   role          text not null default 'ISR' check (role in ('admin', 'SO', 'ISR')),
   status        text not null default 'pending'  check (status in ('pending', 'approved', 'rejected')),
   must_change_password boolean not null default false,
+  reports_to_id uuid references users (id) on delete set null,
   created_at    timestamptz not null default now()
 );
 
 -- Add later columns to an already-created users table (safe to re-run).
 alter table users add column if not exists must_change_password boolean not null default false;
+-- An ISR's supervising SO (nullable — not every ISR has one assigned yet).
+alter table users add column if not exists reports_to_id uuid references users (id) on delete set null;
 
 -- Rename the old 'division' column to 'head_quarter' (safe to re-run — only
 -- fires if the old column still exists, i.e. on a pre-rename database).
@@ -46,20 +49,42 @@ create index if not exists idx_users_status on users (status);
 
 -- ── Outlets ────────────────────────────────────────────────────────────
 create table if not exists outlets (
-  id          uuid primary key default gen_random_uuid(),
-  name        text not null,
-  poc         text not null default '',
-  mobile      text not null default '',
-  address     text not null default '',
-  town        text not null default '',
-  division    text not null default '',
-  type        text not null default '',
-  type_other  text not null default '',
-  lat         text not null default '',
-  lng         text not null default '',
-  created_by  uuid references users (id) on delete set null,
-  created_at  timestamptz not null default now()
+  id           uuid primary key default gen_random_uuid(),
+  name         text not null,
+  mobile       text not null default '',
+  area         text not null default '',
+  head_quarter text not null default '',
+  type         text not null default '',
+  type_other   text not null default '',
+  lat          text not null default '',
+  lng          text not null default '',
+  created_by   uuid references users (id) on delete set null,
+  created_at   timestamptz not null default now()
 );
+
+-- Rename town/division to area/head_quarter (safe to re-run).
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_name = 'outlets' and column_name = 'town'
+  ) then
+    alter table outlets rename column town to area;
+  end if;
+  if exists (
+    select 1 from information_schema.columns
+    where table_name = 'outlets' and column_name = 'division'
+  ) then
+    alter table outlets rename column division to head_quarter;
+  end if;
+end $$;
+alter table outlets add column if not exists area text not null default '';
+alter table outlets add column if not exists head_quarter text not null default '';
+
+-- Point of Contact and Address are no longer collected — drop them
+-- (destructive: any existing poc/address data is permanently deleted).
+alter table outlets drop column if exists poc;
+alter table outlets drop column if exists address;
 
 create index if not exists idx_outlets_mobile on outlets (mobile);
 

@@ -1,14 +1,13 @@
 import { query, queryOne } from "./db";
+import { todayIST } from "./date";
 import type { Outlet, Visit } from "@/features/outlet-tracker/types";
 
 interface OutletRow {
   id: string;
   name: string;
-  poc: string;
   mobile: string;
-  address: string;
-  town: string;
-  division: string;
+  area: string;
+  head_quarter: string;
   type: string;
   type_other: string;
   lat: string;
@@ -52,11 +51,9 @@ function mapOutlet(o: OutletRow, visits: VisitRow[]): Outlet {
   return {
     id: o.id,
     name: o.name,
-    poc: o.poc,
     mobile: o.mobile,
-    address: o.address,
-    town: o.town,
-    division: o.division,
+    area: o.area,
+    headQuarter: o.head_quarter,
     type: o.type,
     typeOther: o.type_other,
     gps: { lat: o.lat, lng: o.lng },
@@ -93,11 +90,9 @@ export async function getOutlet(id: string): Promise<Outlet | null> {
 
 export interface OutletInput {
   name: string;
-  poc: string;
   mobile: string;
-  address: string;
-  town: string;
-  division: string;
+  area: string;
+  headQuarter: string;
   type: string;
   typeOther: string;
   lat: string;
@@ -120,16 +115,14 @@ export async function createOutlet(
 ): Promise<Outlet | null> {
   const row = await queryOne<OutletRow>(
     `insert into outlets
-       (name, poc, mobile, address, town, division, type, type_other, lat, lng, created_by)
-     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+       (name, mobile, area, head_quarter, type, type_other, lat, lng, created_by)
+     values ($1,$2,$3,$4,$5,$6,$7,$8,$9)
      returning *`,
     [
       outlet.name,
-      outlet.poc,
       outlet.mobile,
-      outlet.address,
-      outlet.town,
-      outlet.division,
+      outlet.area,
+      outlet.headQuarter,
       outlet.type,
       outlet.typeOther,
       outlet.lat,
@@ -147,17 +140,14 @@ export async function updateOutletIdentity(
 ): Promise<Outlet | null> {
   await query(
     `update outlets set
-       name = $2, poc = $3, mobile = $4, address = $5,
-       town = $6, division = $7, type = $8, type_other = $9
+       name = $2, mobile = $3, area = $4, head_quarter = $5, type = $6, type_other = $7
      where id = $1`,
     [
       id,
       outlet.name,
-      outlet.poc,
       outlet.mobile,
-      outlet.address,
-      outlet.town,
-      outlet.division,
+      outlet.area,
+      outlet.headQuarter,
       outlet.type,
       outlet.typeOther,
     ],
@@ -173,9 +163,10 @@ export async function addVisit(
   await query(
     `insert into visits
        (outlet_id, visit_date, stock, sold, rank, competitor, competitor_brand, remarks, rep)
-     values ($1, current_date, $2, $3, $4, $5, $6, $7, $8)`,
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
     [
       outletId,
+      todayIST(),
       visit.stock,
       visit.sold,
       visit.rank,

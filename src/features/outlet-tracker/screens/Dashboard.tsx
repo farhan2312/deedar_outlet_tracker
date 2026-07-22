@@ -138,7 +138,7 @@ export function Dashboard() {
                   <Badge>{tType(t, o.typeLabel)}</Badge>
                 </div>
                 <div style={{ fontSize: 12, color: C.sub, marginTop: 3 }}>
-                  {o.town}, {o.division} · {o.mobile}
+                  {o.area}, {o.headQuarter} · {o.mobile}
                 </div>
               </Card>
             ))}
@@ -155,14 +155,16 @@ export function Dashboard() {
           subtitleColor={C.greenTint}
           icon="plus"
         />
-        <ActionCard
-          onClick={onStartAddVisit}
-          bg={C.gold}
-          title={t("dash.addVisit")}
-          subtitle={t("dash.addVisitSub")}
-          subtitleColor={C.goldBg}
-          icon="check"
-        />
+        {user.role !== "SO" ? (
+          <ActionCard
+            onClick={onStartAddVisit}
+            bg={C.gold}
+            title={t("dash.addVisit")}
+            subtitle={t("dash.addVisitSub")}
+            subtitleColor={C.goldBg}
+            icon="check"
+          />
+        ) : null}
       </div>
 
       {mySubmissions.length > 0 ? (
@@ -233,7 +235,7 @@ export function Dashboard() {
                     <Badge>{tType(t, o.typeLabel)}</Badge>
                   </div>
                   <div style={{ fontSize: 12, color: C.sub, marginTop: 3 }}>
-                    {o.town}, {o.division}
+                    {o.area}, {o.headQuarter}
                   </div>
                   <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>
                     {t("dash.visitsCountLast", {

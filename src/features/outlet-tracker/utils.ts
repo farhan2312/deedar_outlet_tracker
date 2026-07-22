@@ -26,9 +26,8 @@ export function matchOutlet(o: Outlet, q: string): boolean {
   return (
     o.name.toLowerCase().includes(s) ||
     o.mobile.includes(s) ||
-    o.town.toLowerCase().includes(s) ||
-    o.division.toLowerCase().includes(s) ||
-    o.poc.toLowerCase().includes(s)
+    o.area.toLowerCase().includes(s) ||
+    o.headQuarter.toLowerCase().includes(s)
   );
 }
 

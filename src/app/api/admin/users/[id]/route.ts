@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api-auth";
-import { adminUpdateUser, toPublicUser, type UserRole, type UserStatus } from "@/lib/users";
+import {
+  adminUpdateUser,
+  findUserById,
+  toPublicUser,
+  type UserRole,
+  type UserStatus,
+} from "@/lib/users";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,6 +30,7 @@ export async function PATCH(
     area?: string;
     role?: string;
     status?: string;
+    reportsToId?: string | null;
   };
   try {
     body = await req.json();
@@ -38,6 +45,7 @@ export async function PATCH(
     area?: string;
     role?: UserRole;
     status?: UserStatus;
+    reportsToId?: string | null;
   } = {};
 
   if (body.name !== undefined) {
@@ -82,6 +90,35 @@ export async function PATCH(
   if (body.area !== undefined) {
     const targetRole = fields.role;
     fields.area = targetRole === "admin" ? "" : String(body.area).trim();
+  }
+
+  // Only ISRs report to an SO. Figure out the role this user will end up
+  // with so we know whether a reportsToId is even valid.
+  if ("reportsToId" in body) {
+    let effectiveRole = fields.role;
+    if (effectiveRole === undefined) {
+      const current = await findUserById(id);
+      if (!current) {
+        return NextResponse.json({ error: "User not found." }, { status: 404 });
+      }
+      effectiveRole = current.role;
+    }
+
+    if (!body.reportsToId || effectiveRole !== "ISR") {
+      fields.reportsToId = null;
+    } else {
+      const so = await findUserById(body.reportsToId);
+      if (!so || so.role !== "SO") {
+        return NextResponse.json(
+          { error: "Selected SO was not found." },
+          { status: 400 },
+        );
+      }
+      fields.reportsToId = so.id;
+    }
+  } else if (fields.role !== undefined && fields.role !== "ISR") {
+    // Role is changing away from ISR — an ISR's reporting line no longer applies.
+    fields.reportsToId = null;
   }
 
   if (Object.keys(fields).length === 0) {

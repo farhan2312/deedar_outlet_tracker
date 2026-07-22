@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { C, TYPES } from "../constants";
+import { C, HEAD_QUARTERS, TYPES } from "../constants";
 import { useTracker } from "../store";
 import {
   Button,
@@ -9,7 +9,6 @@ import {
   FieldGrid,
   Select,
   StepDots,
-  TextArea,
   TextInput,
 } from "../ui";
 import { decorateOutlet } from "../utils";
@@ -40,10 +39,8 @@ export function AddOutlet() {
   const step1Disabled = f.mobile.length !== 10;
   const step2Disabled = !(
     f.name &&
-    f.poc &&
-    f.address &&
-    f.town &&
-    f.division &&
+    f.area &&
+    f.headQuarter &&
     f.type &&
     (!isOther || f.typeOther) &&
     f.lat &&
@@ -57,8 +54,8 @@ export function AddOutlet() {
     return o ? decorateOutlet(o) : null;
   }, [state.addDuplicateOutletId, state.outlets]);
 
-  const townOptions = useMemo(
-    () => [...new Set(state.outlets.map((o) => o.town))],
+  const areaOptions = useMemo(
+    () => [...new Set(state.outlets.map((o) => o.area))],
     [state.outlets],
   );
 
@@ -96,7 +93,7 @@ export function AddOutlet() {
               <div style={{ fontSize: 12, color: C.ink, marginTop: 4 }}>
                 {t("ao.dupText", {
                   name: duplicate.name,
-                  town: duplicate.town,
+                  area: duplicate.area,
                 })}
               </div>
               <div
@@ -141,31 +138,26 @@ export function AddOutlet() {
                 onChange={(e) => setAdd({ name: e.target.value })}
               />
             </Field>
-            <Field label={`${t("field.poc")} *`}>
-              <TextInput
-                value={f.poc}
-                onChange={(e) => setAdd({ poc: e.target.value })}
-              />
-            </Field>
-            <Field label={`${t("field.address")} *`}>
-              <TextArea
-                value={f.address}
-                onChange={(e) => setAdd({ address: e.target.value })}
-              />
-            </Field>
             <FieldGrid>
-              <Field label={`${t("field.town")} *`}>
+              <Field label={`${t("field.area")} *`}>
                 <TextInput
-                  value={f.town}
-                  list="townList"
-                  onChange={(e) => setAdd({ town: e.target.value })}
+                  value={f.area}
+                  list="areaList"
+                  onChange={(e) => setAdd({ area: e.target.value })}
                 />
               </Field>
-              <Field label={`${t("field.division")} *`}>
-                <TextInput
-                  value={f.division}
-                  onChange={(e) => setAdd({ division: e.target.value })}
-                />
+              <Field label={`${t("field.headQuarter")} *`}>
+                <Select
+                  value={f.headQuarter}
+                  onChange={(e) => setAdd({ headQuarter: e.target.value })}
+                >
+                  <option value="">{t("common.select")}</option>
+                  {HEAD_QUARTERS.map((hq) => (
+                    <option key={hq} value={hq}>
+                      {hq}
+                    </option>
+                  ))}
+                </Select>
               </Field>
             </FieldGrid>
             <Field label={`${t("field.type")} *`}>
@@ -205,9 +197,9 @@ export function AddOutlet() {
             </Button>
           </NavRow>
 
-          <datalist id="townList">
-            {townOptions.map((tw) => (
-              <option key={tw} value={tw} />
+          <datalist id="areaList">
+            {areaOptions.map((a) => (
+              <option key={a} value={a} />
             ))}
           </datalist>
         </>
@@ -230,11 +222,10 @@ export function AddOutlet() {
             }}
           >
             <Row label={t("review.outlet")} value={f.name} />
-            <Row label={t("review.poc")} value={`${f.poc} · ${f.mobile}`} />
-            <Row label={t("review.address")} value={f.address} />
+            <Row label={t("field.mobile")} value={f.mobile} />
             <Row
               label={t("review.location")}
-              value={`${f.town}, ${f.division}`}
+              value={`${f.area}, ${f.headQuarter}`}
             />
             <Row
               label={t("review.type")}
