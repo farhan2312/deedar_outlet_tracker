@@ -25,7 +25,8 @@ export async function POST(req: Request) {
   let body: {
     name?: string;
     phone?: string;
-    division?: string;
+    headQuarter?: string;
+    area?: string;
     password?: string;
     role?: string;
   };
@@ -37,8 +38,10 @@ export async function POST(req: Request) {
 
   const name = String(body.name ?? "").trim();
   const phone = normalizePhone(body.phone);
-  const role = body.role === "admin" ? "admin" : "field_rep";
-  const division = role === "admin" ? "" : String(body.division ?? "").trim();
+  const role =
+    body.role === "admin" ? "admin" : body.role === "SO" ? "SO" : "ISR";
+  const headQuarter = role === "admin" ? "" : String(body.headQuarter ?? "").trim();
+  const area = role === "admin" ? "" : String(body.area ?? "").trim();
   // Admin may set a temporary password; defaults to the phone number.
   const password = String(body.password ?? "") || phone;
 
@@ -67,7 +70,14 @@ export async function POST(req: Request) {
   }
 
   const passwordHash = await hashPassword(password);
-  const user = await adminCreateUser({ name, phone, passwordHash, division, role });
+  const user = await adminCreateUser({
+    name,
+    phone,
+    passwordHash,
+    headQuarter,
+    area,
+    role,
+  });
 
   return NextResponse.json({ user: user ? toPublicUser(user) : null });
 }

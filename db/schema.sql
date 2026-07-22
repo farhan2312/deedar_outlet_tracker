@@ -10,23 +10,37 @@ create table if not exists users (
   name          text not null,
   phone         text not null unique,
   password_hash text not null,
-  division      text not null default '',
-  role          text not null default 'field_rep' check (role in ('field_rep', 'admin')),
+  head_quarter  text not null default '',
+  area          text not null default '',
+  role          text not null default 'ISR' check (role in ('admin', 'SO', 'ISR')),
   status        text not null default 'pending'  check (status in ('pending', 'approved', 'rejected')),
   must_change_password boolean not null default false,
   created_at    timestamptz not null default now()
 );
 
 -- Add later columns to an already-created users table (safe to re-run).
-alter table users add column if not exists division text not null default '';
 alter table users add column if not exists must_change_password boolean not null default false;
 
--- Migrate the legacy 'user' role to 'field_rep' (safe to re-run). Drop the
--- constraint first so the UPDATE doesn't violate the old allowed set.
+-- Rename the old 'division' column to 'head_quarter' (safe to re-run — only
+-- fires if the old column still exists, i.e. on a pre-rename database).
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_name = 'users' and column_name = 'division'
+  ) then
+    alter table users rename column division to head_quarter;
+  end if;
+end $$;
+alter table users add column if not exists head_quarter text not null default '';
+alter table users add column if not exists area text not null default '';
+
+-- Migrate legacy role values to the admin/SO/ISR model (safe to re-run).
+-- Drop the constraint first so the UPDATE doesn't violate the old allowed set.
 alter table users drop constraint if exists users_role_check;
-update users set role = 'field_rep' where role = 'user';
-alter table users alter column role set default 'field_rep';
-alter table users add constraint users_role_check check (role in ('field_rep', 'admin'));
+update users set role = 'ISR' where role in ('user', 'field_rep');
+alter table users alter column role set default 'ISR';
+alter table users add constraint users_role_check check (role in ('admin', 'SO', 'ISR'));
 
 create index if not exists idx_users_status on users (status);
 

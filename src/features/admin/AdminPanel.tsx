@@ -3,18 +3,19 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { C, USER_DIVISIONS } from "@/features/outlet-tracker/constants";
+import { C, HEAD_QUARTERS } from "@/features/outlet-tracker/constants";
 import { Button, Field, Select, TextInput } from "@/features/outlet-tracker/ui";
 import { LanguageToggle, useT } from "@/features/i18n";
 
-type Role = "field_rep" | "admin";
+type Role = "admin" | "SO" | "ISR";
 type Status = "pending" | "approved" | "rejected";
 
 interface AdminUser {
   id: string;
   name: string;
   phone: string;
-  division: string;
+  headQuarter: string;
+  area: string;
   role: Role;
   status: Status;
   createdAt: string;
@@ -298,7 +299,8 @@ function UserCard({
           </div>
           <div style={{ fontSize: 12, color: C.sub, marginTop: 2 }}>
             {user.phone}
-            {user.division ? ` · ${user.division}` : ""}
+            {user.headQuarter ? ` · ${user.headQuarter}` : ""}
+            {user.area ? ` · ${user.area}` : ""}
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
@@ -383,7 +385,8 @@ function EditUserForm({
   const [name, setName] = useState(user.name);
   const [phone, setPhone] = useState(user.phone);
   const [role, setRole] = useState<Role>(user.role);
-  const [division, setDivision] = useState(user.division);
+  const [headQuarter, setHeadQuarter] = useState(user.headQuarter);
+  const [area, setArea] = useState(user.area);
   const [status, setStatus] = useState<Status>(user.status);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -396,7 +399,8 @@ function EditUserForm({
       name,
       phone,
       role,
-      division: role === "admin" ? "" : division,
+      headQuarter: role === "admin" ? "" : headQuarter,
+      area: role === "admin" ? "" : area,
       status,
     });
     setBusy(false);
@@ -434,24 +438,30 @@ function EditUserForm({
       </Field>
       <Field label={t("field.role")}>
         <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
-          <option value="field_rep">{t("role.field_rep")}</option>
+          <option value="ISR">{t("role.ISR")}</option>
+          <option value="SO">{t("role.SO")}</option>
           <option value="admin">{t("role.admin")}</option>
         </Select>
       </Field>
-      {role === "field_rep" ? (
-        <Field label={t("field.division")}>
-          <Select
-            value={division}
-            onChange={(e) => setDivision(e.target.value)}
-          >
-            <option value="">{t("common.select")}</option>
-            {USER_DIVISIONS.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </Select>
-        </Field>
+      {role !== "admin" ? (
+        <>
+          <Field label={t("field.headQuarter")}>
+            <Select
+              value={headQuarter}
+              onChange={(e) => setHeadQuarter(e.target.value)}
+            >
+              <option value="">{t("common.select")}</option>
+              {HEAD_QUARTERS.map((hq) => (
+                <option key={hq} value={hq}>
+                  {hq}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label={t("field.area")}>
+            <TextInput value={area} onChange={(e) => setArea(e.target.value)} />
+          </Field>
+        </>
       ) : null}
       <Field label={t("admin.access")}>
         <Select
@@ -483,8 +493,9 @@ function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [role, setRole] = useState<Role>("field_rep");
-  const [division, setDivision] = useState("");
+  const [role, setRole] = useState<Role>("ISR");
+  const [headQuarter, setHeadQuarter] = useState("");
+  const [area, setArea] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -499,7 +510,7 @@ function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
       const res = await fetch("/api/admin/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, role, division, password }),
+        body: JSON.stringify({ name, phone, role, headQuarter, area, password }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -516,8 +527,9 @@ function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
       );
       setName("");
       setPhone("");
-      setRole("field_rep");
-      setDivision("");
+      setRole("ISR");
+      setHeadQuarter("");
+      setArea("");
       setPassword("");
     } catch {
       setError(t("admin.genericError"));
@@ -587,24 +599,34 @@ function AddUserForm({ onCreated }: { onCreated: (user: AdminUser) => void }) {
           </Field>
           <Field label={t("field.role")}>
             <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
-              <option value="field_rep">{t("role.field_rep")}</option>
+              <option value="ISR">{t("role.ISR")}</option>
+              <option value="SO">{t("role.SO")}</option>
               <option value="admin">{t("role.admin")}</option>
             </Select>
           </Field>
-          {role === "field_rep" ? (
-            <Field label={t("field.division")}>
-              <Select
-                value={division}
-                onChange={(e) => setDivision(e.target.value)}
-              >
-                <option value="">{t("common.select")}</option>
-                {USER_DIVISIONS.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </Select>
-            </Field>
+          {role !== "admin" ? (
+            <>
+              <Field label={t("field.headQuarter")}>
+                <Select
+                  value={headQuarter}
+                  onChange={(e) => setHeadQuarter(e.target.value)}
+                >
+                  <option value="">{t("common.select")}</option>
+                  {HEAD_QUARTERS.map((hq) => (
+                    <option key={hq} value={hq}>
+                      {hq}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label={t("field.area")}>
+                <TextInput
+                  value={area}
+                  onChange={(e) => setArea(e.target.value)}
+                  placeholder={t("field.areaPlaceholder")}
+                />
+              </Field>
+            </>
           ) : null}
           <Field label={t("admin.tempPassword")}>
             <TextInput

@@ -1,10 +1,12 @@
 import { query, queryOne } from "./db";
 
-export type UserRole = "field_rep" | "admin";
+export type UserRole = "admin" | "SO" | "ISR";
 export type UserStatus = "pending" | "approved" | "rejected";
 
 export function roleLabel(role: UserRole): string {
-  return role === "admin" ? "Admin" : "Field Rep";
+  if (role === "admin") return "Admin";
+  if (role === "SO") return "SO";
+  return "ISR";
 }
 
 export interface UserRow {
@@ -12,7 +14,8 @@ export interface UserRow {
   name: string;
   phone: string;
   password_hash: string;
-  division: string;
+  head_quarter: string;
+  area: string;
   role: UserRole;
   status: UserStatus;
   must_change_password: boolean;
@@ -24,7 +27,8 @@ export interface PublicUser {
   id: string;
   name: string;
   phone: string;
-  division: string;
+  headQuarter: string;
+  area: string;
   role: UserRole;
   status: UserStatus;
   createdAt: string;
@@ -35,7 +39,8 @@ export function toPublicUser(row: UserRow): PublicUser {
     id: row.id,
     name: row.name,
     phone: row.phone,
-    division: row.division,
+    headQuarter: row.head_quarter,
+    area: row.area,
     role: row.role,
     status: row.status,
     createdAt: row.created_at,
@@ -54,14 +59,22 @@ export function createUser(input: {
   name: string;
   phone: string;
   passwordHash: string;
-  division: string;
+  headQuarter: string;
+  area: string;
   role: UserRole;
 }): Promise<UserRow | null> {
   return queryOne<UserRow>(
-    `insert into users (name, phone, password_hash, division, role)
-     values ($1, $2, $3, $4, $5)
+    `insert into users (name, phone, password_hash, head_quarter, area, role)
+     values ($1, $2, $3, $4, $5, $6)
      returning *`,
-    [input.name, input.phone, input.passwordHash, input.division, input.role],
+    [
+      input.name,
+      input.phone,
+      input.passwordHash,
+      input.headQuarter,
+      input.area,
+      input.role,
+    ],
   );
 }
 
@@ -73,14 +86,22 @@ export function adminCreateUser(input: {
   name: string;
   phone: string;
   passwordHash: string;
-  division: string;
+  headQuarter: string;
+  area: string;
   role: UserRole;
 }): Promise<UserRow | null> {
   return queryOne<UserRow>(
-    `insert into users (name, phone, password_hash, division, role, status, must_change_password)
-     values ($1, $2, $3, $4, $5, 'approved', true)
+    `insert into users (name, phone, password_hash, head_quarter, area, role, status, must_change_password)
+     values ($1, $2, $3, $4, $5, $6, 'approved', true)
      returning *`,
-    [input.name, input.phone, input.passwordHash, input.division, input.role],
+    [
+      input.name,
+      input.phone,
+      input.passwordHash,
+      input.headQuarter,
+      input.area,
+      input.role,
+    ],
   );
 }
 
@@ -109,25 +130,28 @@ export function adminUpdateUser(
   fields: {
     name?: string;
     phone?: string;
-    division?: string;
+    headQuarter?: string;
+    area?: string;
     role?: UserRole;
     status?: UserStatus;
   },
 ): Promise<UserRow | null> {
   return queryOne<UserRow>(
     `update users set
-       name     = coalesce($2, name),
-       phone    = coalesce($3, phone),
-       division = coalesce($4, division),
-       role     = coalesce($5, role),
-       status   = coalesce($6, status)
+       name         = coalesce($2, name),
+       phone        = coalesce($3, phone),
+       head_quarter = coalesce($4, head_quarter),
+       area         = coalesce($5, area),
+       role         = coalesce($6, role),
+       status       = coalesce($7, status)
      where id = $1
      returning *`,
     [
       id,
       fields.name ?? null,
       fields.phone ?? null,
-      fields.division ?? null,
+      fields.headQuarter ?? null,
+      fields.area ?? null,
       fields.role ?? null,
       fields.status ?? null,
     ],

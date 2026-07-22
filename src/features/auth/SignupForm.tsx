@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { C, USER_DIVISIONS } from "@/features/outlet-tracker/constants";
+import { C, HEAD_QUARTERS } from "@/features/outlet-tracker/constants";
 import { useT } from "@/features/i18n";
 import {
   AuthLayout,
@@ -15,8 +15,9 @@ export function SignupForm() {
   const { t } = useT();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [role, setRole] = useState<"field_rep" | "admin">("field_rep");
-  const [division, setDivision] = useState("");
+  const [role, setRole] = useState<"admin" | "SO" | "ISR">("ISR");
+  const [headQuarter, setHeadQuarter] = useState("");
+  const [area, setArea] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
@@ -30,7 +31,7 @@ export function SignupForm() {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, role, division, password }),
+        body: JSON.stringify({ name, phone, role, headQuarter, area, password }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -103,29 +104,39 @@ export function SignupForm() {
         <select
           className="dz-input dz-tap"
           value={role}
-          onChange={(e) => setRole(e.target.value as "field_rep" | "admin")}
+          onChange={(e) => setRole(e.target.value as "admin" | "SO" | "ISR")}
           style={{ ...authFieldStyle, appearance: "auto", background: "#fff" }}
         >
-          <option value="field_rep">{t("role.field_rep")}</option>
+          <option value="ISR">{t("role.ISR")}</option>
+          <option value="SO">{t("role.SO")}</option>
           <option value="admin">{t("role.admin")}</option>
         </select>
 
-        {role === "field_rep" ? (
+        {role !== "admin" ? (
           <>
-            <label style={authLabelStyle}>{t("field.division")}</label>
+            <label style={authLabelStyle}>{t("field.headQuarter")}</label>
             <select
               className="dz-input dz-tap"
-              value={division}
-              onChange={(e) => setDivision(e.target.value)}
+              value={headQuarter}
+              onChange={(e) => setHeadQuarter(e.target.value)}
               style={{ ...authFieldStyle, appearance: "auto", background: "#fff" }}
             >
-              <option value="">{t("field.divisionSelect")}</option>
-              {USER_DIVISIONS.map((d) => (
-                <option key={d} value={d}>
-                  {d}
+              <option value="">{t("field.headQuarterSelect")}</option>
+              {HEAD_QUARTERS.map((hq) => (
+                <option key={hq} value={hq}>
+                  {hq}
                 </option>
               ))}
             </select>
+
+            <label style={authLabelStyle}>{t("field.area")}</label>
+            <input
+              className="dz-input dz-tap"
+              value={area}
+              onChange={(e) => setArea(e.target.value)}
+              placeholder={t("field.areaPlaceholder")}
+              style={authFieldStyle}
+            />
           </>
         ) : null}
 

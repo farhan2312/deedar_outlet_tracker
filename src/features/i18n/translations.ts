@@ -41,6 +41,10 @@ const en: Dict = {
   "field.role": "Role",
   "field.division": "Division",
   "field.divisionSelect": "Select your division",
+  "field.headQuarter": "Head Quarter",
+  "field.headQuarterSelect": "Select your head quarter",
+  "field.area": "Area",
+  "field.areaPlaceholder": "e.g. route or locality name",
   "field.outletName": "Name of the Outlet",
   "field.poc": "Point of Contact",
   "field.address": "Address",
@@ -58,7 +62,8 @@ const en: Dict = {
   "placeholder.competitorBrand": "Name the competitor brand",
 
   // roles / status
-  "role.field_rep": "Field Rep",
+  "role.SO": "SO",
+  "role.ISR": "ISR",
   "role.admin": "Admin",
   "status.pending": "Pending",
   "status.approved": "Approved",
@@ -275,6 +280,10 @@ const hi: Dict = {
   "field.role": "भूमिका",
   "field.division": "डिवीजन",
   "field.divisionSelect": "अपना डिवीजन चुनें",
+  "field.headQuarter": "मुख्यालय",
+  "field.headQuarterSelect": "अपना मुख्यालय चुनें",
+  "field.area": "क्षेत्र",
+  "field.areaPlaceholder": "जैसे रूट या इलाके का नाम",
   "field.outletName": "आउटलेट का नाम",
   "field.poc": "संपर्क व्यक्ति",
   "field.address": "पता",
@@ -292,7 +301,8 @@ const hi: Dict = {
   "placeholder.competitorBrand": "प्रतियोगी ब्रांड का नाम बताएं",
 
   // roles / status
-  "role.field_rep": "फील्ड रेप",
+  "role.SO": "एसओ",
+  "role.ISR": "आईएसआर",
   "role.admin": "एडमिन",
   "status.pending": "लंबित",
   "status.approved": "स्वीकृत",

@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     id: auth.id,
     name: auth.name,
     phone: auth.phone,
-    division: auth.division,
+    headQuarter: auth.headQuarter,
     role: auth.role,
     mustChange: false,
   });

@@ -14,8 +14,8 @@ export const COMPETITOR_LEVELS: CompetitorLevel[] = [
   "National Brands",
 ];
 
-/** Sales divisions a rep can belong to (from the Rajasthan team roster). */
-export const USER_DIVISIONS = ["Jaipur", "Kota", "Indore", "Banda"] as const;
+/** Head quarters a rep (SO/ISR) can belong to (from the DEEDAR_USER roster). */
+export const HEAD_QUARTERS = ["Jaipur", "Kota", "Indore", "Banda"] as const;
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 

@@ -1,0 +1,345 @@
+[
+  {
+    "name": "Sharif Pathan",
+    "mobile": "8302331633",
+    "role": "SO",
+    "headQuarter": "Jaipur",
+    "area": ""
+  },
+  {
+    "name": "Shahid",
+    "mobile": "9928714964",
+    "role": "ISR",
+    "headQuarter": "Jaipur",
+    "area": "Karbala"
+  },
+  {
+    "name": "Kadir",
+    "mobile": "9352366574",
+    "role": "ISR",
+    "headQuarter": "Jaipur",
+    "area": "Karbala"
+  },
+  {
+    "name": "Shazaib",
+    "mobile": "6375497616",
+    "role": "ISR",
+    "headQuarter": "Jaipur",
+    "area": "Karbala"
+  },
+  {
+    "name": "Rupesh",
+    "mobile": "8690521457",
+    "role": "ISR",
+    "headQuarter": "Jaipur",
+    "area": "Bagru"
+  },
+  {
+    "name": "Prem",
+    "mobile": "9928926688",
+    "role": "ISR",
+    "headQuarter": "Jaipur",
+    "area": "Bagru"
+  },
+  {
+    "name": "Sunil",
+    "mobile": "9119399392",
+    "role": "ISR",
+    "headQuarter": "Jaipur",
+    "area": "Chomu"
+  },
+  {
+    "name": "Rajendra Singh",
+    "mobile": "8696822055",
+    "role": "ISR",
+    "headQuarter": "Jaipur",
+    "area": "Todarraisingh"
+  },
+  {
+    "name": "Mohan Ram",
+    "mobile": "7878455181",
+    "role": "ISR",
+    "headQuarter": "Jaipur",
+    "area": "Rawatsar"
+  },
+  {
+    "name": "Satish",
+    "mobile": "9672064595",
+    "role": "ISR",
+    "headQuarter": "Jaipur",
+    "area": "Niwai"
+  },
+  {
+    "name": "Navratan",
+    "mobile": "7878759405",
+    "role": "ISR",
+    "headQuarter": "Jaipur",
+    "area": "Sanganer"
+  },
+  {
+    "name": "Irfan Khan",
+    "mobile": "9024902247",
+    "role": "ISR",
+    "headQuarter": "Jaipur",
+    "area": "Fatehpur"
+  },
+  {
+    "name": "Gourav Kushwaha",
+    "mobile": "9521031235",
+    "role": "SO",
+    "headQuarter": "Kota",
+    "area": ""
+  },
+  {
+    "name": "Shobhag Suman",
+    "mobile": "8955244140",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Baran"
+  },
+  {
+    "name": "Dinesh Meena",
+    "mobile": "8769110488",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Baran"
+  },
+  {
+    "name": "Sudhir Kumar",
+    "mobile": "8386037213",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Baran"
+  },
+  {
+    "name": "Devki Nandan",
+    "mobile": "9406909944",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Baran"
+  },
+  {
+    "name": "Dinesh Khinchi",
+    "mobile": "8058079031",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Baran"
+  },
+  {
+    "name": "Anshul Jain",
+    "mobile": "7733077555",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Nainwa"
+  },
+  {
+    "name": "Mukesh Meena",
+    "mobile": "9351452879",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Nainwa"
+  },
+  {
+    "name": "Hukum Chand Saini",
+    "mobile": "7737785987",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Lakheri"
+  },
+  {
+    "name": "Sagar Rawat",
+    "mobile": "8875389720",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Lakheri"
+  },
+  {
+    "name": "Pawan Suman",
+    "mobile": "6377431299",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Kanwas"
+  },
+  {
+    "name": "Shyam Bihari",
+    "mobile": "9694816194",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Kanwas"
+  },
+  {
+    "name": "Mukesh Sharma",
+    "mobile": "9828263262",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Kanwas"
+  },
+  {
+    "name": "Shafeeq",
+    "mobile": "9672513168",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Sawai Madhopur"
+  },
+  {
+    "name": "Nikhil Upadhyay",
+    "mobile": "7665928538",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Sawai Madhopur"
+  },
+  {
+    "name": "Vishnu Saini",
+    "mobile": "8000260429",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Sawai Madhopur"
+  },
+  {
+    "name": "Pooran Mal",
+    "mobile": "9588848333",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Khanpur"
+  },
+  {
+    "name": "Ayaan Khan/Shakir",
+    "mobile": "8955457659",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Khanpur"
+  },
+  {
+    "name": "Lekhraj",
+    "mobile": "9799266821",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Khanpur"
+  },
+  {
+    "name": "Dev Karan",
+    "mobile": "9653751556",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Jhalawar"
+  },
+  {
+    "name": "Nanu Ram",
+    "mobile": "7891301714",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Jhalawar"
+  },
+  {
+    "name": "Aijaz",
+    "mobile": "9024545071",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Aklera"
+  },
+  {
+    "name": "Firoz",
+    "mobile": "9782373496",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Aklera"
+  },
+  {
+    "name": "Nitesh Mahavar",
+    "mobile": "9887737557",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Bhawanimandi"
+  },
+  {
+    "name": "Lakhan",
+    "mobile": "7879935589",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Neemach Rampura"
+  },
+  {
+    "name": "Anil Nagda",
+    "mobile": "9602799841",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Neemach Rampura"
+  },
+  {
+    "name": "Pawan Bairagi",
+    "mobile": "8889760543",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Neemach Rampura"
+  },
+  {
+    "name": "Rakesh Meena",
+    "mobile": "9111330944",
+    "role": "ISR",
+    "headQuarter": "Kota",
+    "area": "Neemach Rampura"
+  },
+  {
+    "name": "Sanjay Gupta",
+    "mobile": "9630163951",
+    "role": "SO",
+    "headQuarter": "Indore",
+    "area": ""
+  },
+  {
+    "name": "Vinod Sharma",
+    "mobile": "9644590010",
+    "role": "ISR",
+    "headQuarter": "Indore",
+    "area": "Indore"
+  },
+  {
+    "name": "Vasim",
+    "mobile": "9755467473",
+    "role": "ISR",
+    "headQuarter": "Indore",
+    "area": "Manavar"
+  },
+  {
+    "name": "Mayank",
+    "mobile": "9993656401",
+    "role": "ISR",
+    "headQuarter": "Indore",
+    "area": "Kukshi"
+  },
+  {
+    "name": "Ankit Dhakkad",
+    "mobile": "8878046381",
+    "role": "ISR",
+    "headQuarter": "Indore",
+    "area": "Alirajpur"
+  },
+  {
+    "name": "Devendra",
+    "mobile": "9399576847",
+    "role": "ISR",
+    "headQuarter": "Indore",
+    "area": "Vidisha"
+  },
+  {
+    "name": "Vimlesh",
+    "mobile": "9696069811",
+    "role": "ISR",
+    "headQuarter": "Banda",
+    "area": "Banda"
+  },
+  {
+    "name": "Amit Kumar",
+    "mobile": "9981393230",
+    "role": "ISR",
+    "headQuarter": "Banda",
+    "area": "Banda"
+  },
+  {
+    "name": "Moolchandra Namdev",
+    "mobile": "9452927446",
+    "role": "ISR",
+    "headQuarter": "Banda",
+    "area": "Banda"
+  }
+]

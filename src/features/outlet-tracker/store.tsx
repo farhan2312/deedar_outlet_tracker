@@ -26,8 +26,8 @@ export interface SessionUser {
   id: string;
   name: string;
   phone: string;
-  division: string;
-  role: "field_rep" | "admin";
+  headQuarter: string;
+  role: "admin" | "SO" | "ISR";
 }
 
 function initialState(user: SessionUser): TrackerState {
@@ -159,7 +159,7 @@ function useTrackerStore(user: SessionUser) {
       screen: "addOutlet",
       addStep: 1,
       // Prefill division with the rep's own division.
-      addForm: { ...EMPTY_ADD_FORM, division: user.division },
+      addForm: { ...EMPTY_ADD_FORM, division: user.headQuarter },
       addDuplicateOutletId: null,
       addGpsStatus: "idle",
     });
@@ -379,7 +379,7 @@ function useTrackerStore(user: SessionUser) {
       addForm: {
         ...EMPTY_ADD_FORM,
         mobile: s.avMobile,
-        division: user.division,
+        division: user.headQuarter,
       },
       addDuplicateOutletId: null,
       addGpsStatus: "idle",

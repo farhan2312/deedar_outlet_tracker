@@ -20,7 +20,8 @@ export async function PATCH(
   let body: {
     name?: string;
     phone?: string;
-    division?: string;
+    headQuarter?: string;
+    area?: string;
     role?: string;
     status?: string;
   };
@@ -33,7 +34,8 @@ export async function PATCH(
   const fields: {
     name?: string;
     phone?: string;
-    division?: string;
+    headQuarter?: string;
+    area?: string;
     role?: UserRole;
     status?: UserStatus;
   } = {};
@@ -56,7 +58,7 @@ export async function PATCH(
     fields.phone = phone;
   }
   if (body.role !== undefined) {
-    if (body.role !== "field_rep" && body.role !== "admin") {
+    if (body.role !== "admin" && body.role !== "SO" && body.role !== "ISR") {
       return NextResponse.json({ error: "Invalid role." }, { status: 400 });
     }
     fields.role = body.role;
@@ -71,11 +73,15 @@ export async function PATCH(
     }
     fields.status = body.status;
   }
-  if (body.division !== undefined) {
-    // Admins have no division.
+  if (body.headQuarter !== undefined) {
+    // Admins have no head quarter.
     const targetRole = fields.role;
-    fields.division =
-      targetRole === "admin" ? "" : String(body.division).trim();
+    fields.headQuarter =
+      targetRole === "admin" ? "" : String(body.headQuarter).trim();
+  }
+  if (body.area !== undefined) {
+    const targetRole = fields.role;
+    fields.area = targetRole === "admin" ? "" : String(body.area).trim();
   }
 
   if (Object.keys(fields).length === 0) {

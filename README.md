@@ -59,11 +59,12 @@ Reads the `ADMIN_*` values and creates an approved admin (idempotent — rerun t
 npm run import-employees
 ```
 
-Imports the roster in [`db/rajasthan-employees.json`](db/rajasthan-employees.json)
-(name, mobile, division) as **approved** reps. Each salesman's **initial password
-is their own 10-digit mobile number**, and they are **forced to set a new password
-on first login** (they can't reach the app until they do). Idempotent (re-running
-updates name/division, never resets passwords).
+Imports the roster in [`db/deedar-users.json`](db/deedar-users.json)
+(name, mobile, role, head quarter, area) as **approved** users — role comes straight
+from the source sheet's DESIGNATION column (SO or ISR). Each person's **initial
+password is their own 10-digit mobile number**, and they are **forced to set a new
+password on first login** (they can't reach the app until they do). Idempotent
+(re-running updates name/role/head quarter/area, never resets passwords).
 
 ### 5. Run
 
@@ -77,7 +78,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 | Route      | Who        | Purpose                                             |
 | ---------- | ---------- | --------------------------------------------------- |
-| `/signup`  | anyone     | Request access (name, phone, role, division, password) → pending |
+| `/signup`  | anyone     | Request access (name, phone, role, head quarter, area, password) → pending |
 | `/login`   | anyone     | Sign in with phone + password                       |
 | `/`        | approved   | The tracker app (dashboard, add outlet, add visit)  |
 | `/admin`   | admin only | Add users, edit users, and manage access            |
@@ -86,17 +87,20 @@ New signups are **pending** and cannot log in until an admin approves them at `/
 Route protection is enforced in [`src/middleware.ts`](src/middleware.ts) and re-checked
 in each page and API handler.
 
-Users have a **role** — `field_rep` (belongs to a division) or `admin`. Signup lets you
-pick either; admin signups are still pending until an existing admin approves them.
+Users have a **role** — `ISR`, `SO`, or `admin`. ISR and SO both belong to a **Head
+Quarter** (and optionally an **Area**) and have identical app permissions (search, add
+outlet, add visit, my submissions); `admin` has no head quarter/area and gets the admin
+dashboard/panel. Signup lets you pick any role; admin signups are still pending until an
+existing admin approves them.
 
-From the `/admin` panel an admin can **add users** (name, phone, role, division, optional
-temporary password — defaults to the phone number) and **edit any user** — name, mobile,
-role, division, and access status (pending / approved / rejected). Admin-created users are
-approved immediately and, like imported reps, are **forced to set a new password on first
-login**.
+From the `/admin` panel an admin can **add users** (name, phone, role, head quarter, area,
+optional temporary password — defaults to the phone number) and **edit any user** — name,
+mobile, role, head quarter, area, and access status (pending / approved / rejected).
+Admin-created users are approved immediately and, like imported reps, are **forced to set
+a new password on first login**.
 
-When a field rep adds an outlet, its **Division field is prefilled with the rep's own
-division**.
+When a rep (SO/ISR) adds an outlet, its **Division field is prefilled with the rep's own
+Head Quarter** (the outlet's own Division field is unrelated free text — it isn't renamed).
 
 ## Scripts
 
@@ -108,7 +112,7 @@ division**.
 | `npm run lint`        | Lint                                 |
 | `npm run db:setup`    | Apply the SQL schema                 |
 | `npm run create-admin`| Create/refresh the admin account     |
-| `npm run import-employees` | Import the Rajasthan sales roster |
+| `npm run import-employees` | Import the Deedar sales team roster |
 
 ## Structure
 
