@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
   const name = str(body.name);
   if (!name) {
-    return NextResponse.json({ error: "Outlet name is required." }, { status: 400 });
+    return NextResponse.json({ error: "Counter name is required." }, { status: 400 });
   }
 
   const outlet = await createOutlet(

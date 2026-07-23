@@ -15,7 +15,7 @@ export async function PATCH(
   const { id } = await params;
 
   if (!(await isOutletInScope(id, auth.id, auth.role))) {
-    return NextResponse.json({ error: "Outlet not found." }, { status: 404 });
+    return NextResponse.json({ error: "Counter not found." }, { status: 404 });
   }
 
   let body: Record<string, unknown>;
@@ -28,7 +28,7 @@ export async function PATCH(
   const str = (v: unknown) => String(v ?? "").trim();
   const name = str(body.name);
   if (!name) {
-    return NextResponse.json({ error: "Outlet name is required." }, { status: 400 });
+    return NextResponse.json({ error: "Counter name is required." }, { status: 400 });
   }
 
   const outlet = await updateOutletIdentity(id, {
@@ -42,7 +42,7 @@ export async function PATCH(
   });
 
   if (!outlet) {
-    return NextResponse.json({ error: "Outlet not found." }, { status: 404 });
+    return NextResponse.json({ error: "Counter not found." }, { status: 404 });
   }
   return NextResponse.json({ outlet });
 }

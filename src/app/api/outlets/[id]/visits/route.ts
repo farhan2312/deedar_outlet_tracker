@@ -26,7 +26,7 @@ export async function POST(
   const { id } = await params;
 
   if (!(await isOutletInScope(id, auth.id, auth.role))) {
-    return NextResponse.json({ error: "Outlet not found." }, { status: 404 });
+    return NextResponse.json({ error: "Counter not found." }, { status: 404 });
   }
 
   let body: Record<string, unknown>;
@@ -38,7 +38,7 @@ export async function POST(
 
   const existing = await getOutlet(id);
   if (!existing) {
-    return NextResponse.json({ error: "Outlet not found." }, { status: 404 });
+    return NextResponse.json({ error: "Counter not found." }, { status: 404 });
   }
 
   const str = (v: unknown) => String(v ?? "").trim();

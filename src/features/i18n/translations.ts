@@ -24,10 +24,10 @@ const en: Dict = {
   "common.admin": "Admin",
 
   // brand / titles
-  "brand.tagline": "Field Outlet Tracker",
+  "brand.tagline": "Field Counter Tracker",
   "title.dashboard": "Deedar Field",
-  "title.outletDetail": "Outlet Details",
-  "title.addOutlet": "Add New Outlet",
+  "title.outletDetail": "Counter Details",
+  "title.addOutlet": "Add New Counter",
   "title.addVisit": "Add Visit",
   "title.editVisit": "Update Visit",
 
@@ -45,14 +45,14 @@ const en: Dict = {
   "field.areaPlaceholder": "e.g. route or locality name",
   "field.reportsTo": "Reports To",
   "field.reportsToNone": "— Unassigned —",
-  "field.outletName": "Name of Outlet/Point of Contact",
+  "field.outletName": "Name of Counter/Point of Contact",
   "field.address": "Address",
-  "field.type": "Type of Outlet",
-  "field.specifyType": "Specify outlet type",
-  "field.stock": "Stock at Outlet",
+  "field.type": "Type of Counter",
+  "field.specifyType": "Specify counter type",
+  "field.stock": "Stock at Counter",
   "field.sold": "Packets Sold",
-  "field.rank": "Deedar Rank at Outlet",
-  "field.rankShelf": "Deedar Rank at Outlet (shelf position)",
+  "field.rank": "Deedar Rank at Counter",
+  "field.rankShelf": "Deedar Rank at Counter (shelf position)",
   "field.competitor": "Competitor Presence",
   "field.remarks": "Remarks (optional)",
   "placeholder.packets": "Packets",
@@ -80,7 +80,7 @@ const en: Dict = {
   "competitor.National Brands": "National Brands",
 
   // login
-  "login.title": "Rep Login",
+  "login.title": "Login",
   "login.subtitle": "Sign in with your mobile number",
   "login.button": "Log In",
   "login.signingIn": "Signing in…",
@@ -116,18 +116,18 @@ const en: Dict = {
 
   // dashboard
   "dash.welcome": "Welcome back",
-  "dash.searchPlaceholder": "Search outlets by name, mobile, town...",
+  "dash.searchPlaceholder": "Search counters by name, mobile, town...",
   "dash.searchResults": "Search Results ({count})",
-  "dash.addOutlet": "Add New Outlet",
-  "dash.addOutletSub": "Onboard a new outlet",
+  "dash.addOutlet": "Add New Counter",
+  "dash.addOutletSub": "Onboard a new counter",
   "dash.addVisit": "Add Visit",
-  "dash.addVisitSub": "Log a visit for an outlet",
+  "dash.addVisitSub": "Log a visit for a counter",
   "dash.mySubmissions": "My Submissions (editable for 24h)",
   "dash.visitsInLast24": "{count} visit(s) in the last 24h",
   "dash.editableHours": "Editable for {hours} more hours",
-  "dash.allOutlets": "All Outlets ({count})",
-  "dash.myTeamOutlets": "My Team's Outlets ({count})",
-  "dash.noOutlets": "No outlets yet.",
+  "dash.allOutlets": "All Counters ({count})",
+  "dash.myTeamOutlets": "My Team's Counters ({count})",
+  "dash.noOutlets": "No counters yet.",
   "dash.visitsCountLast": "{count} visit(s) · last {date}",
   "badge.edit": "Edit",
 
@@ -136,10 +136,10 @@ const en: Dict = {
   "od.addressLabel": "Address",
   "od.townDivisionLabel": "Area/Head Quarter",
   "od.gpsLabel": "GPS",
-  "od.addVisit": "Add Visit for this Outlet",
+  "od.addVisit": "Add Visit for this Counter",
   "od.centralOnly": "Visit history is available to the central data team only.",
   "od.visitHistory": "Visit History ({count})",
-  "od.noVisits": "No visits recorded for this outlet yet.",
+  "od.noVisits": "No visits recorded for this counter yet.",
   "od.yourSubmissions": "Your Submissions (editable for 24h)",
   "od.repShort": "Rep {rep}",
   "od.stockSoldRank": "Stock {stock} · Sold {sold} · Rank #{rank}",
@@ -148,18 +148,18 @@ const en: Dict = {
 
   // add outlet
   "ao.step.checkDup": "Check Duplicate",
-  "ao.step.details": "Outlet Details",
+  "ao.step.details": "Counter Details",
   "ao.step.review": "Review",
-  "ao.checkTitle": "Check for Existing Outlet",
+  "ao.checkTitle": "Check for Existing Counter",
   "ao.checkSub":
-    "Enter the outlet's mobile number to rule out a duplicate before creating a new record.",
+    "Enter the counter's mobile number to rule out a duplicate before creating a new record.",
   "ao.dupFound": "Possible duplicate found",
   "ao.dupText":
     "{name} · {area} is already registered with this mobile number.",
-  "ao.viewExisting": "View existing outlet",
-  "ao.identityTitle": "Outlet Identity",
+  "ao.viewExisting": "View existing counter",
+  "ao.identityTitle": "Counter Identity",
   "ao.reviewTitle": "Review & Submit",
-  "ao.submitOutlet": "Submit Outlet",
+  "ao.submitOutlet": "Submit Counter",
 
   // gps
   "gps.title": "GPS Coordinates",
@@ -175,13 +175,13 @@ const en: Dict = {
     "Location access denied or unavailable. Enter coordinates manually.",
 
   // add visit find
-  "avf.title": "Find the Outlet",
-  "avf.sub": "Enter the outlet's mobile number — we'll pull up its details.",
-  "avf.outletMobile": "Outlet Mobile Number",
+  "avf.title": "Find the Counter",
+  "avf.sub": "Enter the counter's mobile number — we'll pull up its details.",
+  "avf.outletMobile": "Counter Mobile Number",
   "avf.continue": "Continue to Visit Data",
-  "avf.notFoundTitle": "No outlet found",
-  "avf.notFoundText": "No outlet is registered with this mobile number yet.",
-  "avf.addNew": "Add New Outlet",
+  "avf.notFoundTitle": "No counter found",
+  "avf.notFoundText": "No counter is registered with this mobile number yet.",
+  "avf.addNew": "Add New Counter",
   "avf.lastVisit": "Last visit: {date}",
 
   // add visit
@@ -191,7 +191,7 @@ const en: Dict = {
   "av.submit": "Submit Visit",
 
   // review rows
-  "review.outlet": "Outlet",
+  "review.outlet": "Counter",
   "review.location": "Location",
   "review.type": "Type",
   "review.gps": "GPS",
@@ -234,12 +234,12 @@ const en: Dict = {
 
   // toasts
   "toast.visitUpdated": "Visit updated",
-  "toast.outletUpdated": "Outlet details updated",
-  "toast.outletAdded": "Outlet added successfully",
+  "toast.outletUpdated": "Counter details updated",
+  "toast.outletAdded": "Counter added successfully",
   "toast.visitRecorded": "Visit recorded successfully",
   "toast.couldNotUpdateVisit": "Could not update visit",
   "toast.couldNotSave": "Could not save changes",
-  "toast.couldNotAddOutlet": "Could not add outlet",
+  "toast.couldNotAddOutlet": "Could not add counter",
   "toast.couldNotRecordVisit": "Could not record visit",
 };
 
@@ -260,10 +260,10 @@ const hi: Dict = {
   "common.admin": "एडमिन",
 
   // brand / titles
-  "brand.tagline": "फील्ड आउटलेट ट्रैकर",
+  "brand.tagline": "फील्ड काउंटर ट्रैकर",
   "title.dashboard": "Deedar Field",
-  "title.outletDetail": "आउटलेट विवरण",
-  "title.addOutlet": "नया आउटलेट जोड़ें",
+  "title.outletDetail": "काउंटर विवरण",
+  "title.addOutlet": "नया काउंटर जोड़ें",
   "title.addVisit": "विज़िट जोड़ें",
   "title.editVisit": "विज़िट अपडेट करें",
 
@@ -281,14 +281,14 @@ const hi: Dict = {
   "field.areaPlaceholder": "जैसे रूट या इलाके का नाम",
   "field.reportsTo": "किसे रिपोर्ट करता है",
   "field.reportsToNone": "— अनिर्धारित —",
-  "field.outletName": "आउटलेट का नाम/संपर्क व्यक्ति",
+  "field.outletName": "काउंटर का नाम/संपर्क व्यक्ति",
   "field.address": "पता",
-  "field.type": "आउटलेट का प्रकार",
-  "field.specifyType": "आउटलेट का प्रकार बताएं",
-  "field.stock": "आउटलेट पर स्टॉक",
+  "field.type": "काउंटर का प्रकार",
+  "field.specifyType": "काउंटर का प्रकार बताएं",
+  "field.stock": "काउंटर पर स्टॉक",
   "field.sold": "बेचे गए पैकेट",
-  "field.rank": "आउटलेट पर दीदार रैंक",
-  "field.rankShelf": "आउटलेट पर दीदार रैंक (शेल्फ स्थिति)",
+  "field.rank": "काउंटर पर दीदार रैंक",
+  "field.rankShelf": "काउंटर पर दीदार रैंक (शेल्फ स्थिति)",
   "field.competitor": "प्रतियोगी उपस्थिति",
   "field.remarks": "टिप्पणी (वैकल्पिक)",
   "placeholder.packets": "पैकेट",
@@ -316,7 +316,7 @@ const hi: Dict = {
   "competitor.National Brands": "राष्ट्रीय ब्रांड",
 
   // login
-  "login.title": "रेप लॉगिन",
+  "login.title": "लॉगिन",
   "login.subtitle": "अपने मोबाइल नंबर से साइन इन करें",
   "login.button": "लॉग इन",
   "login.signingIn": "साइन इन हो रहा है…",
@@ -351,18 +351,18 @@ const hi: Dict = {
 
   // dashboard
   "dash.welcome": "वापसी पर स्वागत है",
-  "dash.searchPlaceholder": "नाम, मोबाइल, शहर से आउटलेट खोजें...",
+  "dash.searchPlaceholder": "नाम, मोबाइल, शहर से काउंटर खोजें...",
   "dash.searchResults": "खोज परिणाम ({count})",
-  "dash.addOutlet": "नया आउटलेट जोड़ें",
-  "dash.addOutletSub": "नया आउटलेट जोड़ें",
+  "dash.addOutlet": "नया काउंटर जोड़ें",
+  "dash.addOutletSub": "नया काउंटर जोड़ें",
   "dash.addVisit": "विज़िट जोड़ें",
-  "dash.addVisitSub": "आउटलेट के लिए विज़िट दर्ज करें",
+  "dash.addVisitSub": "काउंटर के लिए विज़िट दर्ज करें",
   "dash.mySubmissions": "मेरी प्रविष्टियाँ (24 घंटे तक संपादन योग्य)",
   "dash.visitsInLast24": "पिछले 24 घंटे में {count} विज़िट",
   "dash.editableHours": "{hours} और घंटे संपादन योग्य",
-  "dash.allOutlets": "सभी आउटलेट ({count})",
-  "dash.myTeamOutlets": "मेरी टीम के आउटलेट ({count})",
-  "dash.noOutlets": "अभी तक कोई आउटलेट नहीं।",
+  "dash.allOutlets": "सभी काउंटर ({count})",
+  "dash.myTeamOutlets": "मेरी टीम के काउंटर ({count})",
+  "dash.noOutlets": "अभी तक कोई काउंटर नहीं।",
   "dash.visitsCountLast": "{count} विज़िट · अंतिम {date}",
   "badge.edit": "संपादित करें",
 
@@ -371,10 +371,10 @@ const hi: Dict = {
   "od.addressLabel": "पता",
   "od.townDivisionLabel": "क्षेत्र/मुख्यालय",
   "od.gpsLabel": "जीपीएस",
-  "od.addVisit": "इस आउटलेट के लिए विज़िट जोड़ें",
+  "od.addVisit": "इस काउंटर के लिए विज़िट जोड़ें",
   "od.centralOnly": "विज़िट इतिहास केवल केंद्रीय डेटा टीम को उपलब्ध है।",
   "od.visitHistory": "विज़िट इतिहास ({count})",
-  "od.noVisits": "इस आउटलेट के लिए अभी तक कोई विज़िट दर्ज नहीं।",
+  "od.noVisits": "इस काउंटर के लिए अभी तक कोई विज़िट दर्ज नहीं।",
   "od.yourSubmissions": "आपकी प्रविष्टियाँ (24 घंटे तक संपादन योग्य)",
   "od.repShort": "रेप {rep}",
   "od.stockSoldRank": "स्टॉक {stock} · बिक्री {sold} · रैंक #{rank}",
@@ -383,17 +383,17 @@ const hi: Dict = {
 
   // add outlet
   "ao.step.checkDup": "डुप्लिकेट जांचें",
-  "ao.step.details": "आउटलेट विवरण",
+  "ao.step.details": "काउंटर विवरण",
   "ao.step.review": "समीक्षा",
-  "ao.checkTitle": "मौजूदा आउटलेट जांचें",
+  "ao.checkTitle": "मौजूदा काउंटर जांचें",
   "ao.checkSub":
-    "नया रिकॉर्ड बनाने से पहले डुप्लिकेट से बचने के लिए आउटलेट का मोबाइल नंबर दर्ज करें।",
+    "नया रिकॉर्ड बनाने से पहले डुप्लिकेट से बचने के लिए काउंटर का मोबाइल नंबर दर्ज करें।",
   "ao.dupFound": "संभावित डुप्लिकेट मिला",
   "ao.dupText": "{name} · {area} इस मोबाइल नंबर से पहले से पंजीकृत है।",
-  "ao.viewExisting": "मौजूदा आउटलेट देखें",
-  "ao.identityTitle": "आउटलेट पहचान",
+  "ao.viewExisting": "मौजूदा काउंटर देखें",
+  "ao.identityTitle": "काउंटर पहचान",
   "ao.reviewTitle": "समीक्षा करें और सबमिट करें",
-  "ao.submitOutlet": "आउटलेट सबमिट करें",
+  "ao.submitOutlet": "काउंटर सबमिट करें",
 
   // gps
   "gps.title": "जीपीएस निर्देशांक",
@@ -409,13 +409,13 @@ const hi: Dict = {
     "स्थान एक्सेस अस्वीकृत या अनुपलब्ध। निर्देशांक मैन्युअल रूप से दर्ज करें।",
 
   // add visit find
-  "avf.title": "आउटलेट खोजें",
-  "avf.sub": "आउटलेट का मोबाइल नंबर दर्ज करें — हम इसका विवरण दिखाएंगे।",
-  "avf.outletMobile": "आउटलेट मोबाइल नंबर",
+  "avf.title": "काउंटर खोजें",
+  "avf.sub": "काउंटर का मोबाइल नंबर दर्ज करें — हम इसका विवरण दिखाएंगे।",
+  "avf.outletMobile": "काउंटर मोबाइल नंबर",
   "avf.continue": "विज़िट डेटा पर आगे बढ़ें",
-  "avf.notFoundTitle": "कोई आउटलेट नहीं मिला",
-  "avf.notFoundText": "इस मोबाइल नंबर से अभी तक कोई आउटलेट पंजीकृत नहीं है।",
-  "avf.addNew": "नया आउटलेट जोड़ें",
+  "avf.notFoundTitle": "कोई काउंटर नहीं मिला",
+  "avf.notFoundText": "इस मोबाइल नंबर से अभी तक कोई काउंटर पंजीकृत नहीं है।",
+  "avf.addNew": "नया काउंटर जोड़ें",
   "avf.lastVisit": "अंतिम विज़िट: {date}",
 
   // add visit
@@ -425,7 +425,7 @@ const hi: Dict = {
   "av.submit": "विज़िट सबमिट करें",
 
   // review rows
-  "review.outlet": "आउटलेट",
+  "review.outlet": "काउंटर",
   "review.location": "स्थान",
   "review.type": "प्रकार",
   "review.gps": "जीपीएस",
@@ -468,12 +468,12 @@ const hi: Dict = {
 
   // toasts
   "toast.visitUpdated": "विज़िट अपडेट हुई",
-  "toast.outletUpdated": "आउटलेट विवरण अपडेट हुए",
-  "toast.outletAdded": "आउटलेट सफलतापूर्वक जोड़ा गया",
+  "toast.outletUpdated": "काउंटर विवरण अपडेट हुए",
+  "toast.outletAdded": "काउंटर सफलतापूर्वक जोड़ा गया",
   "toast.visitRecorded": "विज़िट सफलतापूर्वक दर्ज हुई",
   "toast.couldNotUpdateVisit": "विज़िट अपडेट नहीं हो सकी",
   "toast.couldNotSave": "बदलाव सहेजे नहीं जा सके",
-  "toast.couldNotAddOutlet": "आउटलेट नहीं जोड़ा जा सका",
+  "toast.couldNotAddOutlet": "काउंटर नहीं जोड़ा जा सका",
   "toast.couldNotRecordVisit": "विज़िट दर्ज नहीं हो सकी",
 };
 

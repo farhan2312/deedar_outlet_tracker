@@ -24,8 +24,8 @@ const devanagari = Noto_Sans_Devanagari({
 });
 
 export const metadata: Metadata = {
-  title: "Deedar — Field Outlet Tracker",
-  description: "Field sales outlet tracker for Deedar reps.",
+  title: "Deedar — Field Counter Tracker",
+  description: "Field sales counter tracker for Deedar reps.",
 };
 
 export const viewport: Viewport = {
