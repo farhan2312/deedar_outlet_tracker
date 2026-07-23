@@ -97,6 +97,7 @@ create table if not exists visits (
   outlet_id        uuid not null references outlets (id) on delete cascade,
   visit_date       date not null,
   logged_at        timestamptz not null default now(),
+  items            jsonb not null default '[]'::jsonb,
   stock            integer not null default 0,
   sold             integer not null default 0,
   rank             integer not null default 0,
@@ -106,5 +107,21 @@ create table if not exists visits (
   rep              text not null default '',
   created_at       timestamptz not null default now()
 );
+
+-- Per-segment sales breakdown. A visit holds one JSON line per product
+-- segment: {segment, stock, sold, rank}. The flat stock/sold/rank columns are
+-- retained as visit-level totals (stock/sold summed, rank = best). Safe to
+-- re-run (no-op once the column exists).
+alter table visits add column if not exists items jsonb not null default '[]'::jsonb;
+
+-- Backfill legacy pre-segment visits into a single line item with an unknown
+-- ("") segment, so historical numbers still render in the per-segment views.
+-- Only touches rows that predate the items column (still an empty array).
+update visits
+   set items = jsonb_build_array(
+         jsonb_build_object('segment', '', 'stock', stock, 'sold', sold, 'rank', rank)
+       )
+ where items = '[]'::jsonb
+   and (stock <> 0 or sold <> 0 or rank <> 0);
 
 create index if not exists idx_visits_outlet on visits (outlet_id);

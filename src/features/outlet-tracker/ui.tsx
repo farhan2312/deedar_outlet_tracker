@@ -6,8 +6,13 @@ import type {
   ReactNode,
   SelectHTMLAttributes,
 } from "react";
-import { C, COMPETITOR_LEVELS } from "./constants";
-import type { CompetitorLevel } from "./types";
+import {
+  C,
+  COMPETITOR_LEVELS,
+  PRODUCT_SEGMENTS,
+  SEGMENT_NAMES,
+} from "./constants";
+import type { CompetitorLevel, VisitItemForm } from "./types";
 import { useT } from "@/features/i18n";
 
 type ChangeHandler = (
@@ -343,4 +348,144 @@ export function CompetitorPicker({
 /** Two-column grid on wider screens, single column on mobile. */
 export function FieldGrid({ children }: { children: ReactNode }) {
   return <div className="dz-field-grid">{children}</div>;
+}
+
+/**
+ * Editor for a visit's per-segment sales lines. Each line picks one product
+ * segment (a segment already chosen on another line is disabled) plus its
+ * stock/sold/rank. Fully controlled — emits a new array on every change.
+ */
+export function VisitItemsEditor({
+  items,
+  onChange,
+}: {
+  items: VisitItemForm[];
+  onChange: (items: VisitItemForm[]) => void;
+}) {
+  const { t } = useT();
+  const used = new Set(items.map((it) => it.segment).filter(Boolean));
+
+  const update = (i: number, patch: Partial<VisitItemForm>) =>
+    onChange(items.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
+  const remove = (i: number) =>
+    onChange(items.filter((_, idx) => idx !== i));
+  const add = () =>
+    onChange([...items, { segment: "", stock: "", sold: "", rank: "" }]);
+
+  const canAdd = items.length < PRODUCT_SEGMENTS.length;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      {items.map((it, i) => (
+        <div
+          key={i}
+          style={{
+            border: `1px solid ${C.border}`,
+            borderRadius: 12,
+            padding: 12,
+            background: C.panel,
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+          }}
+        >
+          <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <Field label={`${t("field.segment")} *`}>
+                <Select
+                  value={it.segment}
+                  onChange={(e) =>
+                    update(i, {
+                      segment: e.target.value as VisitItemForm["segment"],
+                    })
+                  }
+                >
+                  <option value="">{t("field.selectSegment")}</option>
+                  {PRODUCT_SEGMENTS.map((seg) => (
+                    <option
+                      key={seg}
+                      value={seg}
+                      disabled={seg !== it.segment && used.has(seg)}
+                    >
+                      {seg} — {SEGMENT_NAMES[seg]}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            </div>
+            {items.length > 1 ? (
+              <button
+                type="button"
+                onClick={() => remove(i)}
+                aria-label={t("av.removeProduct")}
+                className="dz-tap"
+                style={{
+                  flexShrink: 0,
+                  width: 44,
+                  height: 44,
+                  border: `1px solid ${C.border}`,
+                  background: C.card,
+                  color: C.danger,
+                  borderRadius: 10,
+                  fontSize: 20,
+                  lineHeight: 1,
+                  cursor: "pointer",
+                }}
+              >
+                ×
+              </button>
+            ) : null}
+          </div>
+          <FieldGrid>
+            <Field label={`${t("field.stock")} *`}>
+              <TextInput
+                type="number"
+                inputMode="numeric"
+                value={it.stock}
+                onChange={(e) => update(i, { stock: e.target.value })}
+                placeholder={t("placeholder.packets")}
+              />
+            </Field>
+            <Field label={`${t("field.sold")} *`}>
+              <TextInput
+                type="number"
+                inputMode="numeric"
+                value={it.sold}
+                onChange={(e) => update(i, { sold: e.target.value })}
+                placeholder={t("placeholder.packets")}
+              />
+            </Field>
+          </FieldGrid>
+          <Field label={`${t("field.rank")} *`}>
+            <TextInput
+              type="number"
+              inputMode="numeric"
+              value={it.rank}
+              onChange={(e) => update(i, { rank: e.target.value })}
+              placeholder={t("placeholder.rankEg")}
+            />
+          </Field>
+        </div>
+      ))}
+      {canAdd ? (
+        <button
+          type="button"
+          onClick={add}
+          className="dz-tap"
+          style={{
+            border: `1px dashed ${C.green}`,
+            background: C.greenBg,
+            color: C.green,
+            borderRadius: 10,
+            padding: "12px",
+            fontSize: 13,
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          {t("av.addProduct")}
+        </button>
+      ) : null}
+    </div>
+  );
 }

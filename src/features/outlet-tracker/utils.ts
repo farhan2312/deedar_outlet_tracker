@@ -1,4 +1,29 @@
-import type { CompetitorLevel, Outlet } from "./types";
+import type { CompetitorLevel, Outlet, VisitItem, VisitItemForm } from "./types";
+
+/** Form product lines → domain items, dropping lines with no segment chosen. */
+export function parseVisitItems(items: VisitItemForm[]): VisitItem[] {
+  return items
+    .filter((it) => it.segment)
+    .map((it) => ({
+      segment: it.segment,
+      stock: Number(it.stock) || 0,
+      sold: Number(it.sold) || 0,
+      rank: Number(it.rank) || 0,
+    }));
+}
+
+/** Visit-level totals from its product lines: stock/sold summed, rank = best. */
+export function visitTotals(items: VisitItem[]): {
+  stock: number;
+  sold: number;
+  rank: number;
+} {
+  const stock = items.reduce((s, it) => s + it.stock, 0);
+  const sold = items.reduce((s, it) => s + it.sold, 0);
+  const ranks = items.map((it) => it.rank).filter((r) => r > 0);
+  const rank = ranks.length ? Math.min(...ranks) : 0;
+  return { stock, sold, rank };
+}
 
 let counter = 0;
 /** Best-effort unique id. Only used for records created at runtime. */

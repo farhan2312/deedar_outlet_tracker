@@ -1,15 +1,16 @@
 "use client";
 
-import { C } from "../constants";
+import { C, SEGMENT_NAMES } from "../constants";
 import { useTracker } from "../store";
 import {
   Button,
   CompetitorPicker,
   Field,
-  FieldGrid,
+  SectionLabel,
   StepDots,
   TextArea,
   TextInput,
+  VisitItemsEditor,
 } from "../ui";
 import { tCompetitor, useT } from "@/features/i18n";
 
@@ -23,10 +24,15 @@ export function AddVisit() {
   const needsBrand =
     f.competitor === "Local Brands" || f.competitor === "National Brands";
 
+  const items = f.items ?? [];
+  const itemsValid =
+    items.length > 0 &&
+    items.every(
+      (it) => it.segment && it.stock !== "" && it.sold !== "" && it.rank !== "",
+    );
+
   const step1Disabled = !(
-    f.stock !== "" &&
-    f.sold !== "" &&
-    f.rank !== "" &&
+    itemsValid &&
     f.competitor &&
     (!needsBrand || f.competitorBrand)
   );
@@ -42,35 +48,11 @@ export function AddVisit() {
             {f.area}, {f.headQuarter}
           </Sub>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <FieldGrid>
-              <Field label={`${t("field.stock")} *`}>
-                <TextInput
-                  type="number"
-                  inputMode="numeric"
-                  value={f.stock}
-                  onChange={(e) => setAv({ stock: e.target.value })}
-                  placeholder={t("placeholder.packets")}
-                />
-              </Field>
-              <Field label={`${t("field.sold")} *`}>
-                <TextInput
-                  type="number"
-                  inputMode="numeric"
-                  value={f.sold}
-                  onChange={(e) => setAv({ sold: e.target.value })}
-                  placeholder={t("placeholder.packets")}
-                />
-              </Field>
-            </FieldGrid>
-            <Field label={`${t("field.rank")} *`}>
-              <TextInput
-                type="number"
-                inputMode="numeric"
-                value={f.rank}
-                onChange={(e) => setAv({ rank: e.target.value })}
-                placeholder={t("placeholder.rankEg")}
-              />
-            </Field>
+            <SectionLabel>{t("av.products")}</SectionLabel>
+            <VisitItemsEditor
+              items={items}
+              onChange={(next) => setAv({ items: next })}
+            />
             <div>
               <Field label={`${t("field.competitor")} *`}>
                 <CompetitorPicker
@@ -139,18 +121,40 @@ export function AddVisit() {
                 borderTop: `1px solid ${C.border}`,
                 marginTop: 4,
                 paddingTop: 8,
+                display: "flex",
+                flexDirection: "column",
+                gap: 6,
               }}
             >
-              <span style={{ color: C.sub }}>{t("review.stock")}:</span>{" "}
-              {f.stock} {t("review.pkts")} ·{" "}
-              <span style={{ color: C.sub }}>{t("review.sold")}:</span> {f.sold}{" "}
-              {t("review.pkts")} ·{" "}
-              <span style={{ color: C.sub }}>{t("review.rank")}:</span> #{f.rank}
+              <span style={{ color: C.sub, fontWeight: 600 }}>
+                {t("review.products")}:
+              </span>
+              {items
+                .filter((it) => it.segment)
+                .map((it) => (
+                  <div key={it.segment} style={{ paddingLeft: 2 }}>
+                    <span style={{ fontWeight: 700 }}>{it.segment}</span>{" "}
+                    <span style={{ color: C.muted }}>
+                      {SEGMENT_NAMES[it.segment]}
+                    </span>
+                    <div style={{ color: C.sub, marginTop: 1 }}>
+                      {t("review.stock")}: {it.stock} {t("review.pkts")} ·{" "}
+                      {t("review.sold")}: {it.sold} {t("review.pkts")} ·{" "}
+                      {t("review.rank")}: #{it.rank}
+                    </div>
+                  </div>
+                ))}
             </div>
             <div>
               <span style={{ color: C.sub }}>{t("review.competitor")}:</span>{" "}
               {tCompetitor(t, f.competitor, f.competitorBrand)}
             </div>
+            {f.remarks ? (
+              <div>
+                <span style={{ color: C.sub }}>{t("field.remarks")}:</span>{" "}
+                {f.remarks}
+              </div>
+            ) : null}
           </div>
           <NavRow>
             <Button variant="ghost" onClick={onAvBack} style={{ flex: 1 }}>

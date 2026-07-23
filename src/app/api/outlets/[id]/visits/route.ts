@@ -4,6 +4,7 @@ import {
   addVisit,
   getOutlet,
   isOutletInScope,
+  sanitizeVisitItems,
   updateOutletIdentity,
 } from "@/lib/outlets";
 
@@ -42,7 +43,14 @@ export async function POST(
   }
 
   const str = (v: unknown) => String(v ?? "").trim();
-  const num = (v: unknown) => Number(v) || 0;
+
+  const items = sanitizeVisitItems(body.items);
+  if (items.length === 0) {
+    return NextResponse.json(
+      { error: "Add at least one product segment." },
+      { status: 400 },
+    );
+  }
 
   // The client sends the outlet's current identity fields alongside the visit
   // (unedited — Add Visit doesn't let reps change identity), so this is a no-op
@@ -60,9 +68,7 @@ export async function POST(
   await addVisit(
     id,
     {
-      stock: num(body.stock),
-      sold: num(body.sold),
-      rank: num(body.rank),
+      items,
       competitor: str(body.competitor),
       competitorBrand: str(body.competitorBrand),
       remarks: str(body.remarks),

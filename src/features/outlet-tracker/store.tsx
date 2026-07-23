@@ -11,7 +11,7 @@ import {
   type ChangeEvent,
   type ReactNode,
 } from "react";
-import { EMPTY_ADD_FORM, EMPTY_AV_FORM } from "./constants";
+import { EMPTY_ADD_FORM, makeEmptyAvForm, makeEmptyVisitItem } from "./constants";
 import type {
   IdentityForm,
   Outlet,
@@ -19,7 +19,7 @@ import type {
   TrackerState,
   Visit,
 } from "./types";
-import { digits } from "./utils";
+import { digits, parseVisitItems, visitTotals } from "./utils";
 import { useT } from "@/features/i18n";
 
 export interface SessionUser {
@@ -49,10 +49,10 @@ function initialState(user: SessionUser): TrackerState {
     addGpsErrorMsg: "",
     avMobile: "",
     avStep: 1,
-    avForm: { ...EMPTY_AV_FORM },
+    avForm: makeEmptyAvForm(),
     editVisitOutletId: null,
     editVisitId: null,
-    editVisitForm: { ...EMPTY_AV_FORM },
+    editVisitForm: makeEmptyAvForm(),
   };
 }
 
@@ -178,12 +178,17 @@ function useTrackerStore(user: SessionUser) {
       editVisitOutletId: outletId,
       editVisitId: visit.id,
       editVisitForm: {
-        stock: String(visit.stock),
-        sold: String(visit.sold),
-        rank: String(visit.rank),
         competitor: visit.competitor,
         competitorBrand: visit.competitorBrand,
         remarks: visit.remarks,
+        items: visit.items.length
+          ? visit.items.map((it) => ({
+              segment: it.segment,
+              stock: String(it.stock),
+              sold: String(it.sold),
+              rank: String(it.rank),
+            }))
+          : [makeEmptyVisitItem()],
       },
     });
   const setEditVisit = (patch: Partial<OutletForm>) =>
@@ -198,6 +203,8 @@ function useTrackerStore(user: SessionUser) {
       return;
     }
     // Apply the edit locally (the PATCH returns only { ok }).
+    const items = parseVisitItems(f.items ?? []);
+    const totals = visitTotals(items);
     setState((s) => ({
       outlets: s.outlets.map((o) =>
         o.id !== s.editVisitOutletId
@@ -209,9 +216,10 @@ function useTrackerStore(user: SessionUser) {
                   ? v
                   : {
                       ...v,
-                      stock: Number(f.stock) || 0,
-                      sold: Number(f.sold) || 0,
-                      rank: Number(f.rank) || 0,
+                      items,
+                      stock: totals.stock,
+                      sold: totals.sold,
+                      rank: totals.rank,
                       competitor: f.competitor ?? "",
                       competitorBrand: f.competitorBrand ?? "",
                       remarks: f.remarks ?? "",
@@ -266,7 +274,7 @@ function useTrackerStore(user: SessionUser) {
         screen: "addVisit",
         avStep: 1,
         avForm: {
-          ...EMPTY_AV_FORM,
+          ...makeEmptyAvForm(),
           name: o.name,
           mobile: o.mobile,
           address: o.address,
@@ -363,7 +371,7 @@ function useTrackerStore(user: SessionUser) {
         avStep: 1,
         selectedOutletId: id,
         avForm: {
-          ...EMPTY_AV_FORM,
+          ...makeEmptyAvForm(),
           name: o.name,
           mobile: o.mobile,
           address: o.address,
@@ -402,7 +410,7 @@ function useTrackerStore(user: SessionUser) {
       return;
     }
     if (data.outlet) upsertOutlet(data.outlet as Outlet);
-    setState({ screen: "outletDetail", avStep: 1, avForm: { ...EMPTY_AV_FORM } });
+    setState({ screen: "outletDetail", avStep: 1, avForm: makeEmptyAvForm() });
     showToast(t("toast.visitRecorded"));
   };
 

@@ -14,6 +14,7 @@ import {
   TextInput,
 } from "../ui";
 import { decorateOutlet, fmtDate } from "../utils";
+import type { Visit } from "../types";
 import { tCompetitor, tType, useT } from "@/features/i18n";
 
 export function OutletDetail() {
@@ -280,13 +281,7 @@ export function OutletDetail() {
                       {t("od.repShort", { rep: v.rep || "—" })}
                     </div>
                   </div>
-                  <div style={{ fontSize: 12, color: C.ink, marginTop: 5 }}>
-                    {t("od.stockSoldRank", {
-                      stock: v.stock,
-                      sold: v.sold,
-                      rank: v.rank,
-                    })}
-                  </div>
+                  <VisitBreakdown v={v} />
                   <div style={{ fontSize: 11, color: C.sub, marginTop: 3 }}>
                     {t("od.competitorLine", {
                       value: tCompetitor(t, v.competitor, v.competitorBrand),
@@ -358,13 +353,7 @@ export function OutletDetail() {
                       {t("common.edit")}
                     </div>
                   </div>
-                  <div style={{ fontSize: 12, color: C.ink, marginTop: 5 }}>
-                    {t("od.stockSoldRank", {
-                      stock: v.stock,
-                      sold: v.sold,
-                      rank: v.rank,
-                    })}
-                  </div>
+                  <VisitBreakdown v={v} />
                   <div style={{ fontSize: 11, color: C.muted, marginTop: 3 }}>
                     {t("dash.editableHours", { hours: hoursLeft })}
                   </div>
@@ -393,6 +382,42 @@ function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ fontSize: 13, color: C.ink }}>
       <span style={{ color: C.sub }}>{label}:</span> {value}
+    </div>
+  );
+}
+
+/** Per-segment stock/sold/rank breakdown for a visit (falls back to totals for
+ *  legacy pre-segment visits, whose single line has an empty segment). */
+function VisitBreakdown({ v }: { v: Visit }) {
+  const { t } = useT();
+  if (v.items && v.items.length > 0) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 3,
+          marginTop: 5,
+        }}
+      >
+        {v.items.map((it, i) => (
+          <div key={i} style={{ fontSize: 12, color: C.ink }}>
+            <span style={{ fontWeight: 700 }}>{it.segment || "—"}</span>{" "}
+            <span style={{ color: C.sub }}>
+              {t("od.stockSoldRank", {
+                stock: it.stock,
+                sold: it.sold,
+                rank: it.rank,
+              })}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return (
+    <div style={{ fontSize: 12, color: C.ink, marginTop: 5 }}>
+      {t("od.stockSoldRank", { stock: v.stock, sold: v.sold, rank: v.rank })}
     </div>
   );
 }

@@ -1,4 +1,10 @@
-import type { CompetitorLevel, OutletForm, OutletType } from "./types";
+import type {
+  CompetitorLevel,
+  OutletForm,
+  OutletType,
+  ProductSegment,
+  VisitItemForm,
+} from "./types";
 
 export const TYPES: OutletType[] = [
   "Kirana",
@@ -7,6 +13,22 @@ export const TYPES: OutletType[] = [
   "Paan",
   "Other",
 ];
+
+/** The four Deedar product segments, in display order. */
+export const PRODUCT_SEGMENTS: ProductSegment[] = [
+  "DG10",
+  "DG20",
+  "DB20",
+  "DB40",
+];
+
+/** Full product-segment names, keyed by code. Brand names — not translated. */
+export const SEGMENT_NAMES: Record<string, string> = {
+  DG10: "Deedar Green 10",
+  DG20: "Deedar Green 20",
+  DB20: "Deedar Blue 20",
+  DB40: "Deedar Blue 40",
+};
 
 export const COMPETITOR_LEVELS: CompetitorLevel[] = [
   "None",
@@ -77,12 +99,18 @@ export const EMPTY_ADD_FORM: OutletForm = {
   typeOther: "",
   lat: "",
   lng: "",
-  stock: "",
-  sold: "",
-  rank: "",
   competitor: "",
   competitorBrand: "",
   remarks: "",
+  items: [],
 };
 
-export const EMPTY_AV_FORM: OutletForm = { ...EMPTY_ADD_FORM };
+/** A blank product line. Each call returns a fresh object (no shared refs). */
+export function makeEmptyVisitItem(): VisitItemForm {
+  return { segment: "", stock: "", sold: "", rank: "" };
+}
+
+/** A fresh visit form seeded with one empty product line. */
+export function makeEmptyAvForm(): OutletForm {
+  return { ...EMPTY_ADD_FORM, items: [makeEmptyVisitItem()] };
+}

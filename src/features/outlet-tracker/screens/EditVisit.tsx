@@ -7,9 +7,10 @@ import {
   Button,
   CompetitorPicker,
   Field,
-  FieldGrid,
+  SectionLabel,
   TextArea,
   TextInput,
+  VisitItemsEditor,
 } from "../ui";
 import { useT } from "@/features/i18n";
 
@@ -19,6 +20,18 @@ export function EditVisit() {
   const f = state.editVisitForm;
   const needsBrand =
     f.competitor === "Local Brands" || f.competitor === "National Brands";
+
+  const items = f.items ?? [];
+  const itemsValid =
+    items.length > 0 &&
+    items.every(
+      (it) => it.segment && it.stock !== "" && it.sold !== "" && it.rank !== "",
+    );
+  const saveDisabled = !(
+    itemsValid &&
+    f.competitor &&
+    (!needsBrand || f.competitorBrand)
+  );
 
   const { outletName, hoursLeft } = useMemo(() => {
     const outlet = state.editVisitOutletId
@@ -54,32 +67,11 @@ export function EditVisit() {
         {t("ev.subtitle", { name: outletName, hours: hoursLeft })}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <FieldGrid>
-          <Field label={`${t("field.stock")} *`}>
-            <TextInput
-              type="number"
-              inputMode="numeric"
-              value={f.stock ?? ""}
-              onChange={(e) => setEditVisit({ stock: e.target.value })}
-            />
-          </Field>
-          <Field label={`${t("field.sold")} *`}>
-            <TextInput
-              type="number"
-              inputMode="numeric"
-              value={f.sold ?? ""}
-              onChange={(e) => setEditVisit({ sold: e.target.value })}
-            />
-          </Field>
-        </FieldGrid>
-        <Field label={`${t("field.rank")} *`}>
-          <TextInput
-            type="number"
-            inputMode="numeric"
-            value={f.rank ?? ""}
-            onChange={(e) => setEditVisit({ rank: e.target.value })}
-          />
-        </Field>
+        <SectionLabel>{t("av.products")}</SectionLabel>
+        <VisitItemsEditor
+          items={f.items ?? []}
+          onChange={(next) => setEditVisit({ items: next })}
+        />
         <div>
           <Field label={`${t("field.competitor")} *`}>
             <CompetitorPicker
@@ -108,7 +100,12 @@ export function EditVisit() {
         <Button variant="ghost" onClick={onBack} style={{ flex: 1 }}>
           {t("common.cancel")}
         </Button>
-        <Button variant="gold" onClick={saveEditVisit} style={{ flex: 2 }}>
+        <Button
+          variant="gold"
+          onClick={saveEditVisit}
+          disabled={saveDisabled}
+          style={{ flex: 2 }}
+        >
           {t("ev.save")}
         </Button>
       </div>

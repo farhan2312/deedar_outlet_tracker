@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/api-auth";
-import { updateVisitWithinWindow } from "@/lib/outlets";
+import { sanitizeVisitItems, updateVisitWithinWindow } from "@/lib/outlets";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,13 +20,18 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
-  const num = (v: unknown) => Number(v) || 0;
   const str = (v: unknown) => String(v ?? "").trim();
 
+  const items = sanitizeVisitItems(body.items);
+  if (items.length === 0) {
+    return NextResponse.json(
+      { error: "Add at least one product segment." },
+      { status: 400 },
+    );
+  }
+
   const ok = await updateVisitWithinWindow(id, auth.phone, {
-    stock: num(body.stock),
-    sold: num(body.sold),
-    rank: num(body.rank),
+    items,
     competitor: str(body.competitor),
     competitorBrand: str(body.competitorBrand),
     remarks: str(body.remarks),

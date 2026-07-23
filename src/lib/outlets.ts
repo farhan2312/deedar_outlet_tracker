@@ -1,7 +1,49 @@
 import { query, queryOne } from "./db";
 import { todayIST } from "./date";
-import type { Outlet, Visit } from "@/features/outlet-tracker/types";
+import type {
+  Outlet,
+  ProductSegment,
+  Visit,
+  VisitItem,
+} from "@/features/outlet-tracker/types";
 import type { UserRole } from "./users";
+
+const VALID_SEGMENTS = new Set<string>(["DG10", "DG20", "DB20", "DB40"]);
+
+/**
+ * Coerce an untrusted `items` payload (from a request body or a jsonb column)
+ * into clean VisitItems, dropping any line without a recognised segment.
+ */
+export function sanitizeVisitItems(raw: unknown): VisitItem[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((r) => {
+      const o = (r ?? {}) as Record<string, unknown>;
+      const segment = String(o.segment ?? "").trim();
+      return {
+        segment: (VALID_SEGMENTS.has(segment)
+          ? segment
+          : "") as VisitItem["segment"],
+        stock: Number(o.stock) || 0,
+        sold: Number(o.sold) || 0,
+        rank: Number(o.rank) || 0,
+      };
+    })
+    .filter((it) => it.segment);
+}
+
+/** Visit-level totals from its product lines: stock/sold summed, rank = best. */
+function totalsOf(items: VisitItem[]): {
+  stock: number;
+  sold: number;
+  rank: number;
+} {
+  const stock = items.reduce((s, it) => s + it.stock, 0);
+  const sold = items.reduce((s, it) => s + it.sold, 0);
+  const ranks = items.map((it) => it.rank).filter((r) => r > 0);
+  const rank = ranks.length ? Math.min(...ranks) : 0;
+  return { stock, sold, rank };
+}
 
 /**
  * SQL fragment: ids of users whose outlets a given user (bound to
@@ -39,6 +81,12 @@ interface VisitRow {
   outlet_id: string;
   visit_date: string;
   logged_at: string;
+  items: Array<{
+    segment?: string;
+    stock?: number;
+    sold?: number;
+    rank?: number;
+  }> | null;
   stock: number;
   sold: number;
   rank: number;
@@ -49,6 +97,14 @@ interface VisitRow {
 }
 
 function mapVisit(v: VisitRow): Visit {
+  const items: VisitItem[] = Array.isArray(v.items)
+    ? v.items.map((it) => ({
+        segment: (it?.segment ?? "") as ProductSegment | "",
+        stock: Number(it?.stock) || 0,
+        sold: Number(it?.sold) || 0,
+        rank: Number(it?.rank) || 0,
+      }))
+    : [];
   return {
     id: v.id,
     date:
@@ -56,6 +112,7 @@ function mapVisit(v: VisitRow): Visit {
         ? v.visit_date.slice(0, 10)
         : new Date(v.visit_date).toISOString().slice(0, 10),
     loggedAt: v.logged_at ? new Date(v.logged_at).getTime() : undefined,
+    items,
     stock: v.stock,
     sold: v.sold,
     rank: v.rank,
@@ -152,9 +209,7 @@ export interface OutletInput {
 }
 
 export interface VisitInput {
-  stock: number;
-  sold: number;
-  rank: number;
+  items: VisitItem[];
   competitor: string;
   competitorBrand: string;
   remarks: string;
@@ -214,16 +269,18 @@ export async function addVisit(
   visit: VisitInput,
   rep: string,
 ): Promise<void> {
+  const totals = totalsOf(visit.items);
   await query(
     `insert into visits
-       (outlet_id, visit_date, stock, sold, rank, competitor, competitor_brand, remarks, rep)
-     values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+       (outlet_id, visit_date, items, stock, sold, rank, competitor, competitor_brand, remarks, rep)
+     values ($1, $2, $3::jsonb, $4, $5, $6, $7, $8, $9, $10)`,
     [
       outletId,
       todayIST(),
-      visit.stock,
-      visit.sold,
-      visit.rank,
+      JSON.stringify(visit.items),
+      totals.stock,
+      totals.sold,
+      totals.rank,
       visit.competitor,
       visit.competitorBrand,
       visit.remarks,
@@ -238,10 +295,11 @@ export async function updateVisitWithinWindow(
   rep: string,
   visit: VisitInput,
 ): Promise<boolean> {
+  const totals = totalsOf(visit.items);
   const rows = await query(
     `update visits set
-       stock = $3, sold = $4, rank = $5,
-       competitor = $6, competitor_brand = $7, remarks = $8
+       items = $3::jsonb, stock = $4, sold = $5, rank = $6,
+       competitor = $7, competitor_brand = $8, remarks = $9
      where id = $1
        and rep = $2
        and logged_at > now() - interval '24 hours'
@@ -249,9 +307,10 @@ export async function updateVisitWithinWindow(
     [
       visitId,
       rep,
-      visit.stock,
-      visit.sold,
-      visit.rank,
+      JSON.stringify(visit.items),
+      totals.stock,
+      totals.sold,
+      totals.rank,
       visit.competitor,
       visit.competitorBrand,
       visit.remarks,
