@@ -145,6 +145,8 @@ const en: Dict = {
   "od.yourSubmissions": "Your Submissions (editable for 24h)",
   "od.repShort": "Rep {rep}",
   "od.stockSoldRank": "Stock {stock} · Sold {sold} · Rank #{rank}",
+  "od.stockSold": "Stock {stock} · Sold {sold}",
+  "od.rankLine": "Deedar Rank #{rank}",
   "od.competitorLine": "Competitor: {value}",
   "od.remarksLine": "Remarks: {value}",
 
@@ -386,6 +388,8 @@ const hi: Dict = {
   "od.yourSubmissions": "आपकी प्रविष्टियाँ (24 घंटे तक संपादन योग्य)",
   "od.repShort": "रेप {rep}",
   "od.stockSoldRank": "स्टॉक {stock} · बिक्री {sold} · रैंक #{rank}",
+  "od.stockSold": "स्टॉक {stock} · बिक्री {sold}",
+  "od.rankLine": "दीदार रैंक #{rank}",
   "od.competitorLine": "प्रतियोगी: {value}",
   "od.remarksLine": "टिप्पणी: {value}",
 

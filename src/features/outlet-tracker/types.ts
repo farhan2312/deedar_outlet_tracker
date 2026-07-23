@@ -9,23 +9,23 @@ export interface Gps {
   lng: string;
 }
 
-/** One product-segment line within a visit (domain model — numeric). */
+/** One product-segment line within a visit (domain model — numeric).
+ *  Stock and sold are per segment; rank is visit-level (see Visit.rank). */
 export interface VisitItem {
   segment: ProductSegment | ""; // "" only for legacy pre-segment visits
   stock: number;
   sold: number;
-  rank: number;
 }
 
 export interface Visit {
   id: string;
   date: string; // YYYY-MM-DD
   loggedAt?: number; // epoch ms — present for rep-submitted visits (24h edit window)
-  items: VisitItem[]; // per-segment breakdown (source of truth)
-  // Convenience totals derived from items: stock/sold summed, rank = best (min).
+  items: VisitItem[]; // per-segment stock/sold breakdown (source of truth)
+  rank: number; // Deedar's shelf rank at the counter — one value per visit
+  // Convenience totals derived from items (stock/sold summed across segments).
   stock: number;
   sold: number;
-  rank: number;
   competitor: CompetitorLevel | "";
   competitorBrand: string;
   remarks: string;
@@ -59,7 +59,6 @@ export interface VisitItemForm {
   segment: ProductSegment | "";
   stock: string;
   sold: string;
-  rank: string;
 }
 
 /** Shared shape for the add-outlet and record-visit forms. */
@@ -73,10 +72,11 @@ export interface OutletForm {
   typeOther: string;
   lat: string;
   lng: string;
+  rank: string; // visit-level Deedar shelf rank (visit flow only)
   competitor: CompetitorLevel | "";
   competitorBrand: string;
   remarks: string;
-  items: VisitItemForm[]; // per-segment sales lines (visit flow only)
+  items: VisitItemForm[]; // per-segment stock/sold lines (visit flow only)
 }
 
 export type GpsStatus = "idle" | "capturing" | "success" | "error";

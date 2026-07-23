@@ -109,9 +109,10 @@ create table if not exists visits (
 );
 
 -- Per-segment sales breakdown. A visit holds one JSON line per product
--- segment: {segment, stock, sold, rank}. The flat stock/sold/rank columns are
--- retained as visit-level totals (stock/sold summed, rank = best). Safe to
--- re-run (no-op once the column exists).
+-- segment: {segment, stock, sold}. The flat stock/sold columns are retained as
+-- visit-level totals (summed across segments); rank stays a single per-visit
+-- value in the flat rank column (Deedar's shelf rank is a counter property,
+-- not per segment). Safe to re-run (no-op once the column exists).
 alter table visits add column if not exists items jsonb not null default '[]'::jsonb;
 
 -- Backfill legacy pre-segment visits into a single line item with an unknown
@@ -119,7 +120,7 @@ alter table visits add column if not exists items jsonb not null default '[]'::j
 -- Only touches rows that predate the items column (still an empty array).
 update visits
    set items = jsonb_build_array(
-         jsonb_build_object('segment', '', 'stock', stock, 'sold', sold, 'rank', rank)
+         jsonb_build_object('segment', '', 'stock', stock, 'sold', sold)
        )
  where items = '[]'::jsonb
    and (stock <> 0 or sold <> 0 or rank <> 0);

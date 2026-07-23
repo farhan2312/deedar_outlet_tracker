@@ -386,8 +386,8 @@ function Detail({ label, value }: { label: string; value: string }) {
   );
 }
 
-/** Per-segment stock/sold/rank breakdown for a visit (falls back to totals for
- *  legacy pre-segment visits, whose single line has an empty segment). */
+/** Per-segment stock/sold breakdown plus the visit-level Deedar rank (falls
+ *  back to a totals line for legacy pre-segment visits with no items). */
 function VisitBreakdown({ v }: { v: Visit }) {
   const { t } = useT();
   if (v.items && v.items.length > 0) {
@@ -404,14 +404,13 @@ function VisitBreakdown({ v }: { v: Visit }) {
           <div key={i} style={{ fontSize: 12, color: C.ink }}>
             <span style={{ fontWeight: 700 }}>{it.segment || "—"}</span>{" "}
             <span style={{ color: C.sub }}>
-              {t("od.stockSoldRank", {
-                stock: it.stock,
-                sold: it.sold,
-                rank: it.rank,
-              })}
+              {t("od.stockSold", { stock: it.stock, sold: it.sold })}
             </span>
           </div>
         ))}
+        <div style={{ fontSize: 12, color: C.sub }}>
+          {t("od.rankLine", { rank: v.rank })}
+        </div>
       </div>
     );
   }

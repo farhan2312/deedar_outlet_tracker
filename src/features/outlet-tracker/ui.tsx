@@ -370,7 +370,7 @@ export function VisitItemsEditor({
   const remove = (i: number) =>
     onChange(items.filter((_, idx) => idx !== i));
   const add = () =>
-    onChange([...items, { segment: "", stock: "", sold: "", rank: "" }]);
+    onChange([...items, { segment: "", stock: "", sold: "" }]);
 
   const canAdd = items.length < PRODUCT_SEGMENTS.length;
 
@@ -456,15 +456,6 @@ export function VisitItemsEditor({
               />
             </Field>
           </FieldGrid>
-          <Field label={`${t("field.rank")} *`}>
-            <TextInput
-              type="number"
-              inputMode="numeric"
-              value={it.rank}
-              onChange={(e) => update(i, { rank: e.target.value })}
-              placeholder={t("placeholder.rankEg")}
-            />
-          </Field>
         </div>
       ))}
       {canAdd ? (

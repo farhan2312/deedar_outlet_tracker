@@ -178,6 +178,7 @@ function useTrackerStore(user: SessionUser) {
       editVisitOutletId: outletId,
       editVisitId: visit.id,
       editVisitForm: {
+        rank: String(visit.rank),
         competitor: visit.competitor,
         competitorBrand: visit.competitorBrand,
         remarks: visit.remarks,
@@ -186,7 +187,6 @@ function useTrackerStore(user: SessionUser) {
               segment: it.segment,
               stock: String(it.stock),
               sold: String(it.sold),
-              rank: String(it.rank),
             }))
           : [makeEmptyVisitItem()],
       },
@@ -219,7 +219,7 @@ function useTrackerStore(user: SessionUser) {
                       items,
                       stock: totals.stock,
                       sold: totals.sold,
-                      rank: totals.rank,
+                      rank: Number(f.rank) || 0,
                       competitor: f.competitor ?? "",
                       competitorBrand: f.competitorBrand ?? "",
                       remarks: f.remarks ?? "",

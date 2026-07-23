@@ -8,21 +8,17 @@ export function parseVisitItems(items: VisitItemForm[]): VisitItem[] {
       segment: it.segment,
       stock: Number(it.stock) || 0,
       sold: Number(it.sold) || 0,
-      rank: Number(it.rank) || 0,
     }));
 }
 
-/** Visit-level totals from its product lines: stock/sold summed, rank = best. */
+/** Visit-level stock/sold totals summed across the product lines. */
 export function visitTotals(items: VisitItem[]): {
   stock: number;
   sold: number;
-  rank: number;
 } {
   const stock = items.reduce((s, it) => s + it.stock, 0);
   const sold = items.reduce((s, it) => s + it.sold, 0);
-  const ranks = items.map((it) => it.rank).filter((r) => r > 0);
-  const rank = ranks.length ? Math.min(...ranks) : 0;
-  return { stock, sold, rank };
+  return { stock, sold };
 }
 
 let counter = 0;

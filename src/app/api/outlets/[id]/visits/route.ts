@@ -43,6 +43,7 @@ export async function POST(
   }
 
   const str = (v: unknown) => String(v ?? "").trim();
+  const num = (v: unknown) => Number(v) || 0;
 
   const items = sanitizeVisitItems(body.items);
   if (items.length === 0) {
@@ -69,6 +70,7 @@ export async function POST(
     id,
     {
       items,
+      rank: num(body.rank),
       competitor: str(body.competitor),
       competitorBrand: str(body.competitorBrand),
       remarks: str(body.remarks),

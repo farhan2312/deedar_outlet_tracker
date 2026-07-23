@@ -26,23 +26,16 @@ export function sanitizeVisitItems(raw: unknown): VisitItem[] {
           : "") as VisitItem["segment"],
         stock: Number(o.stock) || 0,
         sold: Number(o.sold) || 0,
-        rank: Number(o.rank) || 0,
       };
     })
     .filter((it) => it.segment);
 }
 
-/** Visit-level totals from its product lines: stock/sold summed, rank = best. */
-function totalsOf(items: VisitItem[]): {
-  stock: number;
-  sold: number;
-  rank: number;
-} {
+/** Visit-level stock/sold totals summed across the product lines. */
+function totalsOf(items: VisitItem[]): { stock: number; sold: number } {
   const stock = items.reduce((s, it) => s + it.stock, 0);
   const sold = items.reduce((s, it) => s + it.sold, 0);
-  const ranks = items.map((it) => it.rank).filter((r) => r > 0);
-  const rank = ranks.length ? Math.min(...ranks) : 0;
-  return { stock, sold, rank };
+  return { stock, sold };
 }
 
 /**
@@ -85,7 +78,6 @@ interface VisitRow {
     segment?: string;
     stock?: number;
     sold?: number;
-    rank?: number;
   }> | null;
   stock: number;
   sold: number;
@@ -102,7 +94,6 @@ function mapVisit(v: VisitRow): Visit {
         segment: (it?.segment ?? "") as ProductSegment | "",
         stock: Number(it?.stock) || 0,
         sold: Number(it?.sold) || 0,
-        rank: Number(it?.rank) || 0,
       }))
     : [];
   return {
@@ -113,9 +104,9 @@ function mapVisit(v: VisitRow): Visit {
         : new Date(v.visit_date).toISOString().slice(0, 10),
     loggedAt: v.logged_at ? new Date(v.logged_at).getTime() : undefined,
     items,
+    rank: v.rank,
     stock: v.stock,
     sold: v.sold,
-    rank: v.rank,
     competitor: (v.competitor || "") as Visit["competitor"],
     competitorBrand: v.competitor_brand || "",
     remarks: v.remarks || "",
@@ -210,6 +201,7 @@ export interface OutletInput {
 
 export interface VisitInput {
   items: VisitItem[];
+  rank: number;
   competitor: string;
   competitorBrand: string;
   remarks: string;
@@ -280,7 +272,7 @@ export async function addVisit(
       JSON.stringify(visit.items),
       totals.stock,
       totals.sold,
-      totals.rank,
+      visit.rank,
       visit.competitor,
       visit.competitorBrand,
       visit.remarks,
@@ -310,7 +302,7 @@ export async function updateVisitWithinWindow(
       JSON.stringify(visit.items),
       totals.stock,
       totals.sold,
-      totals.rank,
+      visit.rank,
       visit.competitor,
       visit.competitorBrand,
       visit.remarks,

@@ -27,12 +27,11 @@ export function AddVisit() {
   const items = f.items ?? [];
   const itemsValid =
     items.length > 0 &&
-    items.every(
-      (it) => it.segment && it.stock !== "" && it.sold !== "" && it.rank !== "",
-    );
+    items.every((it) => it.segment && it.stock !== "" && it.sold !== "");
 
   const step1Disabled = !(
     itemsValid &&
+    f.rank !== "" &&
     f.competitor &&
     (!needsBrand || f.competitorBrand)
   );
@@ -53,6 +52,15 @@ export function AddVisit() {
               items={items}
               onChange={(next) => setAv({ items: next })}
             />
+            <Field label={`${t("field.rank")} *`}>
+              <TextInput
+                type="number"
+                inputMode="numeric"
+                value={f.rank}
+                onChange={(e) => setAv({ rank: e.target.value })}
+                placeholder={t("placeholder.rankEg")}
+              />
+            </Field>
             <div>
               <Field label={`${t("field.competitor")} *`}>
                 <CompetitorPicker
@@ -139,11 +147,13 @@ export function AddVisit() {
                     </span>
                     <div style={{ color: C.sub, marginTop: 1 }}>
                       {t("review.stock")}: {it.stock} {t("review.pkts")} ·{" "}
-                      {t("review.sold")}: {it.sold} {t("review.pkts")} ·{" "}
-                      {t("review.rank")}: #{it.rank}
+                      {t("review.sold")}: {it.sold} {t("review.pkts")}
                     </div>
                   </div>
                 ))}
+            </div>
+            <div>
+              <span style={{ color: C.sub }}>{t("review.rank")}:</span> #{f.rank}
             </div>
             <div>
               <span style={{ color: C.sub }}>{t("review.competitor")}:</span>{" "}

@@ -99,6 +99,7 @@ export const EMPTY_ADD_FORM: OutletForm = {
   typeOther: "",
   lat: "",
   lng: "",
+  rank: "",
   competitor: "",
   competitorBrand: "",
   remarks: "",
@@ -107,7 +108,7 @@ export const EMPTY_ADD_FORM: OutletForm = {
 
 /** A blank product line. Each call returns a fresh object (no shared refs). */
 export function makeEmptyVisitItem(): VisitItemForm {
-  return { segment: "", stock: "", sold: "", rank: "" };
+  return { segment: "", stock: "", sold: "" };
 }
 
 /** A fresh visit form seeded with one empty product line. */

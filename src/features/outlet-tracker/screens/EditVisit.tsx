@@ -24,11 +24,10 @@ export function EditVisit() {
   const items = f.items ?? [];
   const itemsValid =
     items.length > 0 &&
-    items.every(
-      (it) => it.segment && it.stock !== "" && it.sold !== "" && it.rank !== "",
-    );
+    items.every((it) => it.segment && it.stock !== "" && it.sold !== "");
   const saveDisabled = !(
     itemsValid &&
+    f.rank !== "" &&
     f.competitor &&
     (!needsBrand || f.competitorBrand)
   );
@@ -72,6 +71,14 @@ export function EditVisit() {
           items={f.items ?? []}
           onChange={(next) => setEditVisit({ items: next })}
         />
+        <Field label={`${t("field.rank")} *`}>
+          <TextInput
+            type="number"
+            inputMode="numeric"
+            value={f.rank ?? ""}
+            onChange={(e) => setEditVisit({ rank: e.target.value })}
+          />
+        </Field>
         <div>
           <Field label={`${t("field.competitor")} *`}>
             <CompetitorPicker
