@@ -15,7 +15,7 @@ export interface UserRow {
   phone: string;
   password_hash: string;
   head_quarter: string;
-  area: string;
+  depot: string;
   role: UserRole;
   status: UserStatus;
   must_change_password: boolean;
@@ -29,7 +29,7 @@ export interface PublicUser {
   name: string;
   phone: string;
   headQuarter: string;
-  area: string;
+  depot: string;
   role: UserRole;
   status: UserStatus;
   reportsToId: string | null;
@@ -42,7 +42,7 @@ export function toPublicUser(row: UserRow): PublicUser {
     name: row.name,
     phone: row.phone,
     headQuarter: row.head_quarter,
-    area: row.area,
+    depot: row.depot,
     role: row.role,
     status: row.status,
     reportsToId: row.reports_to_id,
@@ -63,11 +63,11 @@ export function createUser(input: {
   phone: string;
   passwordHash: string;
   headQuarter: string;
-  area: string;
+  depot: string;
   role: UserRole;
 }): Promise<UserRow | null> {
   return queryOne<UserRow>(
-    `insert into users (name, phone, password_hash, head_quarter, area, role)
+    `insert into users (name, phone, password_hash, head_quarter, depot, role)
      values ($1, $2, $3, $4, $5, $6)
      returning *`,
     [
@@ -75,7 +75,7 @@ export function createUser(input: {
       input.phone,
       input.passwordHash,
       input.headQuarter,
-      input.area,
+      input.depot,
       input.role,
     ],
   );
@@ -90,12 +90,12 @@ export function adminCreateUser(input: {
   phone: string;
   passwordHash: string;
   headQuarter: string;
-  area: string;
+  depot: string;
   role: UserRole;
   reportsToId: string | null;
 }): Promise<UserRow | null> {
   return queryOne<UserRow>(
-    `insert into users (name, phone, password_hash, head_quarter, area, role, reports_to_id, status, must_change_password)
+    `insert into users (name, phone, password_hash, head_quarter, depot, role, reports_to_id, status, must_change_password)
      values ($1, $2, $3, $4, $5, $6, $7, 'approved', true)
      returning *`,
     [
@@ -103,7 +103,7 @@ export function adminCreateUser(input: {
       input.phone,
       input.passwordHash,
       input.headQuarter,
-      input.area,
+      input.depot,
       input.role,
       input.reportsToId,
     ],
@@ -141,7 +141,7 @@ export function adminUpdateUser(
     name?: string;
     phone?: string;
     headQuarter?: string;
-    area?: string;
+    depot?: string;
     role?: UserRole;
     status?: UserStatus;
     reportsToId?: string | null;
@@ -151,7 +151,7 @@ export function adminUpdateUser(
     name: "name",
     phone: "phone",
     headQuarter: "head_quarter",
-    area: "area",
+    depot: "depot",
     role: "role",
     status: "status",
     reportsToId: "reports_to_id",

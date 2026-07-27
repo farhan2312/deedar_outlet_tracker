@@ -11,7 +11,12 @@ import {
   type ChangeEvent,
   type ReactNode,
 } from "react";
-import { EMPTY_ADD_FORM, makeEmptyAvForm, makeEmptyVisitItem } from "./constants";
+import {
+  C_AND_F,
+  EMPTY_ADD_FORM,
+  makeEmptyAvForm,
+  makeEmptyVisitItem,
+} from "./constants";
 import type {
   IdentityForm,
   Outlet,
@@ -27,7 +32,7 @@ export interface SessionUser {
   name: string;
   phone: string;
   headQuarter: string;
-  area: string;
+  depot: string;
   role: "admin" | "SO" | "ISR";
 }
 
@@ -159,11 +164,11 @@ function useTrackerStore(user: SessionUser) {
     setState({
       screen: "addOutlet",
       addStep: 1,
-      // Prefill Head Quarter and Area with the rep's own.
+      // C&F is fixed; prefill the rep's own depot. Area cascades from depot.
       addForm: {
         ...EMPTY_ADD_FORM,
-        headQuarter: user.headQuarter,
-        area: user.area,
+        headQuarter: C_AND_F,
+        depot: user.depot,
       },
       addDuplicateOutletId: null,
       addGpsStatus: "idle",
@@ -244,6 +249,7 @@ function useTrackerStore(user: SessionUser) {
           mobile: o.mobile,
           address: o.address,
           area: o.area,
+          depot: o.depot,
           headQuarter: o.headQuarter,
           type: o.type,
           typeOther: o.typeOther,
@@ -279,6 +285,7 @@ function useTrackerStore(user: SessionUser) {
           mobile: o.mobile,
           address: o.address,
           area: o.area,
+          depot: o.depot,
           headQuarter: o.headQuarter,
           type: o.type,
           typeOther: o.typeOther,
@@ -376,6 +383,7 @@ function useTrackerStore(user: SessionUser) {
           mobile: o.mobile,
           address: o.address,
           area: o.area,
+          depot: o.depot,
           headQuarter: o.headQuarter,
           type: o.type,
           typeOther: o.typeOther,
@@ -389,8 +397,8 @@ function useTrackerStore(user: SessionUser) {
       addForm: {
         ...EMPTY_ADD_FORM,
         mobile: s.avMobile,
-        headQuarter: user.headQuarter,
-        area: user.area,
+        headQuarter: C_AND_F,
+        depot: user.depot,
       },
       addDuplicateOutletId: null,
       addGpsStatus: "idle",

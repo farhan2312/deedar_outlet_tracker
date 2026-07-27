@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/api-auth";
 import { createOutlet, listOutlets } from "@/lib/outlets";
+import { C_AND_F } from "@/features/outlet-tracker/constants";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -37,7 +38,9 @@ export async function POST(req: Request) {
       mobile: str(body.mobile),
       address: str(body.address),
       area: str(body.area),
-      headQuarter: str(body.headQuarter),
+      depot: str(body.depot),
+      // C&F is a single fixed location; default it if the client omits it.
+      headQuarter: str(body.headQuarter) || C_AND_F,
       type: str(body.type),
       typeOther: str(body.typeOther),
       lat: str(body.lat),

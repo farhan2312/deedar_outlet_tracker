@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     name?: string;
     phone?: string;
     headQuarter?: string;
-    area?: string;
+    depot?: string;
     password?: string;
     role?: string;
     reportsToId?: string;
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
   const role =
     body.role === "admin" ? "admin" : body.role === "SO" ? "SO" : "ISR";
   const headQuarter = role === "admin" ? "" : String(body.headQuarter ?? "").trim();
-  const area = role === "admin" ? "" : String(body.area ?? "").trim();
+  const depot = role === "admin" ? "" : String(body.depot ?? "").trim();
   // Admin may set a temporary password; defaults to the phone number.
   const password = String(body.password ?? "") || phone;
 
@@ -95,7 +95,7 @@ export async function POST(req: Request) {
     phone,
     passwordHash,
     headQuarter,
-    area,
+    depot,
     role,
     reportsToId,
   });

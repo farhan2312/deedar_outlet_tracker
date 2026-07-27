@@ -11,7 +11,7 @@ create table if not exists users (
   phone         text not null unique,
   password_hash text not null,
   head_quarter  text not null default '',
-  area          text not null default '',
+  depot         text not null default '',
   role          text not null default 'ISR' check (role in ('admin', 'SO', 'ISR')),
   status        text not null default 'pending'  check (status in ('pending', 'approved', 'rejected')),
   must_change_password boolean not null default false,
@@ -36,7 +36,13 @@ begin
   end if;
 end $$;
 alter table users add column if not exists head_quarter text not null default '';
-alter table users add column if not exists area text not null default '';
+
+-- Depot replaces the old `area` column on users (2026-07-23). Idempotent:
+-- adds `depot` if missing, then drops `area` if present. The `area` column
+-- was rep-level (their sales route); depot is a fixed distribution point
+-- selected from a small dropdown (see DEPOTS in constants.ts).
+alter table users add column if not exists depot text not null default '';
+alter table users drop column if exists area;
 
 -- Migrate legacy role values to the admin/SO/ISR model (safe to re-run).
 -- Drop the constraint first so the UPDATE doesn't violate the old allowed set.
@@ -54,6 +60,7 @@ create table if not exists outlets (
   mobile       text not null default '',
   address      text not null default '',
   area         text not null default '',
+  depot        text not null default '',
   head_quarter text not null default '',
   type         text not null default '',
   type_other   text not null default '',
@@ -62,6 +69,10 @@ create table if not exists outlets (
   created_by   uuid references users (id) on delete set null,
   created_at   timestamptz not null default now()
 );
+
+-- Depot on outlets (2026-07-23): outlets belong to a depot under the C&F, and
+-- the outlet's Area now cascades from its depot. Safe to re-run.
+alter table outlets add column if not exists depot text not null default '';
 
 -- Rename town/division to area/head_quarter (safe to re-run).
 do $$

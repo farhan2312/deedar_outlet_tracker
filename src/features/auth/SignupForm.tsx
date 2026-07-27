@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { C, HEAD_QUARTERS } from "@/features/outlet-tracker/constants";
+import { C, DEPOTS, HEAD_QUARTERS } from "@/features/outlet-tracker/constants";
 import { useT } from "@/features/i18n";
 import {
   AuthLayout,
@@ -17,7 +17,7 @@ export function SignupForm() {
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState<"admin" | "SO" | "ISR">("ISR");
   const [headQuarter, setHeadQuarter] = useState("");
-  const [area, setArea] = useState("");
+  const [depot, setDepot] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
@@ -31,7 +31,7 @@ export function SignupForm() {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, role, headQuarter, area, password }),
+        body: JSON.stringify({ name, phone, role, headQuarter, depot, password }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -129,14 +129,20 @@ export function SignupForm() {
               ))}
             </select>
 
-            <label style={authLabelStyle}>{t("field.area")}</label>
-            <input
+            <label style={authLabelStyle}>{t("field.depot")}</label>
+            <select
               className="dz-input dz-tap"
-              value={area}
-              onChange={(e) => setArea(e.target.value)}
-              placeholder={t("field.areaPlaceholder")}
-              style={authFieldStyle}
-            />
+              value={depot}
+              onChange={(e) => setDepot(e.target.value)}
+              style={{ ...authFieldStyle, appearance: "auto", background: "#fff" }}
+            >
+              <option value="">{t("field.depotSelect")}</option>
+              {DEPOTS.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
           </>
         ) : null}
 

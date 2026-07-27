@@ -1,12 +1,16 @@
 "use client";
 
-import type {
-  ChangeEvent,
-  CSSProperties,
-  ReactNode,
-  SelectHTMLAttributes,
+import {
+  useEffect,
+  useState,
+  type ChangeEvent,
+  type CSSProperties,
+  type ReactNode,
+  type SelectHTMLAttributes,
 } from "react";
 import {
+  AREA_OTHER,
+  AREAS_BY_DEPOT,
   C,
   COMPETITOR_LEVELS,
   PRODUCT_SEGMENTS,
@@ -348,6 +352,70 @@ export function CompetitorPicker({
 /** Two-column grid on wider screens, single column on mobile. */
 export function FieldGrid({ children }: { children: ReactNode }) {
   return <div className="dz-field-grid">{children}</div>;
+}
+
+/**
+ * Outlet Area picker: a dropdown of the chosen depot's areas plus an "Others"
+ * option that reveals a free-text field. `value` is always the actual area
+ * string (a listed area, or the manually-typed one). Disabled until a depot
+ * is chosen. Give it `key={depot}` so it re-derives cleanly on depot change.
+ */
+export function AreaField({
+  depot,
+  value,
+  onChange,
+}: {
+  depot: string;
+  value: string;
+  onChange: (area: string) => void;
+}) {
+  const { t } = useT();
+  const options = depot ? AREAS_BY_DEPOT[depot] ?? [] : [];
+  // "Others" mode when a non-empty area isn't one of the depot's listed areas.
+  const [othersMode, setOthersMode] = useState(
+    value !== "" && !options.includes(value),
+  );
+  useEffect(() => {
+    setOthersMode(value !== "" && !options.includes(value));
+    // Re-derive only when the depot (and thus the option set) changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [depot]);
+
+  return (
+    <>
+      <Select
+        value={othersMode ? AREA_OTHER : value}
+        disabled={!depot}
+        onChange={(e) => {
+          const v = e.target.value;
+          if (v === AREA_OTHER) {
+            setOthersMode(true);
+            onChange(""); // start blank; the text field takes over
+          } else {
+            setOthersMode(false);
+            onChange(v);
+          }
+        }}
+      >
+        <option value="">{t("common.select")}</option>
+        {options.map((a) => (
+          <option key={a} value={a}>
+            {a}
+          </option>
+        ))}
+        <option value={AREA_OTHER}>{t("field.areaOther")}</option>
+      </Select>
+      {othersMode ? (
+        <div style={{ marginTop: 8 }}>
+          <TextInput
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={t("field.areaOtherPlaceholder")}
+          />
+        </div>
+      ) : null}
+    </>
+  );
 }
 
 /**

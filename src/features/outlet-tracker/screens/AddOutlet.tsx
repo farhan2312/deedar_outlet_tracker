@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
-import { AREAS_BY_HEAD_QUARTER, C, HEAD_QUARTERS, TYPES } from "../constants";
+import { C, C_AND_F, DEPOTS, TYPES } from "../constants";
 import { useTracker } from "../store";
 import {
+  AreaField,
   Button,
   Field,
   FieldGrid,
@@ -40,8 +41,8 @@ export function AddOutlet() {
   const step1Disabled = f.mobile.length !== 10;
   const step2Disabled = !(
     f.name &&
+    f.depot &&
     f.area &&
-    f.headQuarter &&
     f.type &&
     (!isOther || f.typeOther) &&
     f.lat &&
@@ -55,16 +56,9 @@ export function AddOutlet() {
     return o ? decorateOutlet(o) : null;
   }, [state.addDuplicateOutletId, state.outlets]);
 
-  const areaOptions = f.headQuarter
-    ? AREAS_BY_HEAD_QUARTER[f.headQuarter] ?? []
-    : [];
-
-  function onHeadQuarterChange(hq: string) {
-    const options = AREAS_BY_HEAD_QUARTER[hq] ?? [];
-    setAdd({
-      headQuarter: hq,
-      area: options.includes(f.area) ? f.area : "",
-    });
+  // Changing depot clears the area (its options come from the new depot).
+  function onDepotChange(depot: string) {
+    setAdd({ depot, area: "" });
   }
 
   return (
@@ -152,33 +146,41 @@ export function AddOutlet() {
                 onChange={(e) => setAdd({ address: e.target.value })}
               />
             </Field>
+            <Field label={t("field.headQuarter")}>
+              <div
+                style={{
+                  padding: "12px 14px",
+                  border: `1px solid ${C.border}`,
+                  borderRadius: 10,
+                  fontSize: 14,
+                  color: C.ink,
+                  background: C.panel,
+                }}
+              >
+                {C_AND_F}
+              </div>
+            </Field>
             <FieldGrid>
-              <Field label={`${t("field.headQuarter")} *`}>
+              <Field label={`${t("field.depot")} *`}>
                 <Select
-                  value={f.headQuarter}
-                  onChange={(e) => onHeadQuarterChange(e.target.value)}
+                  value={f.depot}
+                  onChange={(e) => onDepotChange(e.target.value)}
                 >
                   <option value="">{t("common.select")}</option>
-                  {HEAD_QUARTERS.map((hq) => (
-                    <option key={hq} value={hq}>
-                      {hq}
+                  {DEPOTS.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
                     </option>
                   ))}
                 </Select>
               </Field>
               <Field label={`${t("field.area")} *`}>
-                <Select
+                <AreaField
+                  key={f.depot}
+                  depot={f.depot}
                   value={f.area}
-                  onChange={(e) => setAdd({ area: e.target.value })}
-                  disabled={!f.headQuarter}
-                >
-                  <option value="">{t("common.select")}</option>
-                  {areaOptions.map((a) => (
-                    <option key={a} value={a}>
-                      {a}
-                    </option>
-                  ))}
-                </Select>
+                  onChange={(area) => setAdd({ area })}
+                />
               </Field>
             </FieldGrid>
             <Field label={`${t("field.type")} *`}>
@@ -241,6 +243,7 @@ export function AddOutlet() {
             {f.address ? (
               <Row label={t("field.address")} value={f.address} />
             ) : null}
+            <Row label={t("field.depot")} value={f.depot} />
             <Row
               label={t("review.location")}
               value={`${f.area}, ${f.headQuarter}`}

@@ -36,36 +36,37 @@ export const COMPETITOR_LEVELS: CompetitorLevel[] = [
   "National Brands",
 ];
 
-/** Head quarters a rep (SO/ISR) can belong to (from the DEEDAR_USER roster). */
-export const HEAD_QUARTERS = ["Jaipur", "Kota", "Indore", "Banda"] as const;
+/**
+ * The single C&F (Carrying & Forwarding) location the operation runs under.
+ * Head Quarter is displayed as "C&F" in the UI; there is currently just one.
+ */
+export const C_AND_F = "JHALAWAR";
 
-/** Areas (sales routes) within each head quarter, from the DEEDAR_USER roster. */
-export const AREAS_BY_HEAD_QUARTER: Record<string, string[]> = {
-  Jaipur: [
-    "Bagru",
-    "Chomu",
-    "Fatehpur",
-    "Karbala",
-    "Niwai",
-    "Rawatsar",
-    "Sanganer",
-    "Todarraisingh",
-  ],
-  Kota: [
-    "Aklera",
+/** C&F options for the signup/admin dropdowns — currently only JHALAWAR. */
+export const HEAD_QUARTERS = [C_AND_F] as const;
+
+/** Depots under the C&F — a rep is assigned to one; outlets belong to one. */
+export const DEPOTS = ["Baran", "Nainwa", "Indergarh"] as const;
+
+/** Areas within each depot (from the JHALAWAR roster). The outlet form also
+ *  offers an "Others" choice that reveals a free-text field (see AREA_OTHER). */
+export const AREAS_BY_DEPOT: Record<string, string[]> = {
+  Baran: [
     "Baran",
-    "Bhawanimandi",
-    "Jhalawar",
-    "Kanwas",
-    "Khanpur",
-    "Lakheri",
-    "Nainwa",
-    "Neemach Rampura",
-    "Sawai Madhopur",
+    "Bamorikala",
+    "Nahargarh",
+    "Mangrol",
+    "Etawah",
+    "Bhanwargarh",
+    "Kelwara",
+    "Bapawar",
   ],
-  Indore: ["Alirajpur", "Indore", "Kukshi", "Manavar", "Vidisha"],
-  Banda: ["Banda"],
+  Nainwa: ["Nainwa", "Dei", "Bondi", "Laxmipura", "Ranipura", "Bansi"],
+  Indergarh: ["Indergarh", "Lakheri", "Sawai Madhopur"],
 };
+
+/** Sentinel select value for the outlet Area "Others" (manual-entry) option. */
+export const AREA_OTHER = "__other__";
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -94,6 +95,7 @@ export const EMPTY_ADD_FORM: OutletForm = {
   name: "",
   address: "",
   area: "",
+  depot: "",
   headQuarter: "",
   type: "",
   typeOther: "",

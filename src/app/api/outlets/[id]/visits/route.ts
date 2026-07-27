@@ -61,6 +61,7 @@ export async function POST(
     mobile: str(body.mobile),
     address: str(body.address),
     area: str(body.area),
+    depot: str(body.depot),
     headQuarter: str(body.headQuarter),
     type: str(body.type),
     typeOther: str(body.typeOther),

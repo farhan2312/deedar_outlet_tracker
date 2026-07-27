@@ -38,6 +38,7 @@ export interface Outlet {
   mobile: string;
   address: string;
   area: string;
+  depot: string;
   headQuarter: string;
   type: string;
   typeOther: string;
@@ -67,6 +68,7 @@ export interface OutletForm {
   name: string;
   address: string;
   area: string;
+  depot: string;
   headQuarter: string;
   type: string;
   typeOther: string;
@@ -86,6 +88,7 @@ export interface IdentityForm {
   mobile: string;
   address: string;
   area: string;
+  depot: string;
   headQuarter: string;
   type: string;
   typeOther: string;

@@ -10,7 +10,7 @@ export interface SessionUser {
   name: string;
   phone: string;
   headQuarter: string;
-  area: string;
+  depot: string;
   role: "admin" | "SO" | "ISR";
   mustChange: boolean;
 }
@@ -30,7 +30,7 @@ export async function signSession(user: SessionUser): Promise<string> {
     name: user.name,
     phone: user.phone,
     headQuarter: user.headQuarter,
-    area: user.area,
+    depot: user.depot,
     role: user.role,
     mustChange: user.mustChange,
   })
@@ -53,7 +53,7 @@ export async function verifySession(
       name: String(payload.name ?? ""),
       phone: String(payload.phone ?? ""),
       headQuarter: String(payload.headQuarter ?? ""),
-      area: String(payload.area ?? ""),
+      depot: String(payload.depot ?? ""),
       role: payload.role === "admin" ? "admin" : payload.role === "SO" ? "SO" : "ISR",
       mustChange: payload.mustChange === true,
     };

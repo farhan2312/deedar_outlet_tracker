@@ -27,7 +27,7 @@ export async function PATCH(
     name?: string;
     phone?: string;
     headQuarter?: string;
-    area?: string;
+    depot?: string;
     role?: string;
     status?: string;
     reportsToId?: string | null;
@@ -42,7 +42,7 @@ export async function PATCH(
     name?: string;
     phone?: string;
     headQuarter?: string;
-    area?: string;
+    depot?: string;
     role?: UserRole;
     status?: UserStatus;
     reportsToId?: string | null;
@@ -87,9 +87,9 @@ export async function PATCH(
     fields.headQuarter =
       targetRole === "admin" ? "" : String(body.headQuarter).trim();
   }
-  if (body.area !== undefined) {
+  if (body.depot !== undefined) {
     const targetRole = fields.role;
-    fields.area = targetRole === "admin" ? "" : String(body.area).trim();
+    fields.depot = targetRole === "admin" ? "" : String(body.depot).trim();
   }
 
   // Only ISRs report to an SO. Figure out the role this user will end up
