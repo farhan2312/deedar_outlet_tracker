@@ -132,10 +132,28 @@ function mapOutlet(o: OutletRow, visits: VisitRow[]): Outlet {
 }
 
 /**
+ * SQL fragment (bound to placeholder `$paramIndex` = userId): which outlets a
+ * rep may see. Always includes their team's outlets (teamScopeSql). For an
+ * ISR it ALSO includes any outlet sitting in a depot they cover, so ISRs
+ * sharing a depot find each other's outlets (e.g. checking a mobile number in
+ * the Add Visit flow). An SO is deliberately NOT depot-widened — an SO sees
+ * only the outlets of the ISRs reporting to them (their team).
+ */
+function outletVisibleSql(paramIndex: number, includeDepot: boolean): string {
+  const p = `$${paramIndex}`;
+  const team = `created_by in (${teamScopeSql(paramIndex)})`;
+  if (!includeDepot) return `(${team})`;
+  return `(
+    ${team}
+    or (depot <> '' and depot in (select unnest(depots) from users where id = ${p}))
+  )`;
+}
+
+/**
  * Outlets visible to `userId`, with their visits, sorted by most recent
- * visit. Admins see everything; everyone else sees only outlets created by
- * themselves or by their teammate (an ISR's supervising SO, or an SO's own
- * reporting ISRs) — see teamScopeSql().
+ * visit. Admins see everything; an SO sees their reporting ISRs' outlets; an
+ * ISR sees their team's outlets plus any in a depot they cover — see
+ * outletVisibleSql().
  */
 export async function listOutlets(
   userId: string,
@@ -145,7 +163,7 @@ export async function listOutlets(
     role === "admin"
       ? await query<OutletRow>("select * from outlets")
       : await query<OutletRow>(
-          `select * from outlets where created_by in (${teamScopeSql(1)})`,
+          `select * from outlets where ${outletVisibleSql(1, role === "ISR")}`,
           [userId],
         );
   const visits = await query<VisitRow>(
@@ -169,8 +187,8 @@ export async function isOutletInScope(
   if (role === "admin") return true;
   const row = await queryOne<{ ok: boolean }>(
     `select exists (
-       select 1 from outlets o
-       where o.id = $1 and o.created_by in (${teamScopeSql(2)})
+       select 1 from outlets
+       where id = $1 and ${outletVisibleSql(2, role === "ISR")}
      ) as ok`,
     [outletId, userId],
   );
