@@ -8,6 +8,7 @@ import {
   toPublicUser,
 } from "@/lib/users";
 import { hashPassword } from "@/lib/password";
+import { sanitizeDepots } from "@/features/outlet-tracker/constants";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
     name?: string;
     phone?: string;
     headQuarter?: string;
-    depot?: string;
+    depots?: unknown;
     password?: string;
     role?: string;
     reportsToId?: string;
@@ -48,7 +49,7 @@ export async function POST(req: Request) {
   const role =
     body.role === "admin" ? "admin" : body.role === "SO" ? "SO" : "ISR";
   const headQuarter = role === "admin" ? "" : String(body.headQuarter ?? "").trim();
-  const depot = role === "admin" ? "" : String(body.depot ?? "").trim();
+  const depots = sanitizeDepots(body.depots, role);
   // Admin may set a temporary password; defaults to the phone number.
   const password = String(body.password ?? "") || phone;
 
@@ -95,7 +96,7 @@ export async function POST(req: Request) {
     phone,
     passwordHash,
     headQuarter,
-    depot,
+    depots,
     role,
     reportsToId,
   });

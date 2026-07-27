@@ -32,7 +32,7 @@ export interface SessionUser {
   name: string;
   phone: string;
   headQuarter: string;
-  depot: string;
+  depots: string[];
   role: "admin" | "SO" | "ISR";
 }
 
@@ -164,11 +164,11 @@ function useTrackerStore(user: SessionUser) {
     setState({
       screen: "addOutlet",
       addStep: 1,
-      // C&F is fixed; prefill the rep's own depot. Area cascades from depot.
+      // C&F is fixed; prefill the depot when the rep covers exactly one.
       addForm: {
         ...EMPTY_ADD_FORM,
         headQuarter: C_AND_F,
-        depot: user.depot,
+        depot: user.depots.length === 1 ? user.depots[0] : "",
       },
       addDuplicateOutletId: null,
       addGpsStatus: "idle",
@@ -398,7 +398,7 @@ function useTrackerStore(user: SessionUser) {
         ...EMPTY_ADD_FORM,
         mobile: s.avMobile,
         headQuarter: C_AND_F,
-        depot: user.depot,
+        depot: user.depots.length === 1 ? user.depots[0] : "",
       },
       addDuplicateOutletId: null,
       addGpsStatus: "idle",

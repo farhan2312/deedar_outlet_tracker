@@ -16,9 +16,20 @@ import {
 import { decorateOutlet } from "../utils";
 import { tType, useT } from "@/features/i18n";
 
+/** Read-only field look for fixed values (C&F, a locked single depot). */
+const fixedFieldStyle = {
+  padding: "12px 14px",
+  border: `1px solid ${C.border}`,
+  borderRadius: 10,
+  fontSize: 14,
+  color: C.ink,
+  background: C.panel,
+} as const;
+
 export function AddOutlet() {
   const {
     state,
+    user,
     setAdd,
     onAddMobileChange,
     onAddStep1Next,
@@ -28,6 +39,11 @@ export function AddOutlet() {
     submitAddOutlet,
   } = useTracker();
   const { t } = useT();
+
+  // Depot choices come from the rep: admin → all; SO/ISR → their assigned
+  // depots. A single choice (typical ISR) is auto-filled and locked.
+  const allowedDepots = user.role === "admin" ? [...DEPOTS] : user.depots;
+  const depotLocked = allowedDepots.length === 1;
 
   const STEP_LABELS = [
     t("ao.step.checkDup"),
@@ -147,33 +163,30 @@ export function AddOutlet() {
               />
             </Field>
             <Field label={t("field.headQuarter")}>
-              <div
-                style={{
-                  padding: "12px 14px",
-                  border: `1px solid ${C.border}`,
-                  borderRadius: 10,
-                  fontSize: 14,
-                  color: C.ink,
-                  background: C.panel,
-                }}
-              >
-                {C_AND_F}
-              </div>
+              <div style={fixedFieldStyle}>{C_AND_F}</div>
             </Field>
             <FieldGrid>
-              <Field label={`${t("field.depot")} *`}>
-                <Select
-                  value={f.depot}
-                  onChange={(e) => onDepotChange(e.target.value)}
-                >
-                  <option value="">{t("common.select")}</option>
-                  {DEPOTS.map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </Select>
-              </Field>
+              {depotLocked ? (
+                <Field label={t("field.depot")}>
+                  <div style={fixedFieldStyle}>
+                    {f.depot || allowedDepots[0]}
+                  </div>
+                </Field>
+              ) : (
+                <Field label={`${t("field.depot")} *`}>
+                  <Select
+                    value={f.depot}
+                    onChange={(e) => onDepotChange(e.target.value)}
+                  >
+                    <option value="">{t("common.select")}</option>
+                    {allowedDepots.map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+              )}
               <Field label={`${t("field.area")} *`}>
                 <AreaField
                   key={f.depot}

@@ -4,83 +4,83 @@
     "mobile": "9521031235",
     "role": "SO",
     "headQuarter": "JHALAWAR",
-    "depot": ""
+    "depots": ["Baran", "Nainwa", "Indergarh"]
   },
   {
     "name": "Shobhag Suman",
     "mobile": "8955244140",
     "role": "ISR",
     "headQuarter": "JHALAWAR",
-    "depot": "Baran"
+    "depots": ["Baran"]
   },
   {
     "name": "Dinesh Meena",
     "mobile": "8769110488",
     "role": "ISR",
     "headQuarter": "JHALAWAR",
-    "depot": "Baran"
+    "depots": ["Baran"]
   },
   {
     "name": "Sudhir Kumar",
     "mobile": "8386037213",
     "role": "ISR",
     "headQuarter": "JHALAWAR",
-    "depot": "Baran"
+    "depots": ["Baran"]
   },
   {
     "name": "Devki Nandan",
     "mobile": "9406909944",
     "role": "ISR",
     "headQuarter": "JHALAWAR",
-    "depot": "Baran"
+    "depots": ["Baran"]
   },
   {
     "name": "Dinesh Khinchi",
     "mobile": "8058079031",
     "role": "ISR",
     "headQuarter": "JHALAWAR",
-    "depot": "Baran"
+    "depots": ["Baran"]
   },
   {
     "name": "Anshul Jain",
     "mobile": "7733077555",
     "role": "ISR",
     "headQuarter": "JHALAWAR",
-    "depot": "Nainwa"
+    "depots": ["Nainwa"]
   },
   {
     "name": "Mukesh Meena",
     "mobile": "9351452879",
     "role": "ISR",
     "headQuarter": "JHALAWAR",
-    "depot": "Nainwa"
+    "depots": ["Nainwa"]
   },
   {
     "name": "Hukum Chand Saini",
     "mobile": "7737785987",
     "role": "ISR",
     "headQuarter": "JHALAWAR",
-    "depot": "Indergarh"
+    "depots": ["Indergarh"]
   },
   {
     "name": "Sagar Rawat",
     "mobile": "8875389720",
     "role": "ISR",
     "headQuarter": "JHALAWAR",
-    "depot": "Indergarh"
+    "depots": ["Indergarh"]
   },
   {
     "name": "Shafeeq",
     "mobile": "9672513168",
     "role": "ISR",
     "headQuarter": "JHALAWAR",
-    "depot": "Indergarh"
+    "depots": ["Indergarh"]
   },
   {
     "name": "Nikhil Upadhyay",
     "mobile": "7665928538",
     "role": "ISR",
     "headQuarter": "JHALAWAR",
-    "depot": "Indergarh"
+    "depots": ["Indergarh"]
   }
 ]

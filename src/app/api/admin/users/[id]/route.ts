@@ -7,6 +7,7 @@ import {
   type UserRole,
   type UserStatus,
 } from "@/lib/users";
+import { sanitizeDepots } from "@/features/outlet-tracker/constants";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,7 +28,7 @@ export async function PATCH(
     name?: string;
     phone?: string;
     headQuarter?: string;
-    depot?: string;
+    depots?: unknown;
     role?: string;
     status?: string;
     reportsToId?: string | null;
@@ -42,7 +43,7 @@ export async function PATCH(
     name?: string;
     phone?: string;
     headQuarter?: string;
-    depot?: string;
+    depots?: string[];
     role?: UserRole;
     status?: UserStatus;
     reportsToId?: string | null;
@@ -87,23 +88,26 @@ export async function PATCH(
     fields.headQuarter =
       targetRole === "admin" ? "" : String(body.headQuarter).trim();
   }
-  if (body.depot !== undefined) {
-    const targetRole = fields.role;
-    fields.depot = targetRole === "admin" ? "" : String(body.depot).trim();
+  // The role this user will end up with (the role may be changing) — needed to
+  // sanitize depots (ISR one / SO many / admin none) and validate reporting.
+  let effectiveRole: UserRole | undefined = fields.role;
+  if (
+    (body.depots !== undefined || "reportsToId" in body) &&
+    effectiveRole === undefined
+  ) {
+    const current = await findUserById(id);
+    if (!current) {
+      return NextResponse.json({ error: "User not found." }, { status: 404 });
+    }
+    effectiveRole = current.role;
   }
 
-  // Only ISRs report to an SO. Figure out the role this user will end up
-  // with so we know whether a reportsToId is even valid.
-  if ("reportsToId" in body) {
-    let effectiveRole = fields.role;
-    if (effectiveRole === undefined) {
-      const current = await findUserById(id);
-      if (!current) {
-        return NextResponse.json({ error: "User not found." }, { status: 404 });
-      }
-      effectiveRole = current.role;
-    }
+  if (body.depots !== undefined) {
+    fields.depots = sanitizeDepots(body.depots, effectiveRole ?? "ISR");
+  }
 
+  // Only ISRs report to an SO.
+  if ("reportsToId" in body) {
     if (!body.reportsToId || effectiveRole !== "ISR") {
       fields.reportsToId = null;
     } else {

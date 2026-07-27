@@ -13,6 +13,7 @@ import {
   AREAS_BY_DEPOT,
   C,
   COMPETITOR_LEVELS,
+  DEPOTS,
   PRODUCT_SEGMENTS,
   SEGMENT_NAMES,
 } from "./constants";
@@ -352,6 +353,54 @@ export function CompetitorPicker({
 /** Two-column grid on wider screens, single column on mobile. */
 export function FieldGrid({ children }: { children: ReactNode }) {
   return <div className="dz-field-grid">{children}</div>;
+}
+
+/** Multi-select depot picker (checkboxes) — used for SOs, who cover several
+ *  depots. `value` is the selected depot names; emits the new list on toggle. */
+export function DepotChecklist({
+  value,
+  onChange,
+}: {
+  value: string[];
+  onChange: (depots: string[]) => void;
+}) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      {DEPOTS.map((d) => {
+        const checked = value.includes(d);
+        return (
+          <label
+            key={d}
+            className="dz-tap"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "10px 12px",
+              border: `1px solid ${checked ? C.green : C.border}`,
+              borderRadius: 10,
+              background: checked ? C.greenBg : C.card,
+              cursor: "pointer",
+              fontSize: 14,
+              color: C.ink,
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={() =>
+                onChange(
+                  checked ? value.filter((x) => x !== d) : [...value, d],
+                )
+              }
+              style={{ width: 16, height: 16, accentColor: C.green }}
+            />
+            {d}
+          </label>
+        );
+      })}
+    </div>
+  );
 }
 
 /**

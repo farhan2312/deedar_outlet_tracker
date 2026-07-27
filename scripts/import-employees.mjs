@@ -1,11 +1,12 @@
 // Imports the Deedar sales team into the users table.
 // Run with:  npm run import-employees   (loads .env.local)
 //
-// Source roster: db/deedar-users.json  ({ name, mobile, role, headQuarter, depot? }[])
+// Source roster: db/deedar-users.json  ({ name, mobile, role, headQuarter, depots? }[])
 // `role` comes straight from the roster's DESIGNATION column (SO or ISR).
-// Each person is created as an APPROVED user whose initial password is their
-// own 10-digit mobile number. Idempotent: re-running updates
-// name/role/headQuarter/depot for existing phones without resetting passwords.
+// `depots` is a list (SO may cover several, ISR one). Each person is created
+// as an APPROVED user whose initial password is their own 10-digit mobile
+// number. Idempotent: re-running updates name/role/headQuarter/depots for
+// existing phones without resetting passwords.
 //
 // After the main pass, each ISR's reports_to_id is auto-assigned to the SO
 // sharing their head quarter (only works where a head quarter has exactly
@@ -49,16 +50,21 @@ try {
       continue;
     }
     const hash = await bcrypt.hash(phone, 10); // initial password = mobile number
+    const depots = Array.isArray(person.depots)
+      ? person.depots
+      : person.depot
+        ? [person.depot]
+        : [];
     const res = await client.query(
-      `insert into users (name, phone, password_hash, head_quarter, depot, role, status, must_change_password)
+      `insert into users (name, phone, password_hash, head_quarter, depots, role, status, must_change_password)
          values ($1, $2, $3, $4, $5, $6, 'approved', true)
        on conflict (phone) do update set
          name = excluded.name,
          head_quarter = excluded.head_quarter,
-         depot = excluded.depot,
+         depots = excluded.depots,
          role = excluded.role
        returning (xmax = 0) as inserted`,
-      [person.name, phone, hash, person.headQuarter, person.depot ?? "", role],
+      [person.name, phone, hash, person.headQuarter, depots, role],
     );
     if (res.rows[0]?.inserted) inserted++;
     else updated++;

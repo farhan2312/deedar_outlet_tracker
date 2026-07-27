@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { C, DEPOTS, HEAD_QUARTERS } from "@/features/outlet-tracker/constants";
+import { DepotChecklist } from "@/features/outlet-tracker/ui";
 import { useT } from "@/features/i18n";
 import {
   AuthLayout,
@@ -17,7 +18,7 @@ export function SignupForm() {
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState<"admin" | "SO" | "ISR">("ISR");
   const [headQuarter, setHeadQuarter] = useState("");
-  const [depot, setDepot] = useState("");
+  const [depots, setDepots] = useState<string[]>([]);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
@@ -31,7 +32,7 @@ export function SignupForm() {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, role, headQuarter, depot, password }),
+        body: JSON.stringify({ name, phone, role, headQuarter, depots, password }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -130,19 +131,27 @@ export function SignupForm() {
             </select>
 
             <label style={authLabelStyle}>{t("field.depot")}</label>
-            <select
-              className="dz-input dz-tap"
-              value={depot}
-              onChange={(e) => setDepot(e.target.value)}
-              style={{ ...authFieldStyle, appearance: "auto", background: "#fff" }}
-            >
-              <option value="">{t("field.depotSelect")}</option>
-              {DEPOTS.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
+            {role === "SO" ? (
+              <div style={{ marginBottom: 14 }}>
+                <DepotChecklist value={depots} onChange={setDepots} />
+              </div>
+            ) : (
+              <select
+                className="dz-input dz-tap"
+                value={depots[0] ?? ""}
+                onChange={(e) =>
+                  setDepots(e.target.value ? [e.target.value] : [])
+                }
+                style={{ ...authFieldStyle, appearance: "auto", background: "#fff" }}
+              >
+                <option value="">{t("field.depotSelect")}</option>
+                {DEPOTS.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            )}
           </>
         ) : null}
 

@@ -45,8 +45,27 @@ export const C_AND_F = "JHALAWAR";
 /** C&F options for the signup/admin dropdowns — currently only JHALAWAR. */
 export const HEAD_QUARTERS = [C_AND_F] as const;
 
-/** Depots under the C&F — a rep is assigned to one; outlets belong to one. */
+/** Depots under the C&F — outlets belong to one. A rep is assigned one or
+ *  more: an SO can cover several depots, an ISR exactly one. */
 export const DEPOTS = ["Baran", "Nainwa", "Indergarh"] as const;
+
+/**
+ * Coerce untrusted depot input into a clean list for a given role: admins get
+ * none, ISRs at most one, SOs any number — all restricted to valid depots.
+ */
+export function sanitizeDepots(raw: unknown, role: string): string[] {
+  if (role === "admin") return [];
+  const valid = new Set<string>(DEPOTS);
+  const list = Array.isArray(raw)
+    ? raw
+    : typeof raw === "string" && raw
+      ? [raw]
+      : [];
+  const cleaned = Array.from(
+    new Set(list.map((v) => String(v).trim()).filter((v) => valid.has(v))),
+  );
+  return role === "ISR" ? cleaned.slice(0, 1) : cleaned;
+}
 
 /** Areas within each depot (from the JHALAWAR roster). The outlet form also
  *  offers an "Others" choice that reveals a free-text field (see AREA_OTHER). */

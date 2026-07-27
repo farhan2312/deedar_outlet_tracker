@@ -37,12 +37,24 @@ begin
 end $$;
 alter table users add column if not exists head_quarter text not null default '';
 
--- Depot replaces the old `area` column on users (2026-07-23). Idempotent:
--- adds `depot` if missing, then drops `area` if present. The `area` column
--- was rep-level (their sales route); depot is a fixed distribution point
--- selected from a small dropdown (see DEPOTS in constants.ts).
-alter table users add column if not exists depot text not null default '';
+-- Depot(s) a rep covers (2026-07-23). An SO can cover several depots, an ISR
+-- exactly one — stored as a text[] (`depots`). Migrates both the old rep-level
+-- `area` column and the earlier single `depot` text column. Idempotent.
 alter table users drop column if exists area;
+alter table users add column if not exists depots text[] not null default '{}';
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_name = 'users' and column_name = 'depot'
+  ) then
+    update users
+      set depots = array[depot]
+      where depot is not null and depot <> ''
+        and coalesce(cardinality(depots), 0) = 0;
+    alter table users drop column depot;
+  end if;
+end $$;
 
 -- Migrate legacy role values to the admin/SO/ISR model (safe to re-run).
 -- Drop the constraint first so the UPDATE doesn't violate the old allowed set.

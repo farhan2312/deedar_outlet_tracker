@@ -18,6 +18,16 @@ import { decorateOutlet, fmtDate } from "../utils";
 import type { Visit } from "../types";
 import { tCompetitor, tType, useT } from "@/features/i18n";
 
+/** Read-only field look for a locked single depot. */
+const fixedFieldStyle = {
+  padding: "12px 14px",
+  border: `1px solid ${C.border}`,
+  borderRadius: 10,
+  fontSize: 14,
+  color: C.ink,
+  background: C.panel,
+} as const;
+
 export function OutletDetail() {
   const {
     state,
@@ -62,6 +72,15 @@ export function OutletDetail() {
   const editing = state.editingIdentity;
   const ef = state.editForm;
   const editIsOther = ef.type === "Other";
+
+  // Depot choices for editing: admin → all; SO/ISR → their depots. The
+  // outlet's current depot is always kept selectable. A single choice locks.
+  const allowedDepots = user.role === "admin" ? [...DEPOTS] : user.depots;
+  const editDepotOptions =
+    ef.depot && !allowedDepots.includes(ef.depot)
+      ? [ef.depot, ...allowedDepots]
+      : allowedDepots;
+  const editDepotLocked = editDepotOptions.length === 1;
 
   return (
     <div style={{ padding: 20 }}>
@@ -177,19 +196,25 @@ export function OutletDetail() {
             </Field>
             <FieldGrid>
               <Field label={t("field.depot")}>
-                <Select
-                  value={ef.depot ?? ""}
-                  onChange={(e) =>
-                    setEditIdentity({ depot: e.target.value, area: "" })
-                  }
-                >
-                  <option value="">{t("common.select")}</option>
-                  {DEPOTS.map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </Select>
+                {editDepotLocked ? (
+                  <div style={fixedFieldStyle}>
+                    {ef.depot || editDepotOptions[0]}
+                  </div>
+                ) : (
+                  <Select
+                    value={ef.depot ?? ""}
+                    onChange={(e) =>
+                      setEditIdentity({ depot: e.target.value, area: "" })
+                    }
+                  >
+                    <option value="">{t("common.select")}</option>
+                    {editDepotOptions.map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </Select>
+                )}
               </Field>
               <Field label={t("field.area")}>
                 <AreaField

@@ -4,7 +4,13 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { C, DEPOTS, HEAD_QUARTERS } from "@/features/outlet-tracker/constants";
-import { Button, Field, Select, TextInput } from "@/features/outlet-tracker/ui";
+import {
+  Button,
+  DepotChecklist,
+  Field,
+  Select,
+  TextInput,
+} from "@/features/outlet-tracker/ui";
 import { LanguageToggle, useT } from "@/features/i18n";
 
 type Role = "admin" | "SO" | "ISR";
@@ -15,7 +21,7 @@ interface AdminUser {
   name: string;
   phone: string;
   headQuarter: string;
-  depot: string;
+  depots: string[];
   role: Role;
   status: Status;
   reportsToId: string | null;
@@ -323,7 +329,7 @@ function UserCard({
           <div style={{ fontSize: 12, color: C.sub, marginTop: 2 }}>
             {user.phone}
             {user.headQuarter ? ` · ${user.headQuarter}` : ""}
-            {user.depot ? ` · ${user.depot}` : ""}
+            {user.depots.length ? ` · ${user.depots.join(", ")}` : ""}
           </div>
           {reportsToName ? (
             <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>
@@ -417,7 +423,7 @@ function EditUserForm({
   const [phone, setPhone] = useState(user.phone);
   const [role, setRole] = useState<Role>(user.role);
   const [headQuarter, setHeadQuarter] = useState(user.headQuarter);
-  const [depot, setDepot] = useState(user.depot);
+  const [depots, setDepots] = useState<string[]>(user.depots);
   const [status, setStatus] = useState<Status>(user.status);
   const [reportsToId, setReportsToId] = useState(user.reportsToId ?? "");
   const [busy, setBusy] = useState(false);
@@ -435,7 +441,7 @@ function EditUserForm({
       phone,
       role,
       headQuarter: role === "admin" ? "" : headQuarter,
-      depot: role === "admin" ? "" : depot,
+      depots: role === "admin" ? [] : role === "ISR" ? depots.slice(0, 1) : depots,
       status,
       reportsToId: role === "ISR" ? reportsToId || null : null,
     });
@@ -495,14 +501,23 @@ function EditUserForm({
             </Select>
           </Field>
           <Field label={t("field.depot")}>
-            <Select value={depot} onChange={(e) => setDepot(e.target.value)}>
-              <option value="">{t("field.depotSelect")}</option>
-              {DEPOTS.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </Select>
+            {role === "SO" ? (
+              <DepotChecklist value={depots} onChange={setDepots} />
+            ) : (
+              <Select
+                value={depots[0] ?? ""}
+                onChange={(e) =>
+                  setDepots(e.target.value ? [e.target.value] : [])
+                }
+              >
+                <option value="">{t("field.depotSelect")}</option>
+                {DEPOTS.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </Select>
+            )}
           </Field>
         </>
       ) : null}
@@ -559,7 +574,7 @@ function AddUserForm({
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState<Role>("ISR");
   const [headQuarter, setHeadQuarter] = useState("");
-  const [depot, setDepot] = useState("");
+  const [depots, setDepots] = useState<string[]>([]);
   const [reportsToId, setReportsToId] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -580,7 +595,7 @@ function AddUserForm({
           phone,
           role,
           headQuarter,
-          depot,
+          depots,
           reportsToId: role === "ISR" ? reportsToId || undefined : undefined,
           password,
         }),
@@ -603,7 +618,7 @@ function AddUserForm({
       setRole("ISR");
       setHeadQuarter("");
       setReportsToId("");
-      setDepot("");
+      setDepots([]);
       setPassword("");
     } catch {
       setError(t("admin.genericError"));
@@ -694,14 +709,23 @@ function AddUserForm({
                 </Select>
               </Field>
               <Field label={t("field.depot")}>
-                <Select value={depot} onChange={(e) => setDepot(e.target.value)}>
-                  <option value="">{t("field.depotSelect")}</option>
-                  {DEPOTS.map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </Select>
+                {role === "SO" ? (
+                  <DepotChecklist value={depots} onChange={setDepots} />
+                ) : (
+                  <Select
+                    value={depots[0] ?? ""}
+                    onChange={(e) =>
+                      setDepots(e.target.value ? [e.target.value] : [])
+                    }
+                  >
+                    <option value="">{t("field.depotSelect")}</option>
+                    {DEPOTS.map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </Select>
+                )}
               </Field>
             </>
           ) : null}

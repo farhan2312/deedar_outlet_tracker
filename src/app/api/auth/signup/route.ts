@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createUser, findUserByPhone } from "@/lib/users";
 import { hashPassword } from "@/lib/password";
-import { DEPOTS, HEAD_QUARTERS } from "@/features/outlet-tracker/constants";
+import { HEAD_QUARTERS, sanitizeDepots } from "@/features/outlet-tracker/constants";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     phone?: string;
     password?: string;
     headQuarter?: string;
-    depot?: string;
+    depots?: unknown;
     role?: string;
   };
   try {
@@ -30,13 +30,10 @@ export async function POST(req: Request) {
   const password = String(body.password ?? "");
   const role =
     body.role === "admin" ? "admin" : body.role === "SO" ? "SO" : "ISR";
-  // Admins have no C&F/depot; SO/ISR pick one C&F and (optionally) a depot.
+  // Admins have no C&F/depot; SO/ISR pick one C&F. An SO may cover several
+  // depots, an ISR exactly one.
   const headQuarter = role === "admin" ? "" : String(body.headQuarter ?? "").trim();
-  const depotInput = role === "admin" ? "" : String(body.depot ?? "").trim();
-  const depot =
-    depotInput && (DEPOTS as readonly string[]).includes(depotInput)
-      ? depotInput
-      : "";
+  const depots = sanitizeDepots(body.depots, role);
 
   if (name.length < 2) {
     return NextResponse.json({ error: "Please enter your name." }, { status: 400 });
@@ -69,7 +66,7 @@ export async function POST(req: Request) {
   }
 
   const passwordHash = await hashPassword(password);
-  await createUser({ name, phone, passwordHash, headQuarter, depot, role });
+  await createUser({ name, phone, passwordHash, headQuarter, depots, role });
 
   return NextResponse.json({
     ok: true,
