@@ -99,6 +99,7 @@ export interface TrackerState {
   repMobile: string;
   outlets: Outlet[];
   loading: boolean;
+  submitting: boolean;
   toast: string;
   dashSearch: string;
   selectedOutletId: string | null;

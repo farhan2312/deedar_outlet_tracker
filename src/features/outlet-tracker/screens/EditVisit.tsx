@@ -25,12 +25,14 @@ export function EditVisit() {
   const itemsValid =
     items.length > 0 &&
     items.every((it) => it.segment && it.stock !== "" && it.sold !== "");
-  const saveDisabled = !(
-    itemsValid &&
-    f.rank !== "" &&
-    f.competitor &&
-    (!needsBrand || f.competitorBrand)
-  );
+  const saveDisabled =
+    state.submitting ||
+    !(
+      itemsValid &&
+      f.rank !== "" &&
+      f.competitor &&
+      (!needsBrand || f.competitorBrand)
+    );
 
   const { outletName, hoursLeft } = useMemo(() => {
     const outlet = state.editVisitOutletId
@@ -104,7 +106,12 @@ export function EditVisit() {
         </Field>
       </div>
       <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
-        <Button variant="ghost" onClick={onBack} style={{ flex: 1 }}>
+        <Button
+          variant="ghost"
+          onClick={onBack}
+          disabled={state.submitting}
+          style={{ flex: 1 }}
+        >
           {t("common.cancel")}
         </Button>
         <Button
@@ -113,7 +120,7 @@ export function EditVisit() {
           disabled={saveDisabled}
           style={{ flex: 2 }}
         >
-          {t("ev.save")}
+          {state.submitting ? t("common.submitting") : t("ev.save")}
         </Button>
       </div>
     </div>

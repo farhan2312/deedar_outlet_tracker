@@ -42,6 +42,7 @@ function initialState(user: SessionUser): TrackerState {
     repMobile: user.phone,
     outlets: [],
     loading: true,
+    submitting: false,
     toast: "",
     dashSearch: "",
     selectedOutletId: null,
@@ -199,11 +200,14 @@ function useTrackerStore(user: SessionUser) {
   const setEditVisit = (patch: Partial<OutletForm>) =>
     setState((s) => ({ editVisitForm: { ...s.editVisitForm, ...patch } }));
   const saveEditVisit = async () => {
+    if (stateRef.current.submitting) return;
     const f = stateRef.current.editVisitForm;
     const id = stateRef.current.editVisitId;
     if (!id) return;
+    setState({ submitting: true });
     const { ok, data } = await postJson(`/api/visits/${id}`, f, "PATCH");
     if (!ok) {
+      setState({ submitting: false });
       showToast(String(data.error ?? t("toast.couldNotUpdateVisit")));
       return;
     }
@@ -233,6 +237,7 @@ function useTrackerStore(user: SessionUser) {
             },
       ),
       screen: "dashboard",
+      submitting: false,
     }));
     showToast(t("toast.visitUpdated"));
   };
@@ -260,16 +265,19 @@ function useTrackerStore(user: SessionUser) {
   const setEditIdentity = (patch: Partial<IdentityForm>) =>
     setState((s) => ({ editForm: { ...s.editForm, ...patch } }));
   const saveEditIdentity = async () => {
+    if (stateRef.current.submitting) return;
     const id = stateRef.current.selectedOutletId;
     const f = stateRef.current.editForm;
     if (!id) return;
+    setState({ submitting: true });
     const { ok, data } = await postJson(`/api/outlets/${id}`, f, "PATCH");
     if (!ok) {
+      setState({ submitting: false });
       showToast(String(data.error ?? t("toast.couldNotSave")));
       return;
     }
     if (data.outlet) upsertOutlet(data.outlet as Outlet);
-    setState({ editingIdentity: false });
+    setState({ editingIdentity: false, submitting: false });
     showToast(t("toast.outletUpdated"));
   };
   const onAddVisitForSelected = () =>
@@ -346,9 +354,12 @@ function useTrackerStore(user: SessionUser) {
   const onAddBack = () =>
     setState((s) => ({ addStep: Math.max(1, s.addStep - 1) }));
   const submitAddOutlet = async () => {
+    if (stateRef.current.submitting) return;
     const f = stateRef.current.addForm;
+    setState({ submitting: true });
     const { ok, data } = await postJson("/api/outlets", f);
     if (!ok) {
+      setState({ submitting: false });
       showToast(String(data.error ?? t("toast.couldNotAddOutlet")));
       return;
     }
@@ -360,6 +371,7 @@ function useTrackerStore(user: SessionUser) {
       addStep: 1,
       addForm: { ...EMPTY_ADD_FORM },
       addGpsStatus: "idle",
+      submitting: false,
     });
     showToast(t("toast.outletAdded"));
   };
@@ -409,16 +421,24 @@ function useTrackerStore(user: SessionUser) {
       s.avStep > 1 ? { avStep: s.avStep - 1 } : { screen: "addVisitFind" },
     );
   const submitVisit = async () => {
+    if (stateRef.current.submitting) return;
     const id = stateRef.current.selectedOutletId;
     const f = stateRef.current.avForm;
     if (!id) return;
+    setState({ submitting: true });
     const { ok, data } = await postJson(`/api/outlets/${id}/visits`, f);
     if (!ok) {
+      setState({ submitting: false });
       showToast(String(data.error ?? t("toast.couldNotRecordVisit")));
       return;
     }
     if (data.outlet) upsertOutlet(data.outlet as Outlet);
-    setState({ screen: "outletDetail", avStep: 1, avForm: makeEmptyAvForm() });
+    setState({
+      screen: "outletDetail",
+      avStep: 1,
+      avForm: makeEmptyAvForm(),
+      submitting: false,
+    });
     showToast(t("toast.visitRecorded"));
   };
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/api-auth";
-import { createOutlet, listOutlets } from "@/lib/outlets";
+import { createOutlet, listOutlets, outletMobileExists } from "@/lib/outlets";
 import { C_AND_F } from "@/features/outlet-tracker/constants";
 
 export const runtime = "nodejs";
@@ -32,10 +32,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Counter name is required." }, { status: 400 });
   }
 
+  const mobile = str(body.mobile);
+  if (await outletMobileExists(mobile)) {
+    return NextResponse.json(
+      {
+        error:
+          "A counter with this mobile number already exists. Add a visit to it instead.",
+      },
+      { status: 409 },
+    );
+  }
+
   const outlet = await createOutlet(
     {
       name,
-      mobile: str(body.mobile),
+      mobile,
       address: str(body.address),
       area: str(body.area),
       depot: str(body.depot),

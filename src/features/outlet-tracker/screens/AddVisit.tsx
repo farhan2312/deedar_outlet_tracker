@@ -167,11 +167,21 @@ export function AddVisit() {
             ) : null}
           </div>
           <NavRow>
-            <Button variant="ghost" onClick={onAvBack} style={{ flex: 1 }}>
+            <Button
+              variant="ghost"
+              onClick={onAvBack}
+              disabled={state.submitting}
+              style={{ flex: 1 }}
+            >
               {t("common.back")}
             </Button>
-            <Button variant="gold" onClick={submitVisit} style={{ flex: 2 }}>
-              {t("av.submit")}
+            <Button
+              variant="gold"
+              onClick={submitVisit}
+              disabled={state.submitting}
+              style={{ flex: 2 }}
+            >
+              {state.submitting ? t("common.submitting") : t("av.submit")}
             </Button>
           </NavRow>
         </>

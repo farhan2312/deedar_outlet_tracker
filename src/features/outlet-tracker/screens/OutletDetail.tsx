@@ -245,10 +245,18 @@ export function OutletDetail() {
               />
             ) : null}
             <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-              <Button variant="ghost" onClick={onCancelEditIdentity}>
+              <Button
+                variant="ghost"
+                onClick={onCancelEditIdentity}
+                disabled={state.submitting}
+              >
                 {t("common.cancel")}
               </Button>
-              <Button onClick={saveEditIdentity}>{t("common.saveChanges")}</Button>
+              <Button onClick={saveEditIdentity} disabled={state.submitting}>
+                {state.submitting
+                  ? t("common.submitting")
+                  : t("common.saveChanges")}
+              </Button>
             </div>
           </div>
         )}

@@ -195,6 +195,19 @@ export async function isOutletInScope(
   return row?.ok === true;
 }
 
+/**
+ * Whether any outlet already uses this mobile number. Global (ignores scope) —
+ * a mobile identifies a single outlet, so a second one must never be created.
+ */
+export async function outletMobileExists(mobile: string): Promise<boolean> {
+  if (!mobile) return false;
+  const row = await queryOne<{ ok: boolean }>(
+    "select exists (select 1 from outlets where mobile = $1) as ok",
+    [mobile],
+  );
+  return row?.ok === true;
+}
+
 export async function getOutlet(id: string): Promise<Outlet | null> {
   const o = await queryOne<OutletRow>("select * from outlets where id = $1", [
     id,

@@ -140,7 +140,10 @@ export function AddOutlet() {
             <div style={{ height: 14 }} />
           )}
 
-          <Button onClick={onAddStep1Next} disabled={step1Disabled}>
+          <Button
+            onClick={onAddStep1Next}
+            disabled={step1Disabled || !!duplicate}
+          >
             {t("common.continue")}
           </Button>
         </>
@@ -270,11 +273,21 @@ export function AddOutlet() {
             <Row label={t("review.gps")} value={`${f.lat}, ${f.lng}`} />
           </div>
           <NavRow>
-            <Button variant="ghost" onClick={onAddBack} style={{ flex: 1 }}>
+            <Button
+              variant="ghost"
+              onClick={onAddBack}
+              disabled={state.submitting}
+              style={{ flex: 1 }}
+            >
               {t("common.back")}
             </Button>
-            <Button variant="gold" onClick={submitAddOutlet} style={{ flex: 2 }}>
-              {t("ao.submitOutlet")}
+            <Button
+              variant="gold"
+              onClick={submitAddOutlet}
+              disabled={state.submitting}
+              style={{ flex: 2 }}
+            >
+              {state.submitting ? t("common.submitting") : t("ao.submitOutlet")}
             </Button>
           </NavRow>
         </>
