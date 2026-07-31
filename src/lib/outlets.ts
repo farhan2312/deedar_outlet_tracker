@@ -31,6 +31,12 @@ export function sanitizeVisitItems(raw: unknown): VisitItem[] {
     .filter((it) => it.segment);
 }
 
+/** A Date → "YYYY-MM-DD" using its LOCAL components (no UTC/toISOString shift). */
+function localYMD(d: Date): string {
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
 /** Visit-level stock/sold totals summed across the product lines. */
 function totalsOf(items: VisitItem[]): { stock: number; sold: number } {
   const stock = items.reduce((s, it) => s + it.stock, 0);
@@ -99,10 +105,13 @@ function mapVisit(v: VisitRow): Visit {
     : [];
   return {
     id: v.id,
+    // db.ts makes `date` columns come back as "YYYY-MM-DD" strings. The Date
+    // fallback uses LOCAL components (not toISOString, which would roll an
+    // IST-midnight date back to the previous day).
     date:
       typeof v.visit_date === "string"
         ? v.visit_date.slice(0, 10)
-        : new Date(v.visit_date).toISOString().slice(0, 10),
+        : localYMD(v.visit_date as unknown as Date),
     loggedAt: v.logged_at ? new Date(v.logged_at).getTime() : undefined,
     items,
     rank: v.rank,

@@ -1,4 +1,11 @@
-import { Pool, type QueryResultRow } from "pg";
+import { Pool, types, type QueryResultRow } from "pg";
+
+// Return `date` columns (OID 1082) as the raw "YYYY-MM-DD" string instead of a
+// JS Date. pg's default parses a bare date into a Date at the SERVER's local
+// midnight; on an IST server, `.toISOString()` on that then rolls back to the
+// previous calendar day. Keeping it a string preserves the stored IST date
+// exactly. (Only visits.visit_date is a plain `date`; timestamptz is untouched.)
+types.setTypeParser(1082, (v) => v);
 
 /**
  * Lazily-created singleton connection pool. Kept on globalThis so Next.js

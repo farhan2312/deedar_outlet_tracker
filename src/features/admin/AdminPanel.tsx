@@ -195,6 +195,25 @@ export function AdminPanel({ adminName }: { adminName: string }) {
             {adminName}
           </div>
 
+          <div style={{ marginBottom: 20 }}>
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: C.sub,
+                textTransform: "uppercase",
+                letterSpacing: 0.5,
+                marginBottom: 8,
+              }}
+            >
+              {t("admin.reports")}
+            </div>
+            <div style={{ display: "flex", gap: 12 }}>
+              <ReportLink href="/admin/outlets" label={t("admin.outletsReport")} />
+              <ReportLink href="/admin/visits" label={t("admin.visitsReport")} />
+            </div>
+          </div>
+
           <AddUserForm onCreated={onUserCreated} soOptions={soOptions} />
 
           {error ? (
@@ -765,6 +784,28 @@ function AddUserForm({
         </form>
       ) : null}
     </div>
+  );
+}
+
+function ReportLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="dz-tap"
+      style={{
+        flex: 1,
+        textAlign: "center",
+        background: C.green,
+        color: "#fff",
+        borderRadius: 12,
+        padding: "16px 14px",
+        fontWeight: 700,
+        fontSize: 14,
+        textDecoration: "none",
+      }}
+    >
+      {label}
+    </Link>
   );
 }
 
